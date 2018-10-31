@@ -1,6 +1,14 @@
-# Towards practical probabilistic programming
+\documentclass[sigplan,review]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
 
-We present our view on practical probabilistic programming, as
+\acmConference[LAFI'2019]{Languages for Inference}{January 15,
+2019}{Lisbon, Portugal}
+
+\setcopyright{none}
+
+\bibliographystyle{ACM-Reference-Format}
+
+\begin{abstract}
+We present a view on practical probabilistic programming, as
 well as an inference facility for Go programs following the
 view. Probabilistic programming promises to free the
 practitioner from burden of re-implementing inference paradigms
@@ -13,8 +21,40 @@ a tool for modeling and prototyping.
 
 We believe that the probabilistic programming approach can be
 made practical. However, this requires a shift from design of
-languages best suited for probabilistic inference to design
-of tools and libraries which make probabilistic programming
-in modern general-purpose languages accessible and convenient.
+languages best suited for probabilistic inference to design of
+tools and libraries which make probabilistic programming in
+modern general-purpose languages accessible and convenient.
+Here, we first discuss the challenges in practical use of
+existing probabilistic programming systems, and then outline the
+guidelines to implementation of a practical probabilistic
+programming facility. We illustrate these guidelines on an
+early-stage implementation of probabilistic programming facility
+for the Go programming language. 
+\end{abstract}
 
 
+\begin{document}
+
+\title{Towards practical probabilistic programming}
+\author{David Tolpin}
+\affiliation{
+    \institution{PUB+}
+    \country{Israel}
+}
+\email{david.tolpin@gmail.com}
+
+
+\maketitle
+
+
+\section{Challenges in Practice of Probabilistic Programming}
+
+\section{Guidelines to a Practical Probabilistic Programming
+Facility}
+
+\section{Case Study: Probabilistic Programming Facility for
+Go}
+
+\bibliography{refs}
+
+\end{document}
