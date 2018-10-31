@@ -30,8 +30,8 @@ Here, we first discuss the challenges in practical use of
 existing probabilistic programming systems, and then suggest 
 guidelines to implementation of a practical probabilistic
 programming facility. We illustrate the guidelines on an
-early-stage implementation of probabilistic programming facility
-for the Go programming language. 
+early-stage implementation of such facility for the Go
+programming language. 
 \end{abstract}
 
 
@@ -53,7 +53,7 @@ for the Go programming language.
 Incorporating a probabilistic program, or rather a probabilistic
 procedure, within a larger code body appears to be rather
 straightforward: one implements the model in the probabilistic
-programming language, fetches and preprocesses the data in the
+language, fetches and preprocesses the data in the
 `regular' host programming language, passes the data and the
 model to an inference algorithm, and post-processes the results
 in the `regular' programming language again to make algorithmic
@@ -67,15 +67,14 @@ general programming language to specify probabilistic models.
 However, the probabilistic language is often either a small
 language lacking advanced control and data manipulation
 capabilities (Anglican~\cite{TMY+16}, Stan~\cite{Stan17},
-WebPPL~\cite{GS15}),
-or an API to the representation of the probabilistic model
-(Edward~\cite{THS+17}, Figaro~\cite{P09}). When the probabilistic
-language is the same or as rich as the host language, it's use
-is still constrained by available data structures
-(Pyro~\cite{Pyro18}), or, the host language is itself uncommon as a
-general-purpose language (Turing~\cite{GXG18}). Often, the
-probabilistic programming language is interpreted, making
-algorithm execution of the model prohibitively slow.
+WebPPL~\cite{GS15}), or an API to the representation of the
+probabilistic model (Edward~\cite{THS+17}, Figaro~\cite{P09}).
+When the probabilistic language is the same or as rich as the
+host language, its use is still constrained by available data
+structures (Pyro~\cite{Pyro18}), or, the host language is 
+uncommon as a general-purpose language (Turing~\cite{GXG18}).
+Often, the probabilistic language is interpreted, making
+execution of the model too slow.
 
 \paragraph{Passing the data} The case when all observations are
 handed over to inference in bulk, and a short summary of
@@ -98,7 +97,7 @@ distribution, are to be inferred. The simulator may be quite
 complicated, however in addition to the apparent difficulty of
 implementing the simulator in a less expressive language,  the
 simulator has to be implemented twice: first in the
-probabilistic language for the inference, and then in the host
+probabilistic language for inference, and then in the host
 environment to make use of the inferred parameters. This not
 just involves extra effort but is also prone to introducing
 programming mistakes, when the two versions of the simulator
@@ -120,12 +119,12 @@ integration and deployment more complicated.
 Facility}
 
 Based on the experience of implementing  probabilistic
-programming languages, as well as developing and deploying solutions
-using different probabilistic environments, we suggest
-the following guidelines to implementation of a probabilistic
-programming facility. We believe that these guidelines, if
-followed, will lead to eventual wide adoption of probabilistic
-programming in software development practice.
+programming languages, as well as developing and deploying
+solutions using different probabilistic environments, we suggest
+guidelines to implementation of a probabilistic programming
+facility. We believe that these guidelines, if followed, will
+lead to eventual wide adoption of probabilistic programming in
+software engineering.
 
 \begin{enumerate}
 \item A probabilistic model should be programmed in the host
@@ -148,16 +147,51 @@ possible to run simulation outside the probabilistic model without
 runtime or memory overhead imposed by inference needs.
 \end{enumerate}
 
-\section{Case Study: Probabilistic Programming Facility for
+\section{Probabilistic Programming Facility for
 Go}
 
 Following the guidelines, we have implemented a probabilistic
 programming facility for the Go programming language,
-\texttt{infergo} (\url{http://infergo.ml/}). At the time of
-writing, the implementation is still at an early stage. However,
-this facility is already used in production environment to infer
-the website visitor's value using a hierarchical mixed effects
-model.
+\texttt{infergo} (\url{http://infergo.ml/}). We have chosen Go
+because Go is a relatively small programming language with
+efficient implementation, which has recently become quite
+popular for computation-intensive server-side programming. At
+the time of writing, the implementation is still at an early
+stage. However, this facility is already used in production
+environment for inference of mission-critical algorithm
+parameters.  
+
+A probabilistic model in \texttt{infergo} is an implementation
+of the \texttt{Model} interface requiring a single method
+\texttt{Observe} which accepts a vector (a Go \textit{slice}) of
+floats, the parameters to infer, and returns a single float,
+interpreted as unnormalized log-likelihood of the posterior
+distribution. The implementation of the methods can be written
+in virtually unrestricted Go and use any Go libraries.
+
+For inference, \texttt{infergo} relies on automatic
+differentiation. The source code of the model is
+translated by a command-line tool provided by \texttt{infergo}
+into an equivalent model with reverse-mode automatic
+differentiation of the log-likelihood with respect 
+to the parameters applied. The differentiation operates
+on the built-in floating-point type and incurs only a small
+computational overhead. However, even this overhead is avoided
+when the model code is executed outside of inference algorithms:
+both the original and the differentiated model are
+simultaneously available to the rest of the program code, so
+the methods can be called on the differentiated model for
+inference, and on the original model for the most efficient
+execution with the inferred parameters.
+
+While we enjoy the ease and efficiency of
+\texttt{infergo}-based inference in our production environment,
+we view \texttt{infergo} as a reference implementation rather than
+as the only solution, and encourage the community to equip other
+general-purpose languages with similar inference facilities,
+which, we believe, will make wide adoption of probabilistic
+programming more likely.
+be
 
 \bibliography{refs}
 
