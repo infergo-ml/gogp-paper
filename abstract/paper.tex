@@ -1,4 +1,6 @@
 \documentclass[sigplan,review]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
+\usepackage{url}
+\usepackage{hyperref}
 
 \acmConference[LAFI'2019]{Languages for Inference}{January 15,
 2019}{Lisbon, Portugal}
@@ -25,9 +27,9 @@ languages best suited for probabilistic inference to design of
 tools and libraries which make probabilistic programming in
 modern general-purpose languages accessible and convenient.
 Here, we first discuss the challenges in practical use of
-existing probabilistic programming systems, and then outline the
+existing probabilistic programming systems, and then suggest 
 guidelines to implementation of a practical probabilistic
-programming facility. We illustrate these guidelines on an
+programming facility. We illustrate the guidelines on an
 early-stage implementation of probabilistic programming facility
 for the Go programming language. 
 \end{abstract}
@@ -35,7 +37,7 @@ for the Go programming language.
 
 \begin{document}
 
-\title{Towards practical probabilistic programming}
+\title{Towards Practical Probabilistic Programming}
 \author{David Tolpin}
 \affiliation{
     \institution{PUB+}
@@ -46,14 +48,117 @@ for the Go programming language.
 
 \maketitle
 
-
 \section{Challenges in Practice of Probabilistic Programming}
+
+Incorporating a probabilistic program, or rather a probabilistic
+procedure, within a larger code body appears to be rather
+straightforward: one implements the model in the probabilistic
+programming language, fetches and preprocesses the data in the
+`regular' host programming language, passes the data and the
+model to an inference algorithm, and post-processes the results
+in the `regular' programming language again to make algorithmic
+decisions based on inference outcomes. The reality is more
+complicated though, and the practitioner may face obstacles on
+each step of the above routine.
+
+\paragraph{Implementing the model} Probabilistic programming is
+supposed to let the programmer use the expressive power of a
+general programming language to specify probabilistic models.
+However, the probabilistic language is often either a small
+language lacking advanced control and data manipulation
+capabilities (Anglican~\cite{TMY+16}, Stan~\cite{Stan17},
+WebPPL~\cite{GS15}),
+or an API to the representation of the probabilistic model
+(Edward~\cite{THS+17}, Figaro~\cite{P09}). When the probabilistic
+language is the same or as rich as the host language, it's use
+is still constrained by available data structures
+(Pyro~\cite{Pyro18}), or, the host language is itself uncommon as a
+general-purpose language (Turing~\cite{GXG18}). Often, the
+probabilistic programming language is interpreted, making
+algorithm execution of the model prohibitively slow.
+
+\paragraph{Passing the data} The case when all observations are
+handed over to inference in bulk, and a short summary of
+inference results returned, can mostly be implemented
+efficiently. This use case is well addressed by most
+environments even when the host language differs from the
+probabilistic language. A difficulty arises when
+the data arrives incrementally, and inference outcomes are
+processed in any-time manner. Data has to be marshalled when the
+host and probabilistic language platforms differ (e.g.
+Stan), or transferred between data structures used in
+the host language and the data structures required by the
+probabilistic language (e.g. Pyro).
+
+\paragraph{Simulation-inference dichotomy} Many probabilistic
+models follow a design pattern of simulation-inference: a
+significant part of the model is a simulator, running an
+algorithm with fixed parameter; the optimal parameters, or their
+distribution, are to be inferred. The simulator may be quite
+complicated, however in addition to the apparent difficulty of
+implementing the simulator in a less expressive language,  the
+simulator has to be implemented twice: first in the
+probabilistic language for the inference, and then in the host
+environment to make use of the inferred parameters. This not
+just involves extra effort but is also prone to introducing
+programming mistakes, when the two versions of the simulator
+behave differently for the same parameter values. One possible
+solution is to treat the simulator as a black box~\cite{LBW17},
+however better inference algorithms can be used if the structure
+of the simulator is revealed to the probabilistic programming
+facility, e.g. through the use of automatic differentiation.
+
+\paragraph{Deployment} A software system composed of
+heterogeneous languages and environments is harder to integrate
+and deploy. Many software solutions are monolithic, comprising
+of just a single programming language and with a conservative
+set of dependencies. Adding a probabilistic programming system,
+often depending on a different runtime and libraries, makes
+integration and deployment more complicated.
 
 \section{Guidelines to a Practical Probabilistic Programming
 Facility}
 
+Based on the experience of implementing  probabilistic
+programming languages, as well as developing and deploying solutions
+using different probabilistic environments, we suggest
+the following guidelines to implementation of a probabilistic
+programming facility. We believe that these guidelines, if
+followed, will lead to eventual wide adoption of probabilistic
+programming in software development practice.
+
+\begin{enumerate}
+\item A probabilistic model should be programmed in the host
+programming language. The facility may impose a discipline on
+model implementation, such as through interface constraints, but
+otherwise supporting unrestricted use of the host language for
+implementation of the model.
+
+\item Built-in and user-defined data structures and libraries
+should be accessible in the probabilistic programming model.
+Inference techniques relying on the code structure, such as
+those based on automatic differentiation, should support the
+use of common data structures of the host language.
+
+\item The model code should be reusable between inference and
+simulation. The code which is not required solely for inference
+(simulation) should be written once for both inference of
+parameters and use of the parameters in the host environment.
+It should be possible to simulation outside the probabilistic
+model without runtime or memory overhead imposed by inference
+needs.
+\end{enumerate}
+
 \section{Case Study: Probabilistic Programming Facility for
 Go}
+
+Following the guidelines, we have implemented a probabilistic
+programming facility for the Go programming language,
+\texttt{infergo} (\url{http://infergo.ml/}). At the time of
+writing, the implementation is still at an early stage. However,
+this facility is already used in production environment to infer
+the website visitor's value using a hierarchical mixed effects
+model.
 
 \bibliography{refs}
 
