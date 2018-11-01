@@ -29,7 +29,7 @@
 	application of probabilistic programming poses challenges
 	for a probabilistic programming system. We discuss the
 	challenges and our experience in overcoming them, and
-	suggest guidelines which can help in a wider adoption of
+	suggest guidelines that can help in a wider adoption of
 	probabilistic programming in server-side software systems.
 \end{abstract}
 
@@ -51,7 +51,7 @@ server-side software systems make integration of probabilistic
 inference challenging. 
 
 \paragraph{Simulation-inference dichotomy} Probabilistic models
-often follow the design pattern of simulation-inference: a
+often follow a design pattern of simulation-inference: a
 significant part of the model is a simulator, running an
 algorithm with fixed parameters; the optimal parameters, or
 their distribution, are to be inferred. The inferred parameters
@@ -60,7 +60,7 @@ independently of inference for forecasting and decision making.
 
 This pattern suggest re-use of the simulator: instead of
 implementing the simulator twice, in the probabilistic model and
-in the host system, the same code can serve both purposes.
+in the host environment, the same code can serve both purposes.
 However to achieve this, the host language must coincide with
 the implementation language of the probabilistic model, on one
 hand, and allow a computationally efficient implementation of
@@ -84,13 +84,13 @@ retrieved conditionally.
 
 \paragraph{Integration and deployment} Deployment of server-side
 software systems is a delicate process involving automatic
-builds and maintenance of dependencies. Adding  a component
+builds and maintenance of dependencies. Adding  a component,
 which possibly introduces additional software dependencies or
-even a separate runtime complicates deployment. Minimizing the
+even a separate runtime, complicates deployment. Minimizing the
 burden of probabilistic programming on the integration
 and deployment process should be a major consideration in
 design or selection of probabilistic programming tools.
-Probabilistic programming systems which are implemented or 
+Probabilistic programming systems that are implemented or 
 provide an interface in a popular programming language, e.g.
 Python (Edward~\cite{THS+17}, Pyro~\cite{Pyro18}) are easier
 to integrate and deploy, however the smaller the footprint
@@ -165,7 +165,7 @@ The Go programming language and development environment offer
 capabilities which made implementation of \texttt{infergo}
 affordable.
 
-\begin{enumerate}
+\begin{itemize}
 	\item The Go parser and abstract syntax tree serializer are a
 		part of the standard library. Reading, transforming, and
 		writing Go source code is straightforward and effortless.
@@ -186,7 +186,7 @@ affordable.
 		Inference is easy to parallelize in order to exploit
 		hardware multi-processing, and samples are retrieved
 		lazily for postprocessing. 
-\end{enumerate}
+\end{itemize}
 
 A lightweight probabilistic programming facility similar to
 \texttt{infergo} can be added to most modern general-purpose
