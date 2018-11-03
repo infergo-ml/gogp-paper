@@ -142,7 +142,7 @@ of the \texttt{Model} interface requiring a single method
 \texttt{Observe} which accepts a vector (a Go \textit{slice}) of
 floats, the parameters to infer, and returns a single float,
 interpreted as unnormalized log-likelihood of the posterior
-distribution. The implementation of the methods can be written
+distribution. Implementation of model methods can be written
 in virtually unrestricted Go and use any Go libraries.
 
 For inference, \texttt{infergo} relies on automatic
@@ -165,9 +165,10 @@ capabilities which made implementation of \texttt{infergo}
 affordable.
 
 \begin{itemize}
-	\item The Go parser and abstract syntax tree serializer are a
-		part of the standard library. Reading, transforming, and
-		writing Go source code is straightforward and effortless.
+    \item The Go parser and abstract syntax tree serializer are
+        a part of the standard library. Parsing, transforming,
+        and generating Go source code is straightforward and
+        effortless.
 	\item Type inference (or \textit{type checking} as it is
 		called in the Go ecosystem), also provided in the
 		standard library, augments parsing and allows to
