@@ -187,6 +187,30 @@ affordable.
 		lazily for postprocessing. 
 \end{itemize}
 
+Table~\ref{tab:memory-runtime} provides memory consumption and
+running time measurements on basic models to
+illustrate  \texttt{infergo}'s performance.
+The measurements were obtained on a 2.3GHz Intel Core 5
+CPU with 8GB of memory for 1000 iterations of Hamiltonian Monte
+Carlo with 10 leapfrog steps. Note that computation of log-likelihood
+for standard distributions is not optimized yet. Quite the
+opposite: since models in \texttt{infergo} are fully composable,
+primitive distributions are themselves implemented as
+\texttt{infergo} models and automatically differentiated.
+
+\begin{table}[H]
+	\caption{Memory and running times for 1000 iterations
+	of HMC with 10 leapfrog steps.}
+	\label{tab:memory-runtime}
+	\begin{tabular}{r | c |  c | c}
+		{\it model}  & \multicolumn{2}{c|}{\it time} & {\it memory} \\ 
+		 & {\it compilation} & {\it execution} & \\\hline
+		8 schools & 0.15s & 0.6s & 5.5MB \\
+		10D normal, 100 points & 0.15s & 3.0s & 5.7MB \\
+		50D normal, 100 points & 0.15s & 13.0s & 5.8MB 
+	\end{tabular}
+\end{table}
+
 A lightweight probabilistic programming facility similar to
 \texttt{infergo} can be added to most modern general-purpose
 programming languages, in particular those used in implementing
