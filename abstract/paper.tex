@@ -2,6 +2,9 @@
 \usepackage{url}
 \usepackage{hyperref}
 
+\linespread{1.03}
+
+
 \acmConference[LAFI'2019]{Languages for Inference}{January 15,
 2019}{Lisbon, Portugal}
 
@@ -36,6 +39,7 @@
 \begin{document}
 \maketitle
 
+\begin{sloppypar}
 \section{Challenges of Server-Side Probabilistic Programming}
 
 Incorporating a probabilistic program, or rather a probabilistic
@@ -49,7 +53,7 @@ decisions based on inference outcomes. However, complex
 server-side software systems make integration of probabilistic
 inference challenging. 
 
-\paragraph{Simulation-inference dichotomy} Probabilistic models
+\paragraph{Simulation vs. inference} Probabilistic models
 often follow a design pattern of simulation-inference: a
 significant part of the model is a simulator, running an
 algorithm with fixed parameters; the optimal parameters, or
@@ -193,12 +197,13 @@ running time measurements on basic models to
 illustrate  \texttt{infergo}'s performance.
 The measurements were obtained on a 2.3GHz Intel Core 5
 CPU with 8GB of memory for 1000 iterations of Hamiltonian Monte
-Carlo with 10 leapfrog steps. Note that computation of log-likelihood
+Carlo with 10 leapfrog steps. Note that log-likelihood computation 
 for standard distributions is not optimized yet. Quite the
 opposite: since models in \texttt{infergo} are fully composable,
 primitive distributions are themselves implemented as
 \texttt{infergo} models and automatically differentiated.
 
+{\smaller
 \begin{table}[H]
 	\caption{Memory and running times for 1000 iterations
 	of HMC with 10 leapfrog steps.}
@@ -210,7 +215,7 @@ primitive distributions are themselves implemented as
 		10D normal, 100 points & 0.15s & 3.0s & 5.7MB \\
 		50D normal, 100 points & 0.15s & 13.0s & 5.8MB 
 	\end{tabular}
-\end{table}
+\end{table}}
 
 A lightweight probabilistic programming facility similar to
 \texttt{infergo} can be added to most modern general-purpose
@@ -218,6 +223,7 @@ programming languages, in particular those used in implementing
 large-scale software systems, making probabilistic
 programming inference more accessible in server-side
 applications.
+\end{sloppypar}
 
 \bibliography{refs}
 
