@@ -143,12 +143,63 @@
           </section>
           <section>
             <h3>Model</h3>
+						Model interface:
+            <pre><code class="go" data-trim data-noescape>
+1 type Model interface {
+2   Observe(parameters []float64) float64
+3 }
+            </code></pre>
+						<div class="fragment">
+						A model (exponential distribution):
+            <pre><code class="go" data-trim data-noescape>
+1 type Model float64 
+2 
+3 func (m Model) Observe(x []float64) float64 {
+4   return -x*m
+5 }
+            </code></pre>
+						</div>
           </section>
           <section>
             <h3>Distributions</h3>
+						A distribution is a model:
+            <pre><code class="go" data-trim data-noescape>
+ 1  var Normal normal
+ 2
+ 3  // Observe implements the Model interface.
+ 4  func (dist normal) Observe(x []float64) float64 {
+ 5    mu, sigma, y := x[0], x[1], x[2:]
+ 6    return dist.Logps(mu, sigma, y...)
+ 7  }
+            </code></pre>
+          </section>
+          <section>
+            <h3>Distributions (cont.)</h3>
+            <pre><code class="go" data-trim data-noescape>
+ 8  // Logp computes the log pdf of a single observation.
+ 9  func (_ normal) Logp(mu, sigma float64, y float64)
+10      float64 {
+11    ...
+12  }
+13
+14  // Logps computes the log pdf of a vector of observations.
+15  func (_ normal) Logps(mu, sigma float64, y ...float64)
+16      float64 {
+17    ...
+18  }
+				</code></pre>
           </section>
           <section>
             <h3>Differentiation</h3>
+						<ul>
+							<li>All methods on the type implementing `model.Model`
+								are differentiated.</li>
+							<li>Within the methods, the following is differentiated:
+								<ul>
+									<li>assignments to `float64`;</li>
+								  <li>returns of float64;</li>
+									<li>standalone calls to methods on the type implementing model.Model.</li></ul></li>
+						</ul>
           </section>
           <section>
             <h3>Inference</h3>
@@ -159,19 +210,101 @@
             <h2>Examples</h2>
           </section>
           <section>
-            <h3>8 queens</h3>
-            <pre><code class="go" data-trim data-noescape>
+						<h3>8 schools</h3>
+						<table width="100%">
+							<tr><th width="40%">Stan</th><th width="60%"><code>infergo</code></th></tr>
+							<tr style="font-size: 70%">
+								<td>
+								<pre><code class="go" data-trim data-noescape>
+data {
+  int&lt;lower=0&gt; J;
+  vector[J] y;
+  vector&lt;lower=0&gt;[J] sigma;
+}
+
+parameters {
+  real mu;
+  real&lt;lower=0&gt; tau;
+  vector[J] eta;
+}
+
+transformed parameters {
+  vector[J] theta;
+  theta = mu + tau * eta;
+}
+
+model {
+  eta ~ normal(0, 1);
+  y ~ normal(theta, sigma);
+}
+
             </code></pre>
+                </td><td>
+            <pre><code class="go" data-trim data-noescape>
+type Model struct {
+  J          int
+  Y          []float64
+  Sigma      []float64
+}
+
+func (m *Model) Observe(x []float64) float64 {
+  mu := x[0]
+  tau := math.Exp(x[1])
+  eta := x[2:]
+
+  ll := Normal.Logp(0, 1, eta)
+  for i, y := range m.Y {
+    theta := mu + tau*eta[i]
+    ll += Normal.Logp(theta, m.Sigma[i], y)
+  }
+  return ll
+}
+            </code></pre>
+								</td></tr></table>
           </section>
           <section>
             <h3>Gaussian mixture</h3>
+						<table width="110%">
+							<tr style="font-size: 65%"><td width="50%">
             <pre><code class="go" data-trim data-noescape>
+type Model struct {
+  Data  []float64 // samples
+  NComp int       // number of components
+}
+
+func (m *Model) Observe(x []float64) float64 {
+  ll := 0.0
+  mu := make([]float64, m.NComp)
+  sigma := make([]float64, m.NComp)
+
+  // Fetch component parameters
+  for j := 0; j != m.NComp; j++ {
+    mu[j] = x[2*j]
+    sigma[j] = math.Exp(x[2*j+1])
+  }
+...
+
             </code></pre>
-          </section>
-          <section>
-            <h3>Random effects</h3>
+                </td><td width="50">
             <pre><code class="go" data-trim data-noescape>
+...
+  // Compute log likelihood of mixture given the data
+  for i := 0; i != len(m.Data); i++ {
+    var l float64
+    for j := 0; j != m.NComp; j++ {
+      lj := Normal.Logp(mu[j], sigma[j], m.Data[i])
+      if j == 0 {
+        l = lj
+      } else {
+        l = mathx.LogSumExp(l, lj)
+      }
+    }
+    ll += l
+  }
+  return ll
+}
             </code></pre>
+								</td></tr></table>
           </section>
         </section>
         <section>
