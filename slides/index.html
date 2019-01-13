@@ -10,7 +10,7 @@
 		<link rel="stylesheet" href="css/theme/white.css">
 
 		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/arduino.css">
+		<link rel="stylesheet" href="lib/css/arduino-light.css">
 
 		<!-- Printing and PDF exports -->
 		<script>
@@ -62,6 +62,21 @@
 					</section>
 					<section>
 						<h3>'hello world': model</h3>
+						<pre><code class="go" data-trim data-noescape>
+type Model struct {
+    Data []float64
+}
+
+// x[0] is the mean, x[1] is the 
+// log stddev of the distribution
+func (m *Model) Observe(x []float64) float64 {
+    // Our prior is a unit normal ...
+    ll := Normal.Logps(0, 1, x...)
+    // ... but the posterior is based on data observations.
+	ll += Normal.Logps(x[0], math.Exp(x[1]), m.Data...)
+    return ll
+}
+						</code></pre>
 					</section>
 					<section>
 						<h3>'hello world': data
@@ -127,19 +142,18 @@ choices behind <code>infergo</code>.</li>
 			// - https://github.com/hakimel/reveal.js#configuration
 			// - https://github.com/hakimel/reveal.js#dependencies
 			Reveal.initialize({
-				transition: 'fade',
-                math: {
-                    mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js',
-                    config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
-                },
-
-                dependencies: [
-                    { src: 'plugin/math/math.js', async: true },
-					{ src: 'plugin/markdown/marked.js' },
-					{ src: 'plugin/markdown/markdown.js' },
-					{ src: 'plugin/notes/notes.js', async: true },
-					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
-				]
+					transition: 'fade',
+					math: {
+							mathjax: 'MathJax/MathJax.js',
+							config: 'TeX-AMS_HTML-full'
+					},
+					dependencies: [
+							{ src: 'plugin/markdown/marked.js' },
+							{ src: 'plugin/markdown/markdown.js' },
+							{ src: 'plugin/notes/notes.js', async: true },
+							{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+							{ src: 'plugin/math/math.js', async: true }
+					]
 			});
 		</script>
 	</body>
