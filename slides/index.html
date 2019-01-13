@@ -70,22 +70,71 @@ type Model struct {
 // x[0] is the mean, x[1] is the 
 // log stddev of the distribution
 func (m *Model) Observe(x []float64) float64 {
-    // Our prior is a unit normal ...
-    ll := Normal.Logps(0, 1, x...)
-    // ... but the posterior is based on data observations.
-	ll += Normal.Logps(x[0], math.Exp(x[1]), m.Data...)
-    return ll
+  // Our prior is a unit normal ...
+  ll := Normal.Logps(0, 1, x...)
+  // ... but the posterior is based on data observations.
+  ll += Normal.Logps(x[0], math.Exp(x[1]), m.Data...)
+  return ll
 }
 						</code></pre>
 					</section>
 					<section>
 						<h3>'hello world': data
+						<pre><code class="go" data-trim data-noescape>
+m := &Model{[]float64{
+  -0.854, 1.067, -1.220, 0.818, -0.749,
+  0.805, 1.443, 1.069, 1.426, 0.308}}
+						</code></pre>
+
 					</section>
 					<section>
-						<h3>'hello world': inference</h3>
+						<h3>'hello world': optimization</h3>
+						<pre><code class="go" data-trim data-noescape>
+x := []float64{0, 0}
+	
+opt := &infer.Momentum{
+  Rate:  0.01,
+  Decay: 0.998,
+}
+for iter := 0; iter != 1000; iter++ {
+  opt.Step(m, x)
+}
+mean, logs = x[0], x[1]
+						</code></pre>
+					</section>
+					<section>
+						<h3>'hello world': posterior</h3>
+						<pre><code class="go" data-trim data-noescape>
+x := []float64{0, 0}
+	
+hmc := &infer.HMC{
+	Eps: 0.1,
+}
+samples := make(chan []float64)
+hmc.Sample(m, x, samples)
+for i := 0; i != 1000; i++ {
+  x = <-samples
+}
+hmc.Stop()
+						</code></pre>
 					</section>
 					<section>
 						<h3>'hello world': streaming</h3>
+						<pre><code class="go" data-trim data-noescape>
+type Model struct {
+  Data chan float64  // data is a channel
+  N    int           // batch size
+}
+
+func (m *Model) Observe(x []float64) float64 {
+  ll := Normal.Logps(0, 1, x...)
+  // observe a batch of data from the channel
+  for i := 0; i != m.N; i++ {
+    ll += Normal.Logp(x[0], math.Exp(x[1]), <- m.Data)
+  }
+  return ll
+}
+						</code></pre>
 					</section>
 				</section>
 				<section>
@@ -111,12 +160,18 @@ func (m *Model) Observe(x []float64) float64 {
 					</section>
 					<section>
 						<h3>8 queens</h3>
+						<pre><code class="go" data-trim data-noescape>
+						</code></pre>
 					</section>
 					<section>
 						<h3>Gaussian mixture</h3>
+						<pre><code class="go" data-trim data-noescape>
+						</code></pre>
 					</section>
 					<section>
 						<h3>Random effects</h3>
+						<pre><code class="go" data-trim data-noescape>
+						</code></pre>
 					</section>
 				</section>
 				<section>
