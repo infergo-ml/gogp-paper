@@ -1,215 +1,215 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>Server-side probabistic programming</title>
+    <title>Server-side probabistic programming</title>
 
-		<link rel="stylesheet" href="css/reveal.css">
-		<link rel="stylesheet" href="css/theme/white.css">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/white.css">
 
-		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/arduino-light.css">
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/arduino-light.css">
 
-		<!-- Printing and PDF exports -->
-		<script>
-			var link = document.createElement( 'link' );
-			link.rel = 'stylesheet';
-			link.type = 'text/css';
-			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
-			document.getElementsByTagName( 'head' )[0].appendChild( link );
-		</script>
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>
-					<h1>Server-side probabilistic programming</h1>
-					<p><emph>David Tolpin, <a href="http://publus.com/">PUB+</a></emph></p>
-				</section>
-				<section>
-					<section>
-						<h2>Challenges</h2>
-					</section>
-					<section>
-						<h3>Simulation vs. inference</h3>
-					</section>
-					<section>
-						<h3>Data interface</h3>
-					</section>
-					<section>
-						<h3>Deployment</h3>
-					</section>
-				</section>
-				<section>
-					<section>
-						<h2>Guidelines</h2>
-					</section>
-					<section>
-						<h3>One language</h3>
-					</section>
-					<section>
-						<h3>Shared data structures</h3>
-					</section>
-					<section>
-						<h3>Inference code re-used in simulation</h3>
-					</section>
-				</section>
-				<section>
-					<section>
-						<h2>Probabilistic programming<br/>in Go</h2>
-					</section>
-					<section>
-						<h3>'hello world': model</h3>
-						<pre><code class="go" data-trim data-noescape>
-type Model struct {
-    Data []float64
-}
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Server-side probabilistic programming</h1>
+          <p><emph>David Tolpin, <a href="http://publus.com/">PUB+</a></emph></p>
+        </section>
+        <section>
+          <section>
+            <h2>Challenges</h2>
+          </section>
+          <section>
+            <h3>Simulation vs. inference</h3>
+          </section>
+          <section>
+            <h3>Data interface</h3>
+          </section>
+          <section>
+            <h3>Deployment</h3>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Guidelines</h2>
+          </section>
+          <section>
+            <h3>One language</h3>
+          </section>
+          <section>
+            <h3>Shared data structures</h3>
+          </section>
+          <section>
+            <h3>Inference code re-used in simulation</h3>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Probabilistic programming<br/>in Go</h2>
+          </section>
+          <section>
+            <h3>'hello world': model</h3>
+            <pre><code class="go" data-trim data-noescape>
+ 1  type Model struct {
+ 2      Data []float64
+ 3  }
+ 4  
+ 5  // x[0] is the mean, x[1] is the 
+ 6  // log stddev of the distribution
+ 7  func (m *Model) Observe(x []float64) float64 {
+ 8    // Our prior is a unit normal ...
+ 9    ll := Normal.Logps(0, 1, x...)
+10    // ... but the posterior is based on data observations.
+11    ll += Normal.Logps(x[0], math.Exp(x[1]), m.Data...)
+12    return ll
+13  }
+            </code></pre>
+          </section>
+          <section>
+            <h3>'hello world': data
+            <pre><code class="go" data-trim data-noescape>
+ 1  m := &Model{[]float64{
+ 2    -0.854, 1.067, -1.220, 0.818, -0.749,
+ 3    0.805, 1.443, 1.069, 1.426, 0.308}}
+            </code></pre>
 
-// x[0] is the mean, x[1] is the 
-// log stddev of the distribution
-func (m *Model) Observe(x []float64) float64 {
-  // Our prior is a unit normal ...
-  ll := Normal.Logps(0, 1, x...)
-  // ... but the posterior is based on data observations.
-  ll += Normal.Logps(x[0], math.Exp(x[1]), m.Data...)
-  return ll
-}
-						</code></pre>
-					</section>
-					<section>
-						<h3>'hello world': data
-						<pre><code class="go" data-trim data-noescape>
-m := &Model{[]float64{
-  -0.854, 1.067, -1.220, 0.818, -0.749,
-  0.805, 1.443, 1.069, 1.426, 0.308}}
-						</code></pre>
-
-					</section>
-					<section>
-						<h3>'hello world': optimization</h3>
-						<pre><code class="go" data-trim data-noescape>
-x := []float64{0, 0}
-	
-opt := &infer.Momentum{
-  Rate:  0.01,
-  Decay: 0.998,
-}
-for iter := 0; iter != 1000; iter++ {
-  opt.Step(m, x)
-}
-mean, logs = x[0], x[1]
-						</code></pre>
-					</section>
-					<section>
-						<h3>'hello world': posterior</h3>
-						<pre><code class="go" data-trim data-noescape>
-x := []float64{0, 0}
-	
-hmc := &infer.HMC{
-	Eps: 0.1,
-}
-samples := make(chan []float64)
-hmc.Sample(m, x, samples)
-for i := 0; i != 1000; i++ {
-  x = <-samples
-}
-hmc.Stop()
-						</code></pre>
-					</section>
-					<section>
-						<h3>'hello world': streaming</h3>
-						<pre><code class="go" data-trim data-noescape>
-type Model struct {
-  Data chan float64  // data is a channel
-  N    int           // batch size
-}
-
-func (m *Model) Observe(x []float64) float64 {
-  ll := Normal.Logps(0, 1, x...)
-  // observe a batch of data from the channel
-  for i := 0; i != m.N; i++ {
-    ll += Normal.Logp(x[0], math.Exp(x[1]), <- m.Data)
-  }
-  return ll
-}
-						</code></pre>
-					</section>
-				</section>
-				<section>
-					<section>
-						<h2>Infergo</h2>
-					</section>
-					<section>
-						<h3>Model</h3>
-					</section>
-					<section>
-						<h3>Distributions</h3>
-					</section>
-					<section>
-						<h3>Differentiation</h3>
-					</section>
-					<section>
-						<h3>Inference</h3>
-					</section>
-				</section>
-				<section>
-					<section>
-						<h2>Examples</h2>
-					</section>
-					<section>
-						<h3>8 queens</h3>
-						<pre><code class="go" data-trim data-noescape>
-						</code></pre>
-					</section>
-					<section>
-						<h3>Gaussian mixture</h3>
-						<pre><code class="go" data-trim data-noescape>
-						</code></pre>
-					</section>
-					<section>
-						<h3>Random effects</h3>
-						<pre><code class="go" data-trim data-noescape>
-						</code></pre>
-					</section>
-				</section>
-				<section>
-					<h2>Acknowledgements</h2>
-					<ul>
-						<li><a href="https://www.cs.ubc.ca/~fwood/">Frank Wood</a> introduced me to
-							probabilistic programming.</li>
-						<li><a href="http://www.ccs.neu.edu/home/jwvdm/">Jan-Willem van de Meent</a>
+          </section>
+          <section>
+            <h3>'hello world': optimization</h3>
+            <pre><code class="go" data-trim data-noescape>
+ 1  x := []float64{0, 0}
+ 2    
+ 3  opt := &infer.Momentum{
+ 4    Rate:  0.01,
+ 5    Decay: 0.998,
+ 6  }
+ 7  for iter := 0; iter != 1000; iter++ {
+ 8    opt.Step(m, x)
+ 9  }
+10  mean, logs = x[0], x[1]
+            </code></pre>
+          </section>
+          <section>
+            <h3>'hello world': posterior</h3>
+            <pre><code class="go" data-trim data-noescape>
+ 1  x := []float64{0, 0}
+ 2    
+ 3  hmc := &infer.HMC{
+ 4    Eps: 0.1,
+ 5  }
+ 6  samples := make(chan []float64)
+ 7  hmc.Sample(m, x, samples)
+ 8  for i := 0; i != 1000; i++ {
+ 9    x = <-samples
+10  }
+11  hmc.Stop()
+            </code></pre>
+          </section>
+          <section>
+            <h3>'hello world': streaming</h3>
+            <pre><code class="go" data-trim data-noescape>
+ 1  type Model struct {
+ 2    Data chan float64  // data is a channel
+ 3    N    int           // batch size
+ 4  }
+ 5  
+ 6  func (m *Model) Observe(x []float64) float64 {
+ 7    ll := Normal.Logps(0, 1, x...)
+ 8    // observe a batch of data from the channel
+ 9    for i := 0; i != m.N; i++ {
+10      ll += Normal.Logp(x[0], math.Exp(x[1]), <- m.Data)
+11    }
+12    return ll
+13  }
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Infergo</h2>
+          </section>
+          <section>
+            <h3>Model</h3>
+          </section>
+          <section>
+            <h3>Distributions</h3>
+          </section>
+          <section>
+            <h3>Differentiation</h3>
+          </section>
+          <section>
+            <h3>Inference</h3>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Examples</h2>
+          </section>
+          <section>
+            <h3>8 queens</h3>
+            <pre><code class="go" data-trim data-noescape>
+            </code></pre>
+          </section>
+          <section>
+            <h3>Gaussian mixture</h3>
+            <pre><code class="go" data-trim data-noescape>
+            </code></pre>
+          </section>
+          <section>
+            <h3>Random effects</h3>
+            <pre><code class="go" data-trim data-noescape>
+            </code></pre>
+          </section>
+        </section>
+        <section>
+          <h2>Acknowledgements</h2>
+          <ul>
+            <li><a href="https://www.cs.ubc.ca/~fwood/">Frank Wood</a> introduced me to
+              probabilistic programming.</li>
+            <li><a href="http://www.ccs.neu.edu/home/jwvdm/">Jan-Willem van de Meent</a>
 discussed with me motives, ideas, and implementation
 choices behind <code>infergo</code>.</li>
-						<li><a href="http://pubplus.com/">PUB+</a> supported me in
-							development of <code>infergo<code>.</li>
-					</ul>
-				</section>
-			</div>
-		</div>
+            <li><a href="http://pubplus.com/">PUB+</a> supported me in
+              development of <code>infergo<code>.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
 
-		<script src="lib/js/head.min.js"></script>
-		<script src="js/reveal.js"></script>
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
 
-		<script>
-			// More info about config & dependencies:
-			// - https://github.com/hakimel/reveal.js#configuration
-			// - https://github.com/hakimel/reveal.js#dependencies
-			Reveal.initialize({
-					transition: 'fade',
-					math: {
-							mathjax: 'MathJax/MathJax.js',
-							config: 'TeX-AMS_HTML-full'
-					},
-					dependencies: [
-							{ src: 'plugin/markdown/marked.js' },
-							{ src: 'plugin/markdown/markdown.js' },
-							{ src: 'plugin/notes/notes.js', async: true },
-							{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-							{ src: 'plugin/math/math.js', async: true }
-					]
-			});
-		</script>
-	</body>
+    <script>
+      // More info about config & dependencies:
+      // - https://github.com/hakimel/reveal.js#configuration
+      // - https://github.com/hakimel/reveal.js#dependencies
+      Reveal.initialize({
+          transition: 'fade',
+          math: {
+              mathjax: 'MathJax/MathJax.js',
+              config: 'TeX-AMS_HTML-full'
+          },
+          dependencies: [
+              { src: 'plugin/markdown/marked.js' },
+              { src: 'plugin/markdown/markdown.js' },
+              { src: 'plugin/notes/notes.js', async: true },
+              { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+              { src: 'plugin/math/math.js', async: true }
+          ]
+      });
+    </script>
+  </body>
 </html>
