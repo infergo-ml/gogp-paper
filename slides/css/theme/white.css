@@ -50,14 +50,15 @@ body {
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: normal;
-  text-transform: uppercase;
   text-shadow: none;
   word-wrap: break-word; }
 
 .reveal h1 {
+  text-transform: uppercase;
   font-size: 2.5em; }
 
 .reveal h2 {
+  font-variant: small-caps;
   font-size: 1.6em; }
 
 .reveal h3 {
