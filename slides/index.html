@@ -192,22 +192,55 @@
           <section>
             <h3>Differentiation</h3>
 						<ul>
-							<li>All methods on the type implementing `model.Model`
+							<li>All methods on the type implementing <code>model.Model</code>
 								are differentiated.</li>
 							<li>Within the methods, the following is differentiated:
 								<ul>
-									<li>assignments to `float64`;</li>
-								  <li>returns of float64;</li>
+									<li>assignments to <code>float64</code>;</li>
+									<li>returns of <code>float64</code>;</li>
 									<li>standalone calls to methods on the type implementing model.Model.</li></ul></li>
 						</ul>
           </section>
+					<section>
+						<h3>Differentiation (cont.)</h3>
+						Reverse-mode via source code transformation:
+						<pre style="font-size: 60%"><code class="go" data-trim data-noescape>
+ 1  func (m *Model) Observe(x []float64) float64 {
+ 2    var ll float64
+ 3    ad.Assignment(&ll, ad.Call(func(_ []float64) {
+ 4      Normal.Logps(0, 0, x...)
+ 5    }, 2, ad.Value(0), ad.Value(1)))
+ 6    ad.Assignment(&ll, 
+ 7      ad.Arithmetic(ad.OpAdd, &ll,
+ 8        ad.Call(func(_ []float64) {
+ 9          Normal.Logps(0, 0, m.Data...)
+10        }, 2, &x[0], ad.Elemental(math.Exp, &x[1]))))
+11    return ad.Return(&ll)
+12  }
+						</code></pre>
+					</section>
           <section>
             <h3>Inference</h3>
+						<ul>
+							<li>Optimization via gradient ascent (Momentum,
+								Adam), works with streamed and stochastic
+								data.</li>
+							<li>Full posterior inference via HMC variants.
+								Samples are produced concurrently and passed
+								through a channel.</li>
+						</ul>
           </section>
         </section>
         <section>
           <section>
             <h2>Examples</h2>
+						<ul>
+							<li>Simple models are still simple.</li>
+							<li>Complex models are less complex.</li>
+						</ul>
+						<p>
+						More <a href="http://infergo.org/examples"><code>infergo</code> examples...</a>
+						</p>
           </section>
           <section>
 						<h3>8 schools</h3>
