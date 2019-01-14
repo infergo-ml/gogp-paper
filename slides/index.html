@@ -20,13 +20,44 @@
       link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
       document.getElementsByTagName( 'head' )[0].appendChild( link );
     </script>
+    <style type="text/css">
+        .reveal .slides section .static { visibility: hidden; height: 0; width: 0} /* replace with animated for PDF export */
+
+        .reveal .slides section .highlight-current-bg-cyan,
+        .reveal .slides section .highlight-current-bg-magenta,
+        .reveal .slides section .fragment.highlight-current-bg-yellow,
+        .reveal .slides section .highlight-bg-cyan,
+        .reveal .slides section .highlight-bg-magenta,
+        .reveal .slides section .fragment.highlight-bg-yellow {
+           opacity: 1;
+           visibility: inherit; }
+
+        .reveal .slides section .highlight-bg-cyan.visible {
+           background-color: cyan;
+        }
+        .reveal .slides section .highlight-bg-magenta.visible {
+           background-color: magenta;
+        }
+        .reveal .slides section .fragment.highlight-bg-yellow.visible {
+           background-color: yellow;
+        }
+        .reveal .slides section .highlight-current-bg-cyan.current-fragment {
+           background-color: cyan;
+        }
+        .reveal .slides section .highlight-current-bg-magenta.current-fragment {
+           background-color: magenta;
+        }
+        .reveal .slides section .fragment.highlight-current-bg-yellow.current-fragment {
+           background-color: yellow;
+        }
+    </style>
   </head>
   <body>
     <div class="reveal">
-			<!--
-			  <img src="infergopher.png" style="width: 1.5em; float:
-				left; padding: 12pt">
-			-->
+      <!--
+        <img src="infergopher.png" style="width: 1.5em; float:
+        left; padding: 12pt">
+      -->
       <div class="slides">
         <section>
           <h1>Server-side probabilistic programming</h1>
@@ -35,22 +66,49 @@
         <section>
           <section>
             <h2>Challenges</h2>
-						<ul>
-							<li>Simulation vs. inference</li>
-							<li>Data</li>
-							<li>Deployment</li>
-						</ul>
+            <ul>
+              <li>Simulation vs. inference</li>
+              <li>Data</li>
+              <li>Deployment</li>
+            </ul>
           </section>
           <section>
             <h3>Simulation vs. inference</h3>
+            <table width="100%">
+              <tr>
+                <td width="50%">
+            <pre><code class="stan" data-trim data-noescape>
+data {
+  int<lower=0> N;
+  vector[N] y;
+  vector[N] x;
+}
+
+parameters {
+  real alpha; real beta;
+  real<lower=0> sigma;
+}</code></pre>
+                </td><td width="50%">
+            <pre><code class="stan" data-trim data-noescape>model {
+  alpha ~ normal(0,10);    
+  beta ~ normal(0,10);
+  sigma ~ cauchy(0,5);
+
+  for (n in 1:N)
+    y[n] ~ normal(
+      <mark>alpha + beta * x[n]</mark>,
+      sigma);
+}</code></pre>
+                </td></tr>
+            </table>
           </section>
           <section>
             <h3>Data structures</h3>
-						<table width="100%">
-							<tr>
-								<th width="30%">I mean:</th>
-								<td width="70%">
-						<pre><code class="python" data-trim style="font-size:70%">
+            <table width="100%">
+              <tr>
+                <th width="30%">I mean:</th>
+                <td width="70%">
+            <pre><code class="python" data-trim style="font-size:70%">
 def update_beliefs(beliefs, i, j, bandwidth):
   beliefs[i][j] += 1
   evidence = sum(beliefs[i])
@@ -59,10 +117,10 @@ def update_beliefs(beliefs, i, j, bandwidth):
       beliefs[i][j] *= bandwidth / evidence
       </code></pre>
       </td>
-							</tr>
-							<tr>
-								<th>I write:</th>
-								<td>
+              </tr>
+              <tr>
+                <th>I write:</th>
+                <td>
       <pre><code class="python" data-trim style="font-size:70%">
 def update_beliefs(beliefs, i, j, bandwidth):
   update = torch.zeros(beliefs.shape)
@@ -74,36 +132,36 @@ def update_beliefs(beliefs, i, j, bandwidth):
     scale[i, :] = bandwidth / evidence
     beliefs = beliefs * scale
   return beliefs
-						</code></pre>
-						</td></tr>
-						</table>
+            </code></pre>
+            </td></tr>
+            </table>
           </section>
           <section>
             <h3>Deployment</h3>
-						<table>
-							<tr>
-								<th>PyStan (70Mb)</th>
-								<td>
-									Stan, C++ compiler, Cython
-								</td>
-							</tr>
-							<tr>
-								<th width="30%">
-									Pyro (&gt;600Mb)</th>
-								<td>
-									<pre style="font-size: 50%">
+            <table>
+              <tr>
+                <th>PyStan (70Mb)</th>
+                <td>
+                  Stan, C++ compiler, Cython
+                </td>
+              </tr>
+              <tr>
+                <th width="30%">
+                  Pyro (&gt;600Mb)</th>
+                <td>
+                  <pre style="font-size: 50%">
 Successfully installed contextlib2-0.5.5
 decorator-4.3.0 graphviz-0.10.1 networkx-2.2
 opt-einsum-2.3.2 pyro-ppl-0.3.0 six-1.12.0
 torch-1.0.0 tqdm-4.29.1</pre>
-								</td>
-							</tr>
-							<tr>
-								<th>
-									Turing.jl (50Mb):
-								</th>
-								<td>
-									<pre style="font-size: 50%">
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  Turing.jl (50Mb):
+                </th>
+                <td>
+                  <pre style="font-size: 50%">
 Installed NNlib ─────────── v0.4.3
 Installed Colors ────────── v0.9.5
 Installed Arpack ────────── v0.3.0
@@ -115,30 +173,30 @@ Installed ZipFile ───────── v0.8.0
 Installed StaticArrays ──── v0.10.2
 Installed Juno ──────────── v0.5.3
 ... (~40 packages)</pre>
-							</td></tr>
-						</table>
+              </td></tr>
+            </table>
           </section>
         </section>
         <section>
-					<h2>Guidelines</h2>
-					<ul>
-						<li>One language</li>
-						<li>Common data structures</li>
-						<li>Inference code re-used in simulation</li>
-					</ul>
+          <h2>Guidelines</h2>
+          <ul>
+            <li>One language</li>
+            <li>Common data structures</li>
+            <li>Inference code re-used in simulation</li>
+          </ul>
         </section>
         <section>
           <section>
             <h2>Probabilistic programming<br/>in Go</h2>
-						<p style="text-align: left; margin-left: 2em">
-						Go is
-						</p>
-						<ul>
-							<li>small,</li>
-							<li>expressive,</li>
-							<li>efficient,</li>
-							<li>popular for server-side programming.</li>
-						</ul>
+            <p style="text-align: left; margin-left: 2em">
+            Go is
+            </p>
+            <ul>
+              <li>small,</li>
+              <li>expressive,</li>
+              <li>efficient,</li>
+              <li>popular for server-side programming.</li>
+            </ul>
           </section>
           <section>
             <h3>'hello world': model</h3>
@@ -216,37 +274,37 @@ Installed Juno ──────────── v0.5.3
 13  }
             </code></pre>
           </section>
-					<section>
-						<h3>Why Go?</h3>
-						<ul>
-							<li>Comes with parser and type checker.</li>
-							<li>Compiles and runs fast.</li>
-							<li>Allows efficient parallel execution, via
-								<i>goroutines</i>.</li>
-						</ul>
-					</section>
+          <section>
+            <h3>Why Go?</h3>
+            <ul>
+              <li>Comes with parser and type checker.</li>
+              <li>Compiles and runs fast.</li>
+              <li>Allows efficient parallel execution, via
+                <i>goroutines</i>.</li>
+            </ul>
+          </section>
         </section>
         <section>
           <section>
             <h2>Infergo</h2>
-						<ul>
-							<li>Models are written in Go.</li>
-							<li>Relies in automatic differentiation for inference.</li>
-							<li>Works anywhere where Go does.</li>
-							<li>No external dependencies.</li>
-							<li>Licensed under the MIT license.</li>
-						</ul>
+            <ul>
+              <li>Models are written in Go.</li>
+              <li>Relies on automatic differentiation for inference.</li>
+              <li>Works anywhere where Go does.</li>
+              <li>No external dependencies.</li>
+              <li>Licensed under the MIT license.</li>
+            </ul>
           </section>
           <section>
             <h3>Model</h3>
-						Model interface:
+            Model interface:
             <pre><code class="go" data-trim data-noescape>
 1 type Model interface {
 2   Observe(parameters []float64) float64
 3 }
             </code></pre>
-						<div class="fragment">
-						A model (exponential distribution):
+            <div class="fragment">
+            A model (exponential distribution):
             <pre><code class="go" data-trim data-noescape>
 1 type Model float64 
 2 
@@ -254,11 +312,11 @@ Installed Juno ──────────── v0.5.3
 4   return -x*m
 5 }
             </code></pre>
-						</div>
+            </div>
           </section>
           <section>
             <h3>Distributions</h3>
-						A distribution is a model:
+            A distribution is a model:
             <pre><code class="go" data-trim data-noescape>
  1  var Normal normal
  2
@@ -283,24 +341,24 @@ Installed Juno ──────────── v0.5.3
 16      float64 {
 17    ...
 18  }
-				</code></pre>
+        </code></pre>
           </section>
           <section>
             <h3>Differentiation</h3>
-						<ul>
-							<li>All methods on the type implementing <code>model.Model</code>
-								are differentiated.</li>
-							<li>Within the methods, the following is differentiated:
-								<ul>
-									<li>assignments to <code>float64</code>;</li>
-									<li>returns of <code>float64</code>;</li>
-									<li>standalone calls to methods on the type implementing model.Model.</li></ul></li>
-						</ul>
+            <ul>
+              <li>All methods on the type implementing <code>model.Model</code>
+                are differentiated.</li>
+              <li>Within the methods, the following is differentiated:
+                <ul>
+                  <li>assignments to <code>float64</code>;</li>
+                  <li>returns of <code>float64</code>;</li>
+                  <li>standalone calls to methods on the type implementing model.Model.</li></ul></li>
+            </ul>
           </section>
-					<section>
-						<h3>Differentiation (cont.)</h3>
-						Reverse-mode via source code transformation:
-						<pre style="font-size: 60%"><code class="go" data-trim data-noescape>
+          <section>
+            <h3>Differentiation (cont.)</h3>
+            Reverse-mode via source code transformation:
+            <pre style="font-size: 60%"><code class="go" data-trim data-noescape>
  1  func (m *Model) Observe(x []float64) float64 {
  2    var ll float64
  3    ad.Assignment(&ll, ad.Call(func(_ []float64) {
@@ -313,38 +371,35 @@ Installed Juno ──────────── v0.5.3
 10        }, 2, &x[0], ad.Elemental(math.Exp, &x[1]))))
 11    return ad.Return(&ll)
 12  }
-						</code></pre>
-					</section>
+            </code></pre>
+          </section>
           <section>
             <h3>Inference</h3>
-						<ul>
-							<li>Optimization via gradient ascent (Momentum,
-								Adam), works with streamed and stochastic
-								data.</li>
-							<li>Full posterior inference via HMC variants.
-								Samples are produced concurrently and passed
-								through a channel.</li>
-						</ul>
+            <ul>
+              <li>Optimization via gradient ascent (Momentum,
+                Adam), works with streamed and stochastic
+                data.</li>
+              <li>Full posterior inference via HMC variants.
+                Samples are produced concurrently and passed
+                through a channel.</li>
+            </ul>
           </section>
         </section>
         <section>
           <section>
             <h2>Examples</h2>
-						<ul>
-							<li>Simple models are still simple.</li>
-							<li>Complex models are less complex.</li>
-						</ul>
-						<p>
-						More <a href="http://infergo.org/examples"><code>infergo</code> examples...</a>
-						</p>
+            <ul>
+              <li>Simple models are still simple.</li>
+              <li>Complex models are less complex.</li>
+            </ul>
           </section>
           <section>
-						<h3>8 schools</h3>
-						<table width="100%">
-							<tr><th width="40%">Stan</th><th width="60%"><code>infergo</code></th></tr>
-							<tr style="font-size: 70%">
-								<td>
-								<pre><code class="go" data-trim data-noescape>
+            <h3>8 schools</h3>
+            <table width="100%">
+              <tr><th width="40%">Stan</th><th width="60%"><code>infergo</code></th></tr>
+              <tr style="font-size: 70%">
+                <td>
+                <pre><code class="go" data-trim data-noescape>
 data {
   int&lt;lower=0&gt; J;
   vector[J] y;
@@ -389,12 +444,51 @@ func (m *Model) Observe(x []float64) float64 {
   return ll
 }
             </code></pre>
-								</td></tr></table>
+                </td></tr></table>
+          </section>
+          <section>
+            <h3>Linear regression</h3>
+            <table width="110%">
+              <tr style="font-size: 65%"><td width="50%">
+            <pre><code class="go" data-trim data-noescape>
+type Model struct {
+  Data  [][]float64
+}
+
+func (m *Model) Observe(x []float64)
+    float64 {
+  ll := 0.
+
+  alpha, beta := x[0], x[1]
+  sigma := math.Exp(x[2])
+
+  for i := range m.Data {
+    ll += Normal.Logp(
+      <span class="fragment highlight-current-bg-yellow" data-fragment-index="1">m.Simulate</span>(m.Data[i][0], alpha, beta),
+      sigma, m.Data[i][1])
+  }
+...
+            </code></pre>
+                </td><td width="50">
+            <pre><code class="go" data-trim data-noescape>
+...
+  return ll
+}
+
+// Simulate predicts y for x based on
+// inferred parameters.
+func (m *Model) <span class="fragment highlight-current-bg-yellow" data-fragment-index="1">Simulate</span>(x, alpha, beta float64)
+    float64 {
+  y := alpha +beta*x
+  return y
+}
+            </code></pre>
+                </td></tr></table>
           </section>
           <section>
             <h3>Gaussian mixture</h3>
-						<table width="110%">
-							<tr style="font-size: 65%"><td width="50%">
+            <table width="110%">
+              <tr style="font-size: 65%"><td width="50%">
             <pre><code class="go" data-trim data-noescape>
 type Model struct {
   Data  []float64 // samples
@@ -433,7 +527,14 @@ func (m *Model) Observe(x []float64) float64 {
   return ll
 }
             </code></pre>
-								</td></tr></table>
+                </td></tr></table>
+          </section>
+          <section>
+            <p>
+            More <a
+              href="http://infergo.org/examples"><code>infergo</code>
+              examples:<br/>http://infergo.org/examples</a>
+            </p>
           </section>
         </section>
         <section>
@@ -448,11 +549,11 @@ choices behind <code>infergo</code>.</li>
               development of <code>infergo</code>.</li>
           </ul>
         </section>
-				<section>
-					<h2>Thank you!</h2>
-					<img src="infergopher.png" alt="Gehenna Gopher"
-						style="height:10em; border:none"/>
-				</section>
+        <section>
+          <h2>Thank you!</h2>
+          <img src="infergopher.png" alt="Gehenna Gopher"
+            style="height:10em; border:none"/>
+        </section>
       </div>
     </div>
 
