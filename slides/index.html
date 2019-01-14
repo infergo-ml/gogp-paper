@@ -31,6 +31,11 @@
         <section>
           <section>
             <h2>Challenges</h2>
+						<ul>
+							<li>Simulation vs. inference</li>
+							<li>Data interface</li>
+							<li>Deployment</li>
+						</ul>
           </section>
           <section>
             <h3>Simulation vs. inference</h3>
@@ -40,25 +45,65 @@
           </section>
           <section>
             <h3>Deployment</h3>
+						<table>
+							<tr>
+								<th>PyStan (70Mb)</th>
+								<td>
+									Stan, C++ compiler, Cython
+								</td>
+							</tr>
+							<tr>
+								<th width="30%">
+									Pyro (&gt;600Mb)</th>
+								<td>
+									<pre style="font-size: 50%">
+Successfully installed contextlib2-0.5.5
+decorator-4.3.0 graphviz-0.10.1 networkx-2.2
+opt-einsum-2.3.2 pyro-ppl-0.3.0 six-1.12.0
+torch-1.0.0 tqdm-4.29.1</pre>
+								</td>
+							</tr>
+							<tr>
+								<th>
+									Turing.jl (50Mb):
+								</th>
+								<td>
+									<pre style="font-size: 50%">
+Installed NNlib ─────────── v0.4.3
+Installed Colors ────────── v0.9.5
+Installed Arpack ────────── v0.3.0
+Installed BinaryProvider ── v0.5.3
+Installed ForwardDiff ───── v0.10.1
+Installed ColorTypes ────── v0.7.5
+Installed ProgressMeter ─── v0.9.0
+Installed ZipFile ───────── v0.8.0
+Installed StaticArrays ──── v0.10.2
+Installed Juno ──────────── v0.5.3
+... (~40 packages)</pre>
+							</td></tr>
+						</table>
           </section>
         </section>
         <section>
-          <section>
-            <h2>Guidelines</h2>
-          </section>
-          <section>
-            <h3>One language</h3>
-          </section>
-          <section>
-            <h3>Shared data structures</h3>
-          </section>
-          <section>
-            <h3>Inference code re-used in simulation</h3>
-          </section>
+					<h2>Guidelines</h2>
+					<ul>
+						<li>One language</li>
+						<li>Common data structures</li>
+						<li>Inference code re-used in simulation</li>
+					</ul>
         </section>
         <section>
           <section>
             <h2>Probabilistic programming<br/>in Go</h2>
+						<p style="text-align: left; margin-left: 2em">
+						Go is
+						</p>
+						<ul>
+							<li>small,</li>
+							<li>expressive,</li>
+							<li>efficient,</li>
+							<li>popular for server-side programming.</li>
+						</ul>
           </section>
           <section>
             <h3>'hello world': model</h3>
@@ -149,6 +194,13 @@
         <section>
           <section>
             <h2>Infergo</h2>
+						<ul>
+							<li>Models are written in Go.</li>
+							<li>Relies in automatic differentiation for inference.</li>
+							<li>Works anywhere where Go does.</li>
+							<li>No external dependencies.</li>
+							<li>Licensed under the MIT license.</li>
+						</ul>
           </section>
           <section>
             <h3>Model</h3>
