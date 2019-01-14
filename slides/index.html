@@ -23,6 +23,10 @@
   </head>
   <body>
     <div class="reveal">
+			<!--
+			  <img src="infergopher.png" style="width: 1.5em; float:
+				left; padding: 12pt">
+			-->
       <div class="slides">
         <section>
           <h1>Server-side probabilistic programming</h1>
@@ -33,7 +37,7 @@
             <h2>Challenges</h2>
 						<ul>
 							<li>Simulation vs. inference</li>
-							<li>Data interface</li>
+							<li>Data</li>
 							<li>Deployment</li>
 						</ul>
           </section>
@@ -41,7 +45,38 @@
             <h3>Simulation vs. inference</h3>
           </section>
           <section>
-            <h3>Data interface</h3>
+            <h3>Data structures</h3>
+						<table width="100%">
+							<tr>
+								<th width="30%">I mean:</th>
+								<td width="70%">
+						<pre><code class="python" data-trim style="font-size:70%">
+def update_beliefs(beliefs, i, j, bandwidth):
+  beliefs[i][j] += 1
+  evidence = sum(beliefs[i])
+  if evidence > bandwidth:
+    for j in range(len(beliefs[i])):
+      beliefs[i][j] *= bandwidth / evidence
+      </code></pre>
+      </td>
+							</tr>
+							<tr>
+								<th>I write:</th>
+								<td>
+      <pre><code class="python" data-trim style="font-size:70%">
+def update_beliefs(beliefs, i, j, bandwidth):
+  update = torch.zeros(beliefs.shape)
+  update[i, j] = 1
+  beliefs = beliefs + update
+  evidence = beliefs[i, :].sum()
+  if evidence > bandwidth:
+    scale = torch.ones(beliefs.shape)
+    scale[i, :] = bandwidth / evidence
+    beliefs = beliefs * scale
+  return beliefs
+						</code></pre>
+						</td></tr>
+						</table>
           </section>
           <section>
             <h3>Deployment</h3>
