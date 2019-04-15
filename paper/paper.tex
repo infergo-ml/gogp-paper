@@ -17,7 +17,7 @@
 
 \bibliographystyle{ACM-Reference-Format}
 
-\title{Server-Side Probabilistic Programming}
+\title{Deployable Probabilistic Programming}
 \author{David Tolpin}
 \affiliation{
     \institution{PUB+}
@@ -59,7 +59,7 @@ Organization of the paper.
 
 \section{Related Work}
 
-\section{Challenges of Server-Side Probabilistic Programming}
+\section{Challenges}
 
 Incorporating a probabilistic program, or rather a probabilistic
 procedure, within a larger code body appears to be rather
@@ -118,7 +118,7 @@ Python (Edward~\cite{THS+17}, Pyro~\cite{Pyro18}) are easier
 to integrate and deploy, however the smaller the footprint
 of a probabilistic system, the easier is the adoption.
 
-\section{Guidelines to Implementation of a Probabilistic Programming Facility}
+\section{Guidelines}
 
 Based on the experience of developing and deploying solutions
 using different probabilistic environments, we came up with
@@ -152,15 +152,14 @@ runtime or memory overhead imposed by inference needs.
 \section{Probabilistic Programming in Go}
 
 In line with the guidelines, we have implemented a probabilistic
-programming facility for the Go programming language,
-Infergo. %(\url{http://infergo.ml/}).
-We have chosen Go because Go is a small but expressive
-programming language with efficient implementation, which has
-recently become quite popular for computation-intensive
-server-side programming.  the time of writing, the
-implementation is still at an early stage.  This facility
-ialready used in production environment for inference of
-mission-critical algorithm parameters.  
+programming facility for the Go programming language, Infergo.
+%(\url{http://infergo.ml/}). 
+We have chosen Go because Go is a
+small but expressive programming language with efficient
+implementation, which has recently become quite popular for
+computation-intensive server-side programming. Infergo is
+used in production environment for inference of mission-critical
+algorithm parameters.
 
 \subsection{An Overview of Infergo}
 
@@ -227,6 +226,10 @@ TODO: Example
 
 \subsection{Inference}
 
+\subsubsection{Optimization}
+
+\subsubsection{Full Posterior}
+
 \subsection{Composability of Models}
 
 \subsection{Stochasticity and Streaming}
@@ -268,6 +271,18 @@ software systems, making probabilistic programming inference
 more accessible in server-side applications.
 
 \section*{Acknowledgements}
+
+The author owes a debt of gratitude to Frank Wood who introduced
+the author to probabilistic programming and inspired to
+pursue probabilistic programming paradigms and applications. The
+author also would like to thank Jan-Willem van de Meent, with
+whom the author had fruitful discussions of motives, ideas, and
+implementation choices behind Infergo, and whose thoughts and
+recommendations significantly influenced Infergo design.
+Finally, the author thanks PUB+, the company the author works
+for, for supporting development of Infergo and letting the
+author experiment with applying probabilistic programming to
+critical decision-making in production environment.
 
 \end{sloppypar}
 
