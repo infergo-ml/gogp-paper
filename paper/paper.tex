@@ -1,6 +1,39 @@
 \documentclass[sigplan,review,10pt,anonymous]{acmart}
+\usepackage[utf8]{inputenc}
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage{courier}
+\usepackage{listings}[language=Golang]
+
+\lstdefinelanguage{Golang}%
+  {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
+     recover,select,var,const,iota,},%
+   morekeywords=[2]{string,uint,uint8,uint16,uint32,uint64,int,int8,int16,%
+     int32,int64,bool,float32,float64,complex64,complex128,byte,rune,uintptr,%
+     error,interface},%
+   morekeywords=[3]{map,slice,make,new,nil,len,cap,copy,close,true,false,%
+     delete,append,real,imag,complex,chan,},%
+   morekeywords=[4]{for,break,continue,range,go,goto,switch,case,fallthrough,if,%
+     else,default,},%
+   morekeywords=[5]{Println,Printf,Error,Print,},%
+   sensitive=true,%
+   morecomment=[l]{//},%
+   morecomment=[s]{/*}{*/},%
+   morestring=[b]',%
+   morestring=[b]",%
+   morestring=[s]{`}{`},%
+} 
+
+\lstset{ % add your own preferences
+    frame=none,
+    basicstyle=\footnotesize\ttfamily,
+    numbers=left,
+    numbersep=5pt,
+    showstringspaces=false,
+    tabsize=4,
+    language=Golang % this is it !
+}
+
 
 \acmConference[Onward! 2019]{SPLASH Onward! 2019}{October 20-25, 2019}{Athens, Greece}
 
@@ -47,67 +80,95 @@
 
 \section{Introduction}
 
-	Probabilistic programming \cite{GMR+08,MSP14,WVM14,GS15} represents
-	statistical models as programs written in an otherwise
-	general programming language that provides syntax for the
-	definition and conditioning of random variables. Inference can be
-	performed on probabilistic programs to obtain the posterior
-	distribution or point estimates of the variables. Inference
-	algorithms are provided by the probabilistic programming system,
-	and each algorithm is usually applicable to a wide class of
-	probabilistic programs in a black box manner.  Inference
-	techniques provided by the system back end, such as
-	Metropolis-Hastings \cite{WSG11,MSP14,YHG14}, Hamiltonian Monte
-	Carlo \cite{SDT14}, expectation propagation \cite{MWG+10},
-	extensions of Sequential Monte Carlo \cite{WVM14,MYM+15,PWD+14},
-	variational inference~\cite{}, gradient-based
-	optimization~\cite{}, and others.
+	Probabilistic programming \cite{GMR+08,MSP14,WVM14,GS15}
+	represents statistical models as programs written in an
+	otherwise general programming language that provides syntax
+	for the definition and conditioning of random variables.
+	Inference can be performed on probabilistic programs to
+	obtain the posterior distribution or point estimates of the
+	variables. Inference algorithms are provided by the
+	probabilistic programming system, and each algorithm is
+	usually applicable to a wide class of probabilistic programs
+	in a black box manner.  Inference techniques provided by the
+	system back end, such as Metropolis-Hastings
+	\cite{WSG11,MSP14,YHG14}, Hamiltonian Monte Carlo
+	\cite{SDT14}, expectation propagation \cite{MWG+10},
+	extensions of Sequential Monte Carlo
+	\cite{WVM14,MYM+15,PWD+14}, variational inference~\cite{},
+	gradient-based optimization~\cite{}, and others.
 
-	There are two polar views on the role of probabilistic programming.
-	One view is that probabilistic programming is a flexible tool for
-	specification of statistical models. Proponents of this perceive
+	There are two polar views on the role of probabilistic
+	programming.  One view is that probabilistic programming is
+	a flexible framework for specification and analysis of
+	statistical models.  Proponents of this view perceive
 	probabilistic programming as a tool for data science
-	practitioners. A typical work flow consists of data acquisition
-	and pre-processing, followed by several iterations of exploratory
-	model design and testing of inference algorithms. Once a
-	sufficiently robust statistical model is obtained, analysis
-	results are post-processed, visualized, and occasionally
-	integrated into algorithms of a production software system. 
+	practitioners. A typical work flow consists of data
+	acquisition and pre-processing, followed by several
+	iterations of exploratory model design and testing of
+	inference algorithms. Once a sufficiently robust statistical
+	model is obtained, analysis results are post-processed,
+	visualized, and occasionally integrated into algorithms of a
+	production software system. 
 
-	The other, emerging, view is that probabilistic programming is an
-	extension to a regular programming toolbox allowing
+	The other, emerging, view is that probabilistic programming
+	is an extension to a regular programming toolbox allowing
 	algorithms implemented in general programming languages to
-	have learnable parameters. In this view, statistical 
-	models are integrated into the software system, and inference
-	and optimization take place during data processing, prediction,
-	and algorithmic decision making in production.  Probabilistic
-	programming code runs unattended, and inference results are an
-	integral part of the algorithms.
+	have learnable parameters. In this view, statistical models
+	are integrated into the software system, and inference and
+	optimization take place during data processing, prediction,
+	and algorithmic decision making in production.
+	Probabilistic programming code runs unattended, and
+	inference results are an integral part of the algorithms.
 
 	In this work we are concerned with the later view on
-	probabilistic programming. Our objective is to pave a path to
-	deployment of probabilistic programs in production systems,
-	promoting a wider adoption of probabilistic programming as a
-	flexible tool for ubiquitous statistical inference. 
+	probabilistic programming. Our objective is to pave a path
+	to deployment of probabilistic programs in production
+	systems, promoting a wider adoption of probabilistic
+	programming as a flexible tool for ubiquitous statistical
+	inference. Most probabilistic programming systems are
+	suited, to a certain extent, to be used in either the
+	exploratory or the production scenario. However, the
+	proliferation of probabilistic programming languages and
+	systems~\cite{} one one hand, and scarcity of success
+	stories about production use of probabilistic programming on
+	the other hand, suggest that there is a need for new ideas
+	and approaches to make probabilistic programming models
+	available for production use.
 
+	Our attitude differs from the established approach in that
+	instead of proposing yet another probabilistic programming
+	language, either genuinely different~\cite{} or derived from
+	an existing general programming language by extending the
+	syntax or changing the semantics~\cite{}, we advocate
+	enabling probabilistic inference on models written in a
+	general probabilistic programming language, the same one as
+	the language used to program the bulk of the system. We
+	formulate guidelines for such implementation, and based on
+	the guidelines, introduce a probabilistic programming
+	facility for the Go programming language. By explaining our
+	design choices and implementation techniques, we argue that
+	a similar facility can be added to any modern general
+	purpose programming language, giving a production system
+	modeling and inference capabilities which do not fall short
+	from and sometimes exceed those of probabilistic programming
+	centric systems with custom languages and runtimes.
 
+	\subsection*{Contributions}
 
-The language war. 
+	This work brings the following major contributions:
 
-A solution: probabilistic programming without a DSL.
-
-Organization of the paper.
-
-\subsection*{Contributions}
-
-\begin{itemize}
-	\item Guidelines for design and implementation of a
-		probabilistic programming facility deployable as a part 
-		of production software systems.
-	\item A reference implementation of deployable probabilistic
-		programming facility for the Go programming language.
-	\item Design and implementation highlights 
-\end{itemize}
+	\begin{itemize}
+		\item Guidelines for design and implementation of a
+			probabilistic programming facility deployable as a part 
+			of production software systems.
+		\item A reference implementation of deployable probabilistic
+			programming facility for the Go programming language.
+		\item Design and implementation highlights outlining
+			important choices we made in implementation of the
+			probabilistic programming facility, and providing a
+			basis for implementation of a similar facility for
+			other general programming languages.
+	\end{itemize}
 
 \section{Related Work}
 
@@ -216,7 +277,7 @@ algorithm parameters.
 \subsection{An Overview of Infergo}
 
 A probabilistic model in Infergo is an implementation of an
-interface requiring a single method \texttt{Observe} which
+interface requiring a single method \lstinline{Observe} which
 accepts a vector (a Go \textit{slice}) of floats, the parameters
 to infer, and returns a single float, interpreted as
 unnormalized log-likelihood of the posterior distribution.
@@ -269,6 +330,55 @@ capabilities which made implementation of Infergo affordable.
 TODO: Example
 
 \section{Model Syntax and Rules of Differentiation}
+
+A model is defined in it's own package. The model must
+implement interface \lstinline{Model} containing a single method
+\lstinline{Observe}. \lstinline{Observe} accepts receives a slice of
+\lstinline{float64} --- the model parameters --- and returns a
+\lstinline{float64} scalar. For probabilistic inference, the
+returned value is interpreted as the log-likelihood of the model
+parameters. In the model's source code:
+
+\begin{enumerate}
+	\item Methods on the type implementing \lstinline{Model} returning a
+		single \lstinline{float64} or nothing are differentiated.
+	\item Within the methods, the following is differentiated:
+		\begin{itemize}
+			\item assignments to \lstinline{float64} (including parallel
+				assignments if all values are of type
+				\lstinline{float64});
+			\item returns of \lstinline{float64};
+			\item standalone calls to methods on the type implementing
+				\lstinline{Model} (apparently called for side  effects on
+				the model).
+		\end{itemize}
+\end{enumerate}
+
+Derivatives do not propagate through a function that is not
+an elemental or a call to a model method. If a derivative is
+not registered for an elemental, calling the elemental in a
+differentiated context will cause a run-time error.
+
+\subsection{Elementals}
+
+Functions are considered elementals (and must have a
+registered derivative) if their signature is of kind
+\lstinline{func (float64, float64*) float64}; that is, 
+one or more non-variadic \lstinline{float64} arguments and
+\lstinline{float64} return value. For example, function
+\lstinline{func (float64, float64, float64) float64}
+is considered elemental, while functions
+
+\begin{itemize}
+	\item \lstinline{func (...float64) float64}
+	\item \lstinline{func ([]float64) float64}
+	\item \lstinline{func (int, float64) float64}
+\end{itemize}
+
+are not. Gradients for selected functions from the \lstinline{math}
+package are pre-defined (\lstinline{Sqrt}, \lstinline{Exp}, \lstinline{Log}, \lstinline{Pow}, \lstinline{Sin},
+\lstinline{Cos}, \lstinline{Tan}). Auxiliary elemental functions with pre-defined
+gradients are provided in a separate package.
 
 \section{Design and Implementation Highlights}
 
