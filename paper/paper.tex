@@ -27,7 +27,7 @@
 \lstset{ % add your own preferences
     frame=none,
     basicstyle=\ttfamily\footnotesize,
-    numbers=left,
+    numbers=none,
     numbersep=5pt,
     showstringspaces=false,
     tabsize=4,
@@ -343,12 +343,17 @@ capabilities which made implementation of Infergo affordable.
 
 \subsection{A Basic Example}
 
-Model:
-
+Let us illustrate the use of Infergo on a basic example serving
+as a probabilistic programming equivalent of the "Hello, World!"
+program --- inferring parameters of a unidimensional Normal
+distribution. In this example, the model holds the set of
+samples from which the distribution parameters are to be
+inferred:
 \begin{lstlisting}
 type Model struct {
     Data []float64
 }
+\end{lstlisting}
 
 // x[0] is the mean,
 // x[1] is the log stddev of the distribution
@@ -537,11 +542,38 @@ of HMC with 10 leapfrog steps.}
 
 \section{Conclusion}
 
-A lightweight probabilistic programming facility similar to
-Infergo can be added to most modern general-purpose programming
-languages, in particular those used in implementing large-scale
-software systems, making probabilistic programming inference
-more accessible in server-side applications.
+Building a production software system which employs
+probabilistic inference as an integral part of prediction and
+decision making algorithms is challenging. To address the
+challenges, we proposed guidelines for implementation of a
+deployable probabilistic programming facility. Further on, we
+introduced Infergo, a probabilistic programming facility in Go,
+as a reference implementation following the guidelines. Infergo
+allows to program inference models in virtually unrestricted Go,
+and to perform inference on the model using either supplied or
+third-party algorithms. We demonstrated on case studies how
+Infergo overcomes the challenges by following the guidelines.
+
+A probabilistic programming facility similar to Infergo can be
+added to most modern general programming languages, in
+particular, those used in implementing large-scale software
+systems, making probabilistic programming inference more
+accessible in server-side applications. We described Infergo
+design choices and implementation techniques in intent to
+encourage broader adoption of probabilistic programming in
+production software systems and ease implementation of similar
+facilities in other languages and software environments.
+
+Infergo is an ongoing project. Development of Infergo is
+influenced both by feedback from the open-source Go community
+and by the needs of the software system in which Infergo was
+initially deployed, and which still supplies the most demanding
+use cases in terms of flexibility, scalability, and ease of
+integration and maintenance. Deploying probabilistic programming
+as a part of production software system has a mutual benefit of
+both improving the core algorithms of the system and of helping
+to shape and improve probabilistic modeling and inference, thus
+further advancing the field of probabilistic programming.
 
 \end{sloppypar}
 
