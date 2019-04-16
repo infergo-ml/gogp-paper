@@ -27,7 +27,7 @@
 \lstset{ % add your own preferences
     frame=none,
     basicstyle=\ttfamily\footnotesize,
-    numbers=left,
+    numbers=none,
     numbersep=5pt,
     showstringspaces=false,
     tabsize=4,
@@ -343,12 +343,17 @@ capabilities which made implementation of Infergo affordable.
 
 \subsection{A Basic Example}
 
-Model:
-
+Let us illustrate the use of Infergo on a basic example serving
+as a probabilistic programming equivalent of the "Hello, World!"
+program --- inferring parameters of a unidimensional Normal
+distribution. In this example, the model holds the set of
+samples from which the distribution parameters are to be
+inferred:
 \begin{lstlisting}
 type Model struct {
     Data []float64
 }
+\end{lstlisting}
 
 // x[0] is the mean,
 // x[1] is the log stddev of the distribution
