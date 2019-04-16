@@ -346,8 +346,8 @@ capabilities which made implementation of Infergo affordable.
 Let us illustrate the use of Infergo on a basic example serving
 as a probabilistic programming equivalent of the "Hello, World!"
 program --- inferring parameters of a unidimensional Normal
-distribution. In this example, the model holds the set of
-samples from which the distribution parameters are to be
+distribution. In this example, the model object holds the set of
+observations from which the distribution parameters are to be
 inferred:
 \begin{lstlisting}
 type Model struct {
@@ -355,6 +355,16 @@ type Model struct {
 }
 \end{lstlisting}
 
+The \lstinline{Observe} method computes the log-likelihood of
+the distribution parameters. The Normal distribution has two
+parameters: mean $\mu$ and standard deviation
+$\sigma$. To ease the inference, positive $\sigma$ is transformed to
+unrestricted $\log \sigma$, and the parameter vector is $[\mu,
+\log \sigma]$. \lstinline{Observe} first imposes a prior on the
+parameters, and then conditions the posterior distribution on
+the observations:
+
+\begin{lstlisting}
 // x[0] is the mean,
 // x[1] is the log stddev of the distribution
 func (m *Model) Observe(x []float64) float64 {
