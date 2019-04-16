@@ -2,8 +2,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{url}
 \usepackage{hyperref}
-\usepackage{courier}
 \usepackage{listings}[language=Golang]
+\usepackage{GoMono}
 
 \lstdefinelanguage{Golang}%
   {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
@@ -26,7 +26,7 @@
 
 \lstset{ % add your own preferences
     frame=none,
-    basicstyle=\ttfamily,
+    basicstyle=\ttfamily\footnotesize,
     numbers=left,
     numbersep=5pt,
     showstringspaces=false,
@@ -59,18 +59,26 @@
 \email{david.tolpin@gmail.com}
 
 \begin{abstract}
-	We share our experiences from integrating probabilistic
-	programming into a server-side software system and introduce
-	a probabilistic programming facility for Go, a modern
+	We propose design guidelines for a probabilistic programming
+	facility suitable for deployment as a part of a production
+	software system. As a reference implementation, we introduce
+	Infergo, a probabilistic programming facility for Go, a modern
 	programming language of choice for server-side software
-	development. We demonstrate how a lightweight but powerful
-	and efficient probabilistic programming facility can be
-	added to an existing programming language.  Server-side
-	application of probabilistic programming poses challenges
-	for a probabilistic programming system. We discuss the
-	challenges and our experience in overcoming them, and
-	suggest guidelines that can help in a wider adoption of
-	probabilistic programming in server-side software systems.
+	development. We argue that a similar probabilistic
+	programming facility can be added to most modern general
+	programming languages.
+
+	Probabilistic programming enables automatic tuning of
+	program parameters and algorithmic decision making through
+	probabilistic inference based on the data. To facilitate
+	addition of probabilistic programming capabilities to other
+	general programming languages, we share design choices and
+	implementation techniques employed in development of
+	Infergo. We illustrate applicability of Infergo to various
+	use cases on case studies, and evaluate Infergo's
+	performance on several benchmarks, comparing Infergo to
+	dedicated inference-centric probabilistic programming
+	systems.
 \end{abstract}
 
 \begin{document}
@@ -89,13 +97,13 @@
 	variables. Inference algorithms are provided by the
 	probabilistic programming system, and each algorithm is
 	usually applicable to a wide class of probabilistic programs
-	in a black box manner.  Inference techniques provided by the
-	system back end, such as Metropolis-Hastings
-	\cite{WSG11,MSP14,YHG14}, Hamiltonian Monte Carlo
-	\cite{SDT14}, expectation propagation \cite{MWG+10},
-	extensions of Sequential Monte Carlo
-	\cite{WVM14,MYM+15,PWD+14}, variational inference~\cite{},
-	gradient-based optimization~\cite{}, and others.
+	in a black-box manner. The algorithms include
+	Metropolis-Hastings\cite{WSG11,MSP14,YHG14}, Hamiltonian
+	Monte Carlo~\cite{Stan17}, expectation
+	propagation~\cite{MWG+10}, extensions of Sequential Monte
+	Carlo~\cite{WVM14,MYM+15,PWD+14}, variational
+	inference~\cite{WW13,KTR+17}, gradient-based
+	optimization~\cite{Stan17,BCJ+19}, and others.
 
 	There are two polar views on the role of probabilistic
 	programming.  One view is that probabilistic programming is
@@ -129,7 +137,14 @@
 	suited, to a certain extent, to be used in either the
 	exploratory or the production scenario. However, the
 	proliferation of probabilistic programming languages and
-	systems~\cite{} one one hand, and scarcity of success
+	systems\footnote{There are 45 probabilistic programming
+	languages listed on
+	Wikipedia~\cite{wiki:Probabilistic_programming_language}. 18
+	probabilistic programming languages were presented during
+	the developer meetup at PROBPROG'2018, the inaugural
+	conference on probabilistic
+	programming,~\url{http://probprog.cc/}, half of which are
+	not on the Wikipedia list.} on one hand, and scarcity of success
 	stories about production use of probabilistic programming on
 	the other hand, suggest that there is a need for new ideas
 	and approaches to make probabilistic programming models
@@ -137,9 +152,9 @@
 
 	Our attitude differs from the established approach in that
 	instead of proposing yet another probabilistic programming
-	language, either genuinely different~\cite{} or derived from
+	language, either genuinely different~\cite{MMR+07,Stan17} or derived from
 	an existing general programming language by extending the
-	syntax or changing the semantics~\cite{}, we advocate
+	syntax or changing the semantics~\cite{GMR+08,TMY+16,GXG18}, we advocate
 	enabling probabilistic inference on models written in a
 	general probabilistic programming language, the same one as
 	the language used to program the bulk of the system. We
@@ -227,7 +242,7 @@ and deployment process should be a major consideration in
 design or selection of probabilistic programming tools.
 Probabilistic programming systems that are implemented or 
 provide an interface in a popular programming language, e.g.
-Python (Edward~\cite{THS+17}, Pyro~\cite{Pyro18}) are easier
+Python (Edward~\cite{THS+17}, Pyro~\cite{BCJ+19}) are easier
 to integrate and deploy, however the smaller the footprint
 of a probabilistic system, the easier is the adoption.
 
@@ -327,17 +342,92 @@ capabilities which made implementation of Infergo affordable.
 
 \subsection{Probabilistic ``Hello, World!''}
 
-TODO: Example
+Model:
+
+\begin{lstlisting}
+type Model struct {
+    Data []float64
+}
+
+// x[0] is the mean,
+// x[1] is the log stddev of the distribution
+func (m *Model) Observe(x []float64) float64 {
+    // Our prior is a unit normal ...
+    ll := Normal.Logps(0, 1, x...)
+    // ... but the posterior is based 
+	// on data observations.
+	ll += Normal.Logps(x[0], math.Exp(x[1]),
+	                   m.Data...)
+    return ll
+}
+\end{lstlisting}
+
+Inference:
+
+\begin{lstlisting}
+// Data
+m := &Model{[]float64{
+	-0.854, 1.067, -1.220, 0.818, -0.749,
+	0.805, 1.443, 1.069, 1.426, 0.308}}
+
+// Parameters
+mean, logs := 0, 0
+x := []float64{mean, logs}
+\end{lstlisting}
+	
+Optimization:
+
+\begin{lstlisting}
+opt := &infer.Momentum{
+    Rate:  0.01,
+    Decay: 0.998,
+}
+for iter := 0; iter != 1000; iter++ {
+    opt.Step(m, x)
+}
+mean, logs = x[0], x[1]
+\end{lstlisting}
+
+Posterior:
+
+\begin{lstlisting}
+hmc := &infer.HMC{
+	Eps: 0.1,
+}
+samples := make(chan []float64)
+hmc.Sample(m, x, samples)
+for i := 0; i != 1000; i++ {
+	x = <-samples
+}
+hmc.Stop()
+\end{lstlisting}
 
 \section{Model Syntax and Rules of Differentiation}
 
-A model is defined in it's own package. The model must
+In infergo, the inference is performed on a model. An Infergo
+model is a data type and methods defined on the data type.
+Inference algorithms accept a model object as an argument.
+A model object usually encapsulates observations --- the data 
+to which the parameter values are adapted.
+
+A model is implemented in Go, virtually
+unrestricted\footnote{There are insignificant implementation
+limitations which are gradually lifted as Infergo is being
+developed.}. Because of this, the rules of model specification
+and differentiation are quite straightforward. Nonetheless, the
+differentiation rules ensure that provided that the model's
+\lstinline{Observe} method (including calls to other model methods)
+is differentiable, the gradient is properly computed~\cite{GW08}.
+
+A model is defined in its own package. The model must
 implement interface \lstinline{Model} containing a single method
 \lstinline{Observe}. \lstinline{Observe} accepts receives a slice of
 \lstinline{float64} --- the model parameters --- and returns a
 \lstinline{float64} scalar. For probabilistic inference, the
 returned value is interpreted as the log-likelihood of the model
-parameters. In the model's source code:
+parameters. Inference models rely on computing the gradient of
+the returned value with respect to the model parameters through
+automatic differentiation. In the model's source code:
 
 \begin{enumerate}
 	\item Methods on the type implementing \lstinline{Model} returning a
@@ -354,12 +444,13 @@ parameters. In the model's source code:
 		\end{itemize}
 \end{enumerate}
 
-Derivatives do not propagate through a function that is not
-an elemental or a call to a model method. If a derivative is
-not registered for an elemental, calling the elemental in a
-differentiated context will cause a run-time error.
-
-\subsection{Elementals}
+Functions for which the gradient is provided rather than derived
+through automatic differentiation are called
+\textit{elementals}~\cite{GW08}.  Derivatives do not propagate
+through a function that is not an elemental or a call to a model
+method. If a derivative is not registered for an elemental,
+calling the elemental in a differentiated context will cause a
+run-time error.
 
 Functions are considered elementals (and must have a
 registered derivative) if their signature is of kind
@@ -368,17 +459,36 @@ one or more non-variadic \lstinline{float64} arguments and
 \lstinline{float64} return value. For example, function
 \lstinline{func (float64, float64, float64) float64}
 is considered elemental, while functions
-
 \begin{itemize}
 	\item \lstinline{func (...float64) float64}
 	\item \lstinline{func ([]float64) float64}
 	\item \lstinline{func (int, float64) float64}
 \end{itemize}
+are not. Gradients for selected functions from the
+\lstinline{math} package are pre-defined (\lstinline{Sqrt},
+\lstinline{Exp}, \lstinline{Log}, \lstinline{Pow},
+\lstinline{Sin}, \lstinline{Cos}, \lstinline{Tan}). Auxiliary
+elemental functions with pre-defined gradients are provided in a
+separate package.
 
-are not. Gradients for selected functions from the \lstinline{math}
-package are pre-defined (\lstinline{Sqrt}, \lstinline{Exp}, \lstinline{Log}, \lstinline{Pow}, \lstinline{Sin},
-\lstinline{Cos}, \lstinline{Tan}). Auxiliary elemental functions with pre-defined
-gradients are provided in a separate package.
+Any user-defined function of appropriate kind can be used as an
+elemental inside model methods. An elemental must be declared
+for the function using a call to
+\begin{lstlisting}
+func RegisterElemental(
+	f interface{}, 
+	g func(value float64,
+		   params ...float64) []float64).
+\end{lstlisting} For
+example, the call
+\begin{lstlisting}
+RegisterElemental(Sigm,
+	func(value float64,
+	     _ ...float64) []float64 {
+		return []float64{value*(1-value)}
+	})
+\end{lstlisting}
+registers the gradient for function \lstinline{Sigm}.
 
 \section{Design and Implementation Highlights}
 
@@ -434,17 +544,17 @@ more accessible in server-side applications.
 
 \section*{Acknowledgements}
 
-The author owes a debt of gratitude to Frank Wood who introduced
-the author to probabilistic programming and inspired to
-pursue probabilistic programming paradigms and applications. The
-author also would like to thank Jan-Willem van de Meent, with
-whom the author had fruitful discussions of motives, ideas, and
-implementation choices behind Infergo, and whose thoughts and
-recommendations significantly influenced Infergo design.
-Finally, the author thanks PUB+, the company the author works
-for, for supporting development of Infergo and letting the
-author experiment with applying probabilistic programming to
-critical decision-making in production environment.
+% The author owes a debt of gratitude to Frank Wood who introduced
+% the author to probabilistic programming and inspired to
+% pursue probabilistic programming paradigms and applications. The
+% author also would like to thank Jan-Willem van de Meent, with
+% whom the author had fruitful discussions of motives, ideas, and
+% implementation choices behind Infergo, and whose thoughts and
+% recommendations significantly influenced Infergo design.
+% Finally, the author thanks PUB+, the company the author works
+% for, for supporting development of Infergo and letting the
+% author experiment with applying probabilistic programming to
+% critical decision-making in production environment.
 
 \end{sloppypar}
 
