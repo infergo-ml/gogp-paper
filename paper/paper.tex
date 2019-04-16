@@ -110,7 +110,7 @@
 	a flexible framework for specification and analysis of
 	statistical models.  Proponents of this view perceive
 	probabilistic programming as a tool for data science
-	practitioners. A typical work flow consists of data
+	practitioners. A typical workflow consists of data
 	acquisition and pre-processing, followed by several
 	iterations of exploratory model design and testing of
 	inference algorithms. Once a sufficiently robust statistical
@@ -119,7 +119,7 @@
 	production software system. 
 
 	The other, emerging, view is that probabilistic programming
-	is an extension to a regular programming toolbox allowing
+	is an extension of a regular programming toolbox allowing
 	algorithms implemented in general programming languages to
 	have learnable parameters. In this view, statistical models
 	are integrated into the software system, and inference and
@@ -175,7 +175,7 @@
 	\begin{itemize}
 		\item Guidelines for design and implementation of a
 			probabilistic programming facility deployable as a part 
-			of production software systems.
+			of a production software system.
 		\item A reference implementation of deployable probabilistic
 			programming facility for the Go programming language.
 		\item Design and implementation highlights outlining
@@ -340,7 +340,7 @@ capabilities which made implementation of Infergo affordable.
 	lazily for postprocessing. 
 \end{itemize}
 
-\subsection{Probabilistic ``Hello, World!''}
+\subsection{A Basic Example}
 
 Model:
 
@@ -421,7 +421,7 @@ is differentiable, the gradient is properly computed~\cite{GW08}.
 
 A model is defined in its own package. The model must
 implement interface \lstinline{Model} containing a single method
-\lstinline{Observe}. \lstinline{Observe} accepts receives a slice of
+\lstinline{Observe}. \lstinline{Observe} accepts a slice of
 \lstinline{float64} --- the model parameters --- and returns a
 \lstinline{float64} scalar. For probabilistic inference, the
 returned value is interpreted as the log-likelihood of the model
