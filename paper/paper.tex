@@ -47,7 +47,50 @@
 
 \section{Introduction}
 
-The promise of probabilistic programming.
+	Probabilistic programming \cite{GMR+08,MSP14,WVM14,GS15} represents
+	statistical models as programs written in an otherwise
+	general programming language that provides syntax for the
+	definition and conditioning of random variables. Inference can be
+	performed on probabilistic programs to obtain the posterior
+	distribution or point estimates of the variables. Inference
+	algorithms are provided by the probabilistic programming system,
+	and each algorithm is usually applicable to a wide class of
+	probabilistic programs in a black box manner.  Inference
+	techniques provided by the system back end, such as
+	Metropolis-Hastings \cite{WSG11,MSP14,YHG14}, Hamiltonian Monte
+	Carlo \cite{SDT14}, expectation propagation \cite{MWG+10},
+	extensions of Sequential Monte Carlo \cite{WVM14,MYM+15,PWD+14},
+	variational inference~\cite{}, gradient-based
+	optimization~\cite{}, and others.
+
+	There are two polar views on the role of probabilistic programming.
+	One view is that probabilistic programming is a flexible tool for
+	specification of statistical models. Proponents of this view
+	probabilistic programming as a tool for data science
+	practitioners. A typical work flow consists of data acquisition
+	and pre-processing, followed by several iterations of exploratory
+	model design and testing of inference algorithms. Once a
+	sufficiently robust statistical model is obtained, analysis
+	results are post-processed, visualized, and occasionally
+	integrated into algorithms of a production software system. 
+
+	The other, emerging, view is that probabilistic programming is an
+	extension to a regular programming toolbox allowing
+	algorithms implemented in general programming languages to
+	have learnable parameters. In this view, statistical 
+	models are integrated into the software system, and inference
+	and optimization take place during data processing, prediction,
+	and algorithmic decision making in production.  Probabilistic
+	programming code runs unattended, and inference results are an
+	integral part of the algorithms.
+
+	In this work we are concerned with the later view on
+	probabilistic programming. Our objective is to pave a path to
+	deployment of probabilistic programs in production systems,
+	promoting a wider adoption of probabilistic programming as a
+	flexible tool for ubiquitous statistical inference. 
+
+
 
 The language war. 
 
@@ -56,6 +99,15 @@ A solution: probabilistic programming without a DSL.
 Organization of the paper.
 
 \subsection*{Contributions}
+
+\begin{itemize}
+	\item Guidelines for design and implementation of a
+		probabilistic programming facility deployable as a part 
+		of production software systems.
+	\item A reference implementation of deployable probabilistic
+		programming facility for the Go programming language.
+	\item Design and implementation highlights 
+\end{itemize}
 
 \section{Related Work}
 
@@ -189,27 +241,27 @@ The Go programming language and development environment offer
 capabilities which made implementation of Infergo affordable.
 
 \begin{itemize}
-    \item The Go parser and abstract syntax tree serializer are
-        a part of the standard library. Parsing, transforming,
-        and generating Go source code is straightforward and
-        effortless.
-	\item Type inference (or \textit{type checking} as it is
-		called in the Go ecosystem), also provided in the
-		standard library, augments parsing and allows to
-		selectively apply transformation-based automatic
-		differentiation  based on static expression types. 
-	\item Go compiles and runs fast. Fast compilation and
-		execution speeds allow to use the same facility for both
-		exploratory design of probabilistic models and for
-		inference in production environment.
-	\item Go offers efficient parallel execution as a
-		first-class feature, via so-called \textit{goroutines}.
-		Goroutines streamline implementation of sampling-based
-		inference algorithms. Sample generators and consumers
-		are run in parallel, communicating through channels. 
-		Inference is easy to parallelize in order to exploit
-		hardware multi-processing, and samples are retrieved
-		lazily for postprocessing. 
+\item The Go parser and abstract syntax tree serializer are
+	a part of the standard library. Parsing, transforming,
+	and generating Go source code is straightforward and
+	effortless.
+\item Type inference (or \textit{type checking} as it is
+	called in the Go ecosystem), also provided in the
+	standard library, augments parsing and allows to
+	selectively apply transformation-based automatic
+	differentiation  based on static expression types. 
+\item Go compiles and runs fast. Fast compilation and
+	execution speeds allow to use the same facility for both
+	exploratory design of probabilistic models and for
+	inference in production environment.
+\item Go offers efficient parallel execution as a
+	first-class feature, via so-called \textit{goroutines}.
+	Goroutines streamline implementation of sampling-based
+	inference algorithms. Sample generators and consumers
+	are run in parallel, communicating through channels. 
+	Inference is easy to parallelize in order to exploit
+	hardware multi-processing, and samples are retrieved
+	lazily for postprocessing. 
 \end{itemize}
 
 \subsection{Probabilistic ``Hello, World!''}
@@ -250,16 +302,16 @@ implemented as Infergo models and automatically differentiated.
 
 {\smaller
 \begin{table}[H]
-	\caption{Memory and running times for 1000 iterations
-	of HMC with 10 leapfrog steps.}
-	\label{tab:memory-runtime}
-	\begin{tabular}{r | c |  c | c}
-		{\it model}  & \multicolumn{2}{c|}{\it time} & {\it memory} \\ 
-		 & {\it compilation} & {\it execution} & \\\hline
-		8 schools & 0.15s & 0.6s & 5.5MB \\
-		10D normal, 100 points & 0.15s & 3.0s & 5.7MB \\
-		50D normal, 100 points & 0.15s & 13.0s & 5.8MB 
-	\end{tabular}
+\caption{Memory and running times for 1000 iterations
+of HMC with 10 leapfrog steps.}
+\label{tab:memory-runtime}
+\begin{tabular}{r | c |  c | c}
+	{\it model}  & \multicolumn{2}{c|}{\it time} & {\it memory} \\ 
+	 & {\it compilation} & {\it execution} & \\\hline
+	8 schools & 0.15s & 0.6s & 5.5MB \\
+	10D normal, 100 points & 0.15s & 3.0s & 5.7MB \\
+	50D normal, 100 points & 0.15s & 13.0s & 5.8MB 
+\end{tabular}
 \end{table}}
 
 \section{Conclusion}
