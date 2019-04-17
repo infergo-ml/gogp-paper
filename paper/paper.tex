@@ -743,16 +743,17 @@ While the host environment can be used as a proxy retrieving and
 transforming the data, such as in the case of Stan~\cite{Stan17}
 integrations, sometimes direct access from the probabilistic
 code is the preferred option, for example when the data is
-streamed or retrieved conditionally. 
+streamed or retrieved conditionally, as in active
+learning~\cite{SLB15}.
 
 \paragraph{Integration and deployment} Deployment of software
 systems is a delicate process involving automatic builds and
-maintenance of dependencies. Adding  a component, which possibly
+maintenance of dependencies. Adding a component, which possibly
 introduces additional software dependencies or even a separate
 runtime, complicates deployment. Minimizing the burden of
 probabilistic programming on the integration and deployment
 process should be a major consideration in design or selection
-of probabilistic programming tools.  Probabilistic programming
+of probabilistic programming tools. Probabilistic programming
 systems that are implemented or provide an interface in a
 popular programming language, e.g.  Python
 (Edward~\cite{THS+17}, Pyro~\cite{BCJ+19}) are easier to
@@ -869,9 +870,9 @@ type Model struct {
 
 The \lstinline{Observe} method computes the log-likelihood of
 the distribution parameters. The Normal distribution has two
-parameters: mean $\mu$ and standard deviation
-$\sigma$. To ease the inference, positive $\sigma$ is transformed to
-unrestricted $\log \sigma$, and the parameter vector \lstinline{x} is $[\mu,
+parameters: mean $\mu$ and standard deviation $\sigma$. To ease
+the inference, positive $\sigma$ is transformed to unrestricted
+$\log \sigma$, and the parameter vector \lstinline{x} is $[\mu,
 \log \sigma]$. \lstinline{Observe} first imposes a prior on the
 parameters, and then conditions the posterior distribution on
 the observations:
@@ -1028,6 +1029,8 @@ RegisterElemental(Sigm,
 registers the gradient for function \lstinline{Sigm}.
 
 \section{Inference}
+
+\cite{R16} \cite{KB15} \cite{N12} \cite{HG11} \cite{LN89}
 
 \section{Design and Implementation Highlights}
 
