@@ -422,14 +422,14 @@ hmc.Stop()
 \end{lstlisting}
 
 Models are of course not restricted to linear code, and may
-comprise multiple methods, contain loops, conditional
+comprise multiple methods containing loops, conditional
 statements, function and method calls, and recursion. Case
 studies~(Section~\ref{sec:case-studies}) provide elaborated
 model examples.
 
 \section{Model Syntax and Rules of Differentiation}
 
-In infergo, the inference is performed on a model. An Infergo
+In Infergo, the inference is performed on a model. An Infergo
 model is a data type and methods defined on the data type.
 Inference algorithms accept a model object as an argument.
 A model object usually encapsulates observations --- the data 
@@ -568,15 +568,16 @@ decision making algorithms is challenging. To address the
 challenges, we proposed guidelines for implementation of a
 deployable probabilistic programming facility. Further on, we
 introduced Infergo, a probabilistic programming facility in Go,
-as a reference implementation following the guidelines. Infergo
-allows to program inference models in virtually unrestricted Go,
-and to perform inference on the model using either supplied or
-third-party algorithms. We demonstrated on case studies how
-Infergo overcomes the challenges by following the guidelines.
+as a reference implementation in accordance with the guidelines.
+Infergo allows to program inference models in virtually
+unrestricted Go, and to perform inference on the model using
+either supplied or third-party algorithms. We demonstrated on
+case studies how Infergo overcomes the challenges by following
+the guidelines.
 
 A probabilistic programming facility similar to Infergo can be
 added to most modern general programming languages, in
-particular, those used in implementing large-scale software
+particular, those used for implementation of large-scale software
 systems, making probabilistic programming inference more
 accessible in server-side applications. We described Infergo
 design choices and implementation techniques in intent to
