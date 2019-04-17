@@ -511,14 +511,14 @@
 	Infergo, a probabilistic programming facility for Go, a modern
 	programming language of choice for server-side software
 	development. We argue that a similar probabilistic
-	programming facility can be added to most modern general
+	programming facility can be added to most modern general-purpose
 	programming languages.
 
 	Probabilistic programming enables automatic tuning of
 	program parameters and algorithmic decision making through
 	probabilistic inference based on the data. To facilitate
 	addition of probabilistic programming capabilities to other
-	general programming languages, we share design choices and
+	programming languages, we share design choices and
 	implementation techniques employed in development of
 	Infergo. We illustrate applicability of Infergo to various
 	use cases on case studies, and evaluate Infergo's
@@ -566,7 +566,7 @@
 
 	The other, emerging, view is that probabilistic programming
 	is an extension of a regular programming toolbox allowing
-	algorithms implemented in general programming languages to
+	algorithms implemented in general-purpose programming languages to
 	have learnable parameters. In this view, statistical models
 	are integrated into the software system, and inference and
 	optimization take place during data processing, prediction,
@@ -598,22 +598,23 @@
 
 	Our attitude differs from the established approach in that
 	instead of proposing yet another probabilistic programming
-	language, either genuinely different~\cite{MMR+07,Stan17} or derived from
-	an existing general programming language by extending the
-	syntax or changing the semantics~\cite{GMR+08,TMY+16,GXG18}, we advocate
-	enabling probabilistic inference on models written in a
-	general probabilistic programming language, the same one as
-	the language used to program the bulk of the system. We
-	formulate guidelines for such implementation, and based on
-	the guidelines, introduce a probabilistic programming
+	language, either genuinely different~\cite{MMR+07,Stan17} or
+	derived from an existing general-purpose programming
+	language by extending the syntax or changing the
+	semantics~\cite{GMR+08,TMY+16,GXG18}, we advocate enabling
+	probabilistic inference on models written in a
+	general-purpose probabilistic programming language, the same
+	one as the language used to program the bulk of the system.
+	We formulate guidelines for such implementation, and based
+	on the guidelines, introduce a probabilistic programming
 	facility for the Go programming language~\cite{Golang}. By
 	explaining our design choices and implementation techniques,
 	we argue that a similar facility can be added to any modern
-	general purpose programming language, giving a production
-	system modeling and inference capabilities which do not fall
-	short from and sometimes exceed those of probabilistic
-	programming centric systems with custom languages and
-	runtimes.
+	general-purpose purpose programming language, giving a
+	production system modeling and inference capabilities which
+	do not fall short from and sometimes exceed those of
+	probabilistic programming-centric systems with custom
+	languages and runtimes.
 
 	\subsection*{Contributions}
 
@@ -629,7 +630,7 @@
 			important choices we made in implementation of the
 			probabilistic programming facility, and providing a
 			basis for implementation of a similar facility for
-			other general programming languages.
+			other general-purpose programming languages.
 	\end{itemize}
 
 \section{Related Work}
@@ -646,13 +647,13 @@ Our work is related to three interconnected areas of research:
 
 Probabilistic programming is traditionally associated with
 design and implementation of probabilistic programming
-languages. An apparent justification for a new programming
-language is that a probabilistic program has a different
-semantics~\cite{GHNR14} than a `regular' program of similar
-structure. Goodman and Stuhlm\"uller~\cite{GS15} offer a
+\textit{languages}. An apparent justification for a new
+programming language is that a probabilistic program has a
+different semantics~\cite{GHNR14} than a `regular' program of
+similar structure. Goodman and Stuhlm\"uller~\cite{GS15} offer a
 systematic approach to design and implementation of
 probabilistic programming languages based on extension of the
-syntax of a (subset of) regular programming language and
+syntax of a (subset of) general-purpose programming language and
 transformational compilation to continuation-passing form. Van
 de Meent et al~\cite{MPY+18} give a comprehensive overview of
 available choices of design and implementation of first-order
@@ -661,10 +662,10 @@ Stan~\cite{Stan17} is built around an imperative probabilistic
 programming language with program structure tuned for most
 efficient execution of inference on the model.
 SlicStan~\cite{GGS19} is built on top of Stan as a
-source-to-source compiler, providing the model developer with
-a more intuitive language while retaining performance benefits
-of Stan. Our work differs from existing approaches in that we
-advocate enabling probabilistic programming in a general 
+source-to-source compiler, providing the model developer with a
+more intuitive language while retaining performance benefits of
+Stan. Our work differs from existing approaches in that we
+advocate enabling probabilistic programming in a general-purpose
 programming language by leveraging existing capabilities of the
 language, rather than building a new language on top or besides
 an existing one.
@@ -673,9 +674,9 @@ The need for integration between probabilistic programs and the
 surrounding software environment is well understood in the
 literature~\cite{TMY+16,BCJ+19}. Probabilistic programming
 languages are often implemented as embedded domain-specific
-languages~\cite{SGG15,GXG18,TMY+16} and include a mechanism of calling
-functions from libraries of the host languages. Our work goes a
-step further in this direction: since the language of
+languages~\cite{SGG15,GXG18,TMY+16} and include a mechanism of
+calling functions from libraries of the host languages. Our work
+goes a step further in this direction: since the language of
 implementation of probabilistic models coincides with the host
 language, any library or user-defined function of the host
 language can be directly called from the probabilistic model,
@@ -694,11 +695,11 @@ operator overloading~\cite{Stan17,PCG+17,GXG18} or source
 code transformation~\cite{ISF+18,MMW18}. Our work, too, relies
 on automatic differentiation, implemented as source code
 transformation. However, a novelty of our approach is that
-instead of using explicit directives to denote parts of code
-which needs to be differentiated, we rely on the type system of
-Go to selectively differentiate the code relevant for inference,
-thus combining advantages of both operator overloading and
-source code transformation.
+instead of using explicit calls or directives to denote parts of
+code which needs to be differentiated, we rely on the type
+system of Go to selectively differentiate the code relevant for
+inference, thus combining advantages of both operator
+overloading and source code transformation.
 
 \section{Challenges}
 
@@ -723,15 +724,15 @@ independently of inference for forecasting and decision making.
 
 This pattern suggests re-use of the simulator: instead of
 implementing the simulator twice, in the probabilistic model and
-in the host environment, the same code can serve both purposes.
-However to achieve this, the host language must coincide with
-the implementation language of the probabilistic model, on one
-hand, and allow a computationally efficient implementation of
-the simulation, on the other hand. Some probabilistic systems
-(Figaro~\cite{P09}, Anglican~\cite{TMY+16}, Turing~\cite{GXG18})
-are built with tight integration with the host environment in
-mind; more often than not though the probabilistic code is
-not trivial to re-use.
+in the host environment, one can invoke the same code for both
+purposes.  However to achieve this, the host language must
+coincide with the implementation language of the probabilistic
+model, on one hand, and allow a computationally efficient
+implementation of the simulation, on the other hand. Some
+probabilistic systems (Figaro~\cite{P09},
+Anglican~\cite{TMY+16}, Turing~\cite{GXG18}) are built with
+tight integration with the host environment in mind; more often
+than not though the probabilistic code is not trivial to re-use.
 
 \paragraph{Data interface} The data for inference may come from
 a variety of sources: network, databases, distributed file
@@ -1026,7 +1027,7 @@ RegisterElemental(Sigm,
 \end{lstlisting}
 registers the gradient for function \lstinline{Sigm}.
 
-\subsection{Inference}
+\section{Inference}
 
 \section{Design and Implementation Highlights}
 
@@ -1225,7 +1226,7 @@ case studies how Infergo overcomes the challenges by following
 the guidelines.
 
 A probabilistic programming facility similar to Infergo can be
-added to most modern general programming languages, in
+added to most modern general-purpose programming languages, in
 particular, those used for implementation of large-scale software
 systems, making probabilistic programming inference more
 accessible in large scale server-side applications. We described
