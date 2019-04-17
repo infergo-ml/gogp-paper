@@ -664,14 +664,14 @@ SlicStan~\cite{GGS19} is built on top of Stan as a
 source-to-source compiler, providing the model developer with
 a more intuitive language while retaining performance benefits
 of Stan. Our work differs from existing approaches in that we
-advocate enabling probabilistic programming in a general purpose
+advocate enabling probabilistic programming in a general 
 programming language by leveraging existing capabilities of the
 language, rather than building a new language on top or besides
 an existing one.
 
 The need for integration between probabilistic programs and the
 surrounding software environment is well understood in the
-literature~\cite{TMY+16,Pyro18}. Probabilistic programming
+literature~\cite{TMY+16,BCJ+19}. Probabilistic programming
 languages are often implemented as embedded domain-specific
 languages~\cite{SGG15,GXG18,TMY+16} and include a mechanism of calling
 functions from libraries of the host languages. Our work goes a
@@ -681,9 +681,24 @@ language, any library or user-defined function of the host
 language can be directly called from the probabilistic model,
 and model methods can be directly called from the host language.
 
-
-Differentiable programming for machine learning (fundamentals,
-Stan, Tangent, Flux, Zygote, Pyro, Edward).
+Automatic differentiation is widely employed in machine
+learning~\cite{BPR+17,MBB+18} where it is also known as
+`differentiable programming', and is responsible for enabling
+efficient inference in many probabilistic programming
+systems~\cite{Stan17,GXG18,ISF+18,BCJ+19,THS+17}. Different
+automatic differentiation techniques~\cite{GW08} allow 
+different compromises between flexibility, efficiency, and
+feature-richness~\cite{SDT14,PGC+17,ISF+18}.  Automatic
+differentiation is usually implemented through either
+operator overloading~\cite{Stan17,PCG+17,GXG18} or source
+code transformation~\cite{ISF+18,MMW18}. Our work, too, relies
+on automatic differentiation, implemented as source code
+transformation. However, a novelty of our approach is that
+instead of using explicit directives to denote parts of code
+which needs to be differentiated, we rely on the type system of
+Go to selectively differentiate the code relevant for inference,
+thus combining advantages of both operator overloading and
+source code transformation.
 
 \section{Challenges}
 
@@ -912,7 +927,7 @@ hmc := &infer.HMC{
 }
 samples := make(chan []float64)
 hmc.Sample(m, x, samples)
-for i := 0; i != 1000; i++ {
+for i := 0; i != 5000; i++ {
 	x = <-samples
 }
 hmc.Stop()
