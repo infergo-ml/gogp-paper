@@ -681,7 +681,7 @@ host programming language, passes the data and the model to an
 inference algorithm, and post-processes the results in the
 host programming language again to make algorithmic
 decisions based on inference outcomes. However, complex
-server-side software systems make integration of probabilistic
+software systems make integration of probabilistic
 inference challenging. 
 
 \paragraph{Simulation vs. inference} Probabilistic models
@@ -704,31 +704,30 @@ are built with tight integration with the host environment in
 mind; more often than not though the probabilistic code is
 not trivial to re-use.
 
-\paragraph{Data interface} In a server-side application data
-for inference comes from a variety of sources: network,
-databases, distributed file systems, and in many different
-formats. Efficient inference depends on fast data access and
-updating. Libraries for data access and manipulation are
-available in the host environment. While the host environment
-can be used as a proxy retrieving and transforming the data,
-such as in the case of Stan~\cite{Stan17} integrations,
-sometimes direct access from the probabilistic code is the
-preferred option, for example when the data is streamed or
-retrieved conditionally. 
+\paragraph{Data interface} The data for inference may come from
+a variety of sources: network, databases, distributed file
+systems, and in many different formats. Efficient inference
+depends on fast data access and updating. Libraries for data
+access and manipulation are available in the host environment.
+While the host environment can be used as a proxy retrieving and
+transforming the data, such as in the case of Stan~\cite{Stan17}
+integrations, sometimes direct access from the probabilistic
+code is the preferred option, for example when the data is
+streamed or retrieved conditionally. 
 
-\paragraph{Integration and deployment} Deployment of server-side
-software systems is a delicate process involving automatic
-builds and maintenance of dependencies. Adding  a component,
-which possibly introduces additional software dependencies or
-even a separate runtime, complicates deployment. Minimizing the
-burden of probabilistic programming on the integration
-and deployment process should be a major consideration in
-design or selection of probabilistic programming tools.
-Probabilistic programming systems that are implemented or 
-provide an interface in a popular programming language, e.g.
-Python (Edward~\cite{THS+17}, Pyro~\cite{BCJ+19}) are easier
-to integrate and deploy, however the smaller the footprint
-of a probabilistic system, the easier is the adoption.
+\paragraph{Integration and deployment} Deployment of software
+systems is a delicate process involving automatic builds and
+maintenance of dependencies. Adding  a component, which possibly
+introduces additional software dependencies or even a separate
+runtime, complicates deployment. Minimizing the burden of
+probabilistic programming on the integration and deployment
+process should be a major consideration in design or selection
+of probabilistic programming tools.  Probabilistic programming
+systems that are implemented or provide an interface in a
+popular programming language, e.g.  Python
+(Edward~\cite{THS+17}, Pyro~\cite{BCJ+19}) are easier to
+integrate and deploy, however the smaller the footprint of a
+probabilistic system, the easier is the adoption.
 
 \section{Guidelines}
 
@@ -737,7 +736,7 @@ using different probabilistic environments, we came up with
 guidelines to implementation of a probabilistic programming
 facility for server-side applications. We believe that these
 guidelines, when followed, help easier integration of
-probabilistic programming inference into large-scale server-side
+probabilistic programming inference into large-scale 
 software systems.
 
 \begin{enumerate}
@@ -769,8 +768,8 @@ programming facility for the Go programming language, Infergo.
 We have chosen Go because Go is a
 small but expressive programming language with efficient
 implementation, which has recently become quite popular for
-computation-intensive server-side programming. Infergo is
-used in production environment for inference of mission-critical
+computation-intensive server-side programming. Infergo is used
+in production environment for inference of mission-critical
 algorithm parameters.
 
 \subsection{An Overview of Infergo}
@@ -998,17 +997,13 @@ RegisterElemental(Sigm,
 \end{lstlisting}
 registers the gradient for function \lstinline{Sigm}.
 
+\subsection{Inference}
+
 \section{Design and Implementation Highlights}
 
 \subsection{Choice of Programming Language}
 
 \subsection{Automatic Differentiation}
-
-\subsection{Inference}
-
-\subsubsection{Optimization}
-
-\subsubsection{Full Posterior}
 
 \subsection{Composability of Models}
 
@@ -1204,9 +1199,9 @@ A probabilistic programming facility similar to Infergo can be
 added to most modern general programming languages, in
 particular, those used for implementation of large-scale software
 systems, making probabilistic programming inference more
-accessible in server-side applications. We described Infergo
-design choices and implementation techniques in intent to
-encourage broader adoption of probabilistic programming in
+accessible in large scale server-side applications. We described
+Infergo design choices and implementation techniques in intent
+to encourage broader adoption of probabilistic programming in
 production software systems and ease implementation of similar
 facilities in other languages and software environments.
 
