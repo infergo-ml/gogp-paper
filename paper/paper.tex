@@ -645,7 +645,7 @@ Our work is related to three interconnected areas of research:
 \end{enumerate}
 
 Probabilistic programming is traditionally associated with
-design and implemenetation of probabilistic programming
+design and implementation of probabilistic programming
 languages. An apparent justification for a new programming
 language is that a probabilistic program has a different
 semantics~\cite{GHNR14} than a `regular' program of similar
@@ -663,10 +663,24 @@ efficient execution of inference on the model.
 SlicStan~\cite{GGS19} is built on top of Stan as a
 source-to-source compiler, providing the model developer with
 a more intuitive language while retaining performance benefits
-of Stan. 
+of Stan. Our work differs from existing approaches in that we
+advocate enabling probabilistic programming in a general purpose
+programming language by leveraging existing capabilities of the
+language, rather than building a new language on top or besides
+an existing one.
 
-Integrated probabilistic programming (Figaro~\cite{P09},
-Anglican~\cite{TMY+16}, Turing~\cite{GXG18}).
+The need for integration between probabilistic programs and the
+surrounding software environment is well understood in the
+literature~\cite{TMY+16,Pyro18}. Probabilistic programming
+languages are often implemented as embedded domain-specific
+languages~\cite{SGG15,GXG18,TMY+16} and include a mechanism of calling
+functions from libraries of the host languages. Our work goes a
+step further in this direction: since the language of
+implementation of probabilistic models coincides with the host
+language, any library or user-defined function of the host
+language can be directly called from the probabilistic model,
+and model methods can be directly called from the host language.
+
 
 Differentiable programming for machine learning (fundamentals,
 Stan, Tangent, Flux, Zygote, Pyro, Edward).
