@@ -475,7 +475,6 @@
     basicstyle=\ttfamily\footnotesize,
     numbers=none,
     numbersep=4pt,
-	framexleftmargin=10pt,
     showstringspaces=false,
     tabsize=4,
     language=Golang % this is it !
@@ -993,7 +992,7 @@ registers the gradient for function \lstinline{Sigm}.
 
 \begin{figure*}
 	\begin{minipage}{0.45\textwidth}
-\begin{lstlisting}[language=Stan,numbers=left]
+	\begin{lstlisting}[language=Stan,framexleftmargin=10pt,numbers=left]
 data {
   int<lower=0> J;
   vector[J] y;
@@ -1022,7 +1021,7 @@ a. Stan
 	\end{minipage}
 	\hfill
 	\begin{minipage}{0.45\textwidth}
-\begin{lstlisting}[numbers=left]
+\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 type Model struct {
   J          int
   Y          []float64
@@ -1056,7 +1055,7 @@ b. Infergo
 \subsection{Linear regression}
 
 \begin{figure}
-\begin{lstlisting}[numbers=left]
+\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 type Model struct {
   Data  [][]float64
 }
@@ -1091,7 +1090,7 @@ func (m *Model) Simulate(x, alpha, beta float64)
 \subsection{Gaussian mixture}
 
 \begin{figure}
-\begin{lstlisting}[numbers=left]
+\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 type Model struct {
   Data  []float64 // samples
   NComp int       // number of components
