@@ -633,8 +633,37 @@
 	\end{itemize}
 
 \section{Related Work}
-Probabilistic programming languages \cite{GS15}, \cite{MPY+18},
-\cite{Stan17}, \cite{GGS19}.
+
+Our work is related to three interconnected areas of research:
+\begin{enumerate}
+	\item Design and implementation of probabilistic programming
+		languages. 
+	\item Integration and interoperability between probabilistic
+		programming models and the surrounding software
+		systems.
+	\item Differentiable programming for machine learning.
+\end{enumerate}
+
+Probabilistic programming is traditionally associated with
+design and implemenetation of probabilistic programming
+languages. An apparent justification for a new programming
+language is that a probabilistic program has a different
+semantics~\cite{GHNR14} than a `regular' program of similar
+structure. Goodman and Stuhlm\"uller~\cite{GS15} offer a
+systematic approach to design and implementation of
+probabilistic programming languages based on extension of the
+syntax of a (subset of) regular programming language and
+transformational compilation to continuation-passing form. Van
+de Meent et al~\cite{MPY+18} give a comprehensive overview of
+available choices of design and implementation of first-order
+and higher-order probabilistic programming languages.
+Stan~\cite{Stan17} is built around an imperative probabilistic
+programming language with program structure tuned for most
+efficient execution of inference on the model.
+SlicStan~\cite{GGS19} is built on top of Stan as a
+source-to-source compiler, providing the model developer with
+a more intuitive language while retaining performance benefits
+of Stan. 
 
 Integrated probabilistic programming (Figaro~\cite{P09},
 Anglican~\cite{TMY+16}, Turing~\cite{GXG18}).
