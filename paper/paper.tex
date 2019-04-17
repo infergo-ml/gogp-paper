@@ -746,6 +746,16 @@ code is the preferred option, for example when the data is
 streamed or retrieved conditionally, as in active
 learning~\cite{SLB15}.
 
+A flexible data interface is also benefitial for support of
+mini-batch optimization~\cite{LZC+14}. Mini-batch optimization
+is used when the data set is too big to fit in memory, and the
+objective function gradient is estimated based on mini-batches
+--- small portions of data. Different models and inference
+objectives may require different mini-batch loading schemes.
+For best performance of mini-batch optimization, it should be
+possible to program loading of mini-batches on case-by-case
+basis.
+
 \paragraph{Integration and deployment} Deployment of software
 systems is a delicate process involving automatic builds and
 maintenance of dependencies. Adding a component, which possibly
