@@ -604,7 +604,7 @@
 	semantics~\cite{GMR+08,TMY+16,GXG18}, we advocate enabling
 	probabilistic inference on models written in a
 	general-purpose probabilistic programming language, the same
-	one as the language used to program the bulk of the system.
+	one as the language used to program the bulk of the system. 
 	We formulate guidelines for such implementation, and based
 	on the guidelines, introduce a probabilistic programming
 	facility for the Go programming language~\cite{Golang}. By
@@ -614,7 +614,11 @@
 	production system modeling and inference capabilities which
 	do not fall short from and sometimes exceed those of
 	probabilistic programming-centric systems with custom
-	languages and runtimes.
+	languages and runtimes. Availability of such facilities
+	in major general-purpose programming languages would free
+	probabilistic programming researchers and practitioners
+	alike from language wars~\cite{SH14} and foster practical
+	applications of probabilistic programming.
 
 	\subsection*{Contributions}
 
@@ -650,12 +654,12 @@ design and implementation of probabilistic programming
 \textit{languages}. An apparent justification for a new
 programming language is that a probabilistic program has a
 different semantics~\cite{GHNR14} than a `regular' program of
-similar structure. Goodman and Stuhlm\"uller~\cite{GS15} offer a
+similar structure. \citet{GS15} offer a
 systematic approach to design and implementation of
 probabilistic programming languages based on extension of the
 syntax of a (subset of) general-purpose programming language and
-transformational compilation to continuation-passing form. Van
-de Meent et al~\cite{MPY+18} give a comprehensive overview of
+transformational compilation to continuation-passing form. 
+\citet{MPY+18} give a comprehensive overview of
 available choices of design and implementation of first-order
 and higher-order probabilistic programming languages.
 Stan~\cite{Stan17} is built around an imperative probabilistic
@@ -691,7 +695,7 @@ automatic differentiation techniques~\cite{GW08} allow
 different compromises between flexibility, efficiency, and
 feature-richness~\cite{SDT14,PGC+17,ISF+18}.  Automatic
 differentiation is usually implemented through either
-operator overloading~\cite{Stan17,PCG+17,GXG18} or source
+operator overloading~\cite{Stan17,PGC+17,GXG18} or source
 code transformation~\cite{ISF+18,MMW18}. Our work, too, relies
 on automatic differentiation, implemented as source code
 transformation. However, a novelty of our approach is that
@@ -769,6 +773,10 @@ popular programming language, e.g.  Python
 (Edward~\cite{THS+17}, Pyro~\cite{BCJ+19}) are easier to
 integrate and deploy, however the smaller the footprint of a
 probabilistic system, the easier is the adoption.
+An obstacle in integration of probabilistic programming lies
+also in adoption of the probabilistic programming
+language~\cite{MR12}, if the latter differs from the
+implementation language of the rest of the system.
 
 \section{Guidelines}
 
@@ -952,11 +960,16 @@ model examples.
 
 \section{Model Syntax and Rules of Differentiation}
 
-In Infergo, the inference is performed on a model. An Infergo
-model is a data type and methods defined on the data type.
-Inference algorithms accept a model object as an argument.
-A model object usually encapsulates observations --- the data 
-to which the parameter values are adapted.
+In Infergo, the inference is performed on a model. Just like in
+Stan~\cite{Stan17} models, latent random variables in Infergo
+models are continuous. Additionally, Infergo can express and
+perform inference on non-deterministic models by including
+stochastic choices in the model code.
+
+An Infergo model is a data type and methods defined on the data
+type.  Inference algorithms accept a model object as an
+argument.  A model object usually encapsulates observations ---
+the data to which the parameter values are adapted.
 
 A model is implemented in Go, virtually
 unrestricted\footnote{There are insignificant implementation
