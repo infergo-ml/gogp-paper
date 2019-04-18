@@ -1042,7 +1042,7 @@ elemental functions with pre-defined gradients are provided in a
 separate package.
 
 Any user-defined function of appropriate kind can be used as an
-elemental inside model methods. An elemental must be declared
+elemental inside model methods. The gradient must be registered
 for the function using a call to
 \begin{lstlisting}
 func RegisterElemental(
@@ -1058,7 +1058,8 @@ RegisterElemental(Sigm,
 		return []float64{value*(1-value)}
 	})
 \end{lstlisting}
-registers the gradient for function \lstinline{Sigm}.
+registers the gradient for function
+\lstinline{Sigm}$(x)\coloneq\left(1+e^{-x}\right)^{-1}$.
 
 \section{Inference}
 
