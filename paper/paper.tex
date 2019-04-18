@@ -722,7 +722,7 @@ conciseness (e.g.  the number of lines of code to describe a
 particular model), and time and space efficiency of inference
 algorithms~\cite{WVM14,P16,R17,GXG18}.  However, complex
 software systems make integration of probabilistic inference
-challenging, and considerations between beyond expressiveness
+challenging, and considerations beyond expressiveness
 and performance come into play.
 
 \paragraph{Simulation vs. inference} Probabilistic models
@@ -757,7 +757,7 @@ code is the preferred option, for example when the data is
 streamed or retrieved conditionally, as in active
 learning~\cite{SLB15}.
 
-A flexible data interface is also benefitial for support of
+A flexible data interface is also beneficial for support of
 mini-batch optimization~\cite{LZC+14}. Mini-batch optimization
 is used when the data set is too big to fit in memory, and the
 objective function gradient is estimated based on mini-batches
@@ -1059,6 +1059,34 @@ RegisterElemental(Sigm,
 registers the gradient for function \lstinline{Sigm}.
 
 \section{Inference}
+
+Out of the box, Infergo offers 
+\begin{itemize}
+	\item maximum \textit{a posteriori} estimation by stochastic
+		gradient descent~\cite{R16}; 
+	\item full posterior inference by Hamiltonian Monte
+		Carlo~\cite{N12,HG11}.
+\end{itemize}
+
+When only a point estimate of the model parameters is required,
+as, for example, in the simulation-inference case, stochastic
+gradient descent is a fast and robust inference family. Infergo
+offers stochastic gradient descent with momentum and
+Adam~\cite{KB15}.  The inference is performed by calling the
+\lstinline{Step} method of the optimizer until a termination
+condition is met.
+
+When the full posterior must be recovered for integration,
+Hamiltonian Monte Carlo (HMC) can be used instead. Vanilla HMC
+as well as the No-U-Turn sampler (NUTS)~\cite{HG11} are
+provided. To support lazy any-time computation, the inference
+runs in a separate \textit{goroutine}, connected by a channel to
+the caller, and asynchronously writes samples to the channel.
+The caller reads as many samples from the channel as needed, and
+further post-processes them.
+\begin{lstlisting}
+\end{lstlising}
+
 
 \cite{R16} \cite{KB15} \cite{N12} \cite{HG11} \cite{LN89}
 
