@@ -712,11 +712,18 @@ procedure, within a larger code body appears to be rather
 straightforward: one implements the model in the probabilistic
 programming language, fetches and preprocesses the data in the
 host programming language, passes the data and the model to an
-inference algorithm, and post-processes the results in the
-host programming language again to make algorithmic
-decisions based on inference outcomes. However, complex
-software systems make integration of probabilistic
-inference challenging. 
+inference algorithm, and post-processes the results in the host
+programming language again to make algorithmic decisions based
+on inference outcomes. To choose the best one for each particular
+application, probabilistic programming languages and systems are
+customarily compared by the expressive power (classes of
+probabilistic models that can be represented), conciseness (e.g.
+the number of lines of code to describe a particular model), and
+time and space efficiency of inference
+algorithms~\cite{WVM14,P16,R17,GXG18}.  However, complex
+software systems make integration of probabilistic inference
+challenging, and considerations between beyond expressiveness
+and performance come into play.
 
 \paragraph{Simulation vs. inference} Probabilistic models
 often follow a design pattern of simulation-inference: a
