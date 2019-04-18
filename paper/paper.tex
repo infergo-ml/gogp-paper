@@ -5,6 +5,8 @@
 \usepackage{listings}[language=Golang]
 \usepackage{GoMono}
 
+%\linespread{1.0}
+
 \lstdefinelanguage{Golang}%
   {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
      recover,select,var,const,iota,},%
@@ -1046,7 +1048,7 @@ for the function using a call to
 func RegisterElemental(
 	f interface{}, 
 	g func(value float64,
-		   params ...float64) []float64).
+		   params ...float64) []float64)
 \end{lstlisting} For
 example, the call
 \begin{lstlisting}
@@ -1074,8 +1076,11 @@ gradient descent is a fast and robust inference family. Infergo
 offers stochastic gradient descent with momentum and
 Adam~\cite{KB15}.  The inference is performed by calling the
 \lstinline{Step} method of the optimizer until a termination
-condition is met.
+condition is met:
 \begin{lstlisting}
+for !<termination condition> {
+    optimizer.Step(model, parameters)
+}
 \end{lstlisting}
 
 When the full posterior must be recovered for integration,
@@ -1085,23 +1090,30 @@ provided. To support lazy any-time computation, the inference
 runs in a separate \textit{goroutine}, connected by a channel to
 the caller, and asynchronously writes samples to the channel.
 The caller reads as many samples from the channel as needed, and
-further post-processes them.
+further postprocesses them:
 \begin{lstlisting}
+samples := make(chan []float64)
+hmc.Sample(model, parameters, samples)
+for !<termination condition> {
+	sample = <-samples
+	// postprocess the sample
+}
+hmc.Stop()
 \end{lstlisting}
 
 Other inference schemes, most notably automatic differentiation
 variational inference~\cite{KTR+17}, are planned for addition
 in future versions of Infergo. However, an inference algorithm
 does not have to be a part of Infergo to work with Infergo
-models. Since infergo models operate on the built-in Go floating
+models. Since Infergo models operate on a built-in Go floating
 point type, \lstinline{float64}, any third-party inference or
 optimization library can be used as well. 
 
 As an example, the Gonum~\cite{Gonum} library for numerical
 computations contains an optimization package offering several
 algorithms for gradient-based optimization. A Gonum optimization
-algorithm require the function to optimize as well as the
-function's gradient as parameters. An Infergo model can be
+algorithm requires the function to optimize, as well as the
+function's gradient, as parameters. An Infergo model can be
 trivially wrapped for use with Gonum, and Infergo provides a
 convenience function
 \begin{lstlisting}
@@ -1116,7 +1128,13 @@ to Gonum optimization algorithms. Among available algorithms are
 advanced versions of stochastic gradient descent, as well as
 algorithms of BFGS family, in particular LBFGS~\cite{LN89},
 providing for a more efficient MAP estimation than stochastic
-gradient descent at the cost of higher memory consumption.
+gradient descent at the cost of higher memory consumption:
+\begin{lstlisting}
+function, gradient := FuncGrad(model)
+problem := gonum.Problem{Func: function, 
+                         Grad: gradient}
+result, err := gonum.Minimize(problem, parameters)
+\end{lstlisting}
 
 Other third-party implementations of optimization algorithms can
 be used just as easily, thanks to Infergo models being pure Go
@@ -1340,6 +1358,10 @@ to shape and improve probabilistic modeling and inference, thus
 further advancing the field of probabilistic programming.
 
 \end{sloppypar}
+
+
+\clearpage
+\clearpage
 
 \bibliography{refs}
 
