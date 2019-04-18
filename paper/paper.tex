@@ -1062,7 +1062,7 @@ registers the gradient for function \lstinline{Sigm}.
 
 Out of the box, Infergo offers 
 \begin{itemize}
-	\item maximum \textit{a posteriori} estimation by stochastic
+	\item maximum \textit{a posteriori} (MAP) estimation by stochastic
 		gradient descent~\cite{R16}; 
 	\item full posterior inference by Hamiltonian Monte
 		Carlo~\cite{N12,HG11}.
@@ -1075,6 +1075,8 @@ offers stochastic gradient descent with momentum and
 Adam~\cite{KB15}.  The inference is performed by calling the
 \lstinline{Step} method of the optimizer until a termination
 condition is met.
+\begin{lstlisting}
+\end{lstlisting}
 
 When the full posterior must be recovered for integration,
 Hamiltonian Monte Carlo (HMC) can be used instead. Vanilla HMC
@@ -1085,10 +1087,40 @@ the caller, and asynchronously writes samples to the channel.
 The caller reads as many samples from the channel as needed, and
 further post-processes them.
 \begin{lstlisting}
-\end{lstlising}
+\end{lstlisting}
 
+Other inference schemes, most notably automatic differentiation
+variational inference~\cite{KTR+17}, are planned for addition
+in future versions of Infergo. However, an inference algorithm
+does not have to be a part of Infergo to work with Infergo
+models. Since infergo models operate on the built-in Go floating
+point type, \lstinline{float64}, any third-party inference or
+optimization library can be used as well. 
 
-\cite{R16} \cite{KB15} \cite{N12} \cite{HG11} \cite{LN89}
+As an example, the Gonum~\cite{Gonum} library for numerical
+computations contains an optimization package offering several
+algorithms for gradient-based optimization. A Gonum optimization
+algorithm require the function to optimize as well as the
+function's gradient as parameters. An Infergo model can be
+trivially wrapped for use with Gonum, and Infergo provides a
+convenience function
+\begin{lstlisting}
+func FuncGrad(m Model) (
+	Func func(x []float64) float64,
+	Grad func(grad []float64, x []float64)
+		[]float64)
+\end{lstlisting}
+which accepts a model and returns the model's
+\lstinline{Observe} method and its gradient suitable for passing
+to Gonum optimization algorithms. Among available algorithms are
+advanced versions of stochastic gradient descent, as well as
+algorithms of BFGS family, in particular LBFGS~\cite{LN89},
+providing for a more efficient MAP estimation than stochastic
+gradient descent at the cost of higher memory consumption.
+
+Other third-party implementations of optimization algorithms can
+be used just as easily, thanks to Infergo models being pure Go
+code operating on built-in Go data types.
 
 \section{Design and Implementation Highlights}
 
