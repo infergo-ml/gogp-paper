@@ -520,13 +520,12 @@
 	program parameters and algorithmic decision making through
 	probabilistic inference based on the data. To facilitate
 	addition of probabilistic programming capabilities to other
-	programming languages, we share design choices and
-	implementation techniques employed in development of
-	Infergo. We illustrate applicability of Infergo to various
-	use cases on case studies, and evaluate Infergo's
-	performance on several benchmarks, comparing Infergo to
-	dedicated inference-centric probabilistic programming
-	systems.
+	programming languages, we share implementation choices and
+	techniques employed in development of Infergo. We illustrate
+	applicability of Infergo to various use cases on case
+	studies, and evaluate Infergo's performance on several
+	benchmarks, comparing Infergo to dedicated inference-centric
+	probabilistic programming systems.
 \end{abstract}
 
 \begin{document}
@@ -549,7 +548,7 @@
 	Metropolis-Hastings\cite{WSG11,MSP14,YHG14}, Hamiltonian
 	Monte Carlo~\cite{Stan17}, expectation
 	propagation~\cite{MWG+10}, extensions of Sequential Monte
-	Carlo~\cite{WVM14,MYM+15,PWD+14}, variational
+	Carlo~\cite{WVM14,MYM+15,PWD+14,RNL+2016}, variational
 	inference~\cite{WW13,KTR+17}, gradient-based
 	optimization~\cite{Stan17,BCJ+19}, and others.
 
@@ -610,7 +609,7 @@
 	We formulate guidelines for such implementation, and based
 	on the guidelines, introduce a probabilistic programming
 	facility for the Go programming language~\cite{Golang}. By
-	explaining our design choices and implementation techniques,
+	explaining our implementation choices and techniques,
 	we argue that a similar facility can be added to any modern
 	general-purpose purpose programming language, giving a
 	production system modeling and inference capabilities which
@@ -632,8 +631,8 @@
 			of a production software system.
 		\item A reference implementation of deployable probabilistic
 			programming facility for the Go programming language.
-		\item Design and implementation highlights outlining
-			important choices we made in implementation of the
+		\item Implementation highlights outlining important
+			choices we made in implementation of the
 			probabilistic programming facility, and providing a
 			basis for implementation of a similar facility for
 			other general-purpose programming languages.
@@ -655,14 +654,14 @@ Probabilistic programming is traditionally associated with
 design and implementation of probabilistic programming
 \textit{languages}. An apparent justification for a new
 programming language is that a probabilistic program has a
-different semantics~\cite{GHNR14} than a `regular' program of
-similar structure. \citet{GS15} offer a
-systematic approach to design and implementation of
-probabilistic programming languages based on extension of the
-syntax of a (subset of) general-purpose programming language and
-transformational compilation to continuation-passing form. 
-\citet{MPY+18} give a comprehensive overview of
-available choices of design and implementation of first-order
+different semantics~\cite{GHNR14,SYH+16} than a `regular'
+program of similar structure. \citet{GS15} offer a systematic
+approach to design and implementation of probabilistic
+programming languages based on extension of the syntax of a
+(subset of) general-purpose programming language and
+transformational compilation to continuation-passing
+style~\cite{AJ89,A07}.  \citet{MPY+18} give a comprehensive overview
+of available choices of design and implementation of first-order
 and higher-order probabilistic programming languages.
 Stan~\cite{Stan17} is built around an imperative probabilistic
 programming language with program structure tuned for most
@@ -853,33 +852,6 @@ simultaneously available to the rest of the program code, so the
 methods can be called on the differentiated model for inference,
 and on the original model for the most efficient execution with
 the inferred parameters.
-
-The Go programming language and development environment offer
-capabilities which made implementation of Infergo affordable.
-
-\begin{itemize}
-\item The Go parser and abstract syntax tree serializer are
-	a part of the standard library. Parsing, transforming,
-	and generating Go source code is straightforward and
-	effortless.
-\item Type inference (or \textit{type checking} as it is
-	called in the Go ecosystem), also provided in the
-	standard library, augments parsing and allows to
-	selectively apply transformation-based automatic
-	differentiation  based on static expression types. 
-\item Go compiles and runs fast. Fast compilation and
-	execution speeds allow to use the same facility for both
-	exploratory design of probabilistic models and for
-	inference in production environment.
-\item Go offers efficient parallel execution as a
-	first-class feature, via so-called \textit{goroutines}.
-	Goroutines streamline implementation of sampling-based
-	inference algorithms. Sample generators and consumers
-	are run in parallel, communicating through channels. 
-	Inference is easy to parallelize in order to exploit
-	hardware multi-processing, and samples are retrieved
-	lazily for postprocessing. 
-\end{itemize}
 
 \subsection{A Basic Example}
 
@@ -1141,9 +1113,83 @@ Other third-party implementations of optimization algorithms can
 be used just as easily, thanks to Infergo models being pure Go
 code operating on built-in Go data types.
 
-\section{Design and Implementation Highlights}
+\section{Implementation Highlights}
+
+In our journey towards implementation and release of Infergo, 
 
 \subsection{Choice of Programming Language}
+
+Python~\cite{Python95}, Scala~\cite{Scala06}, and
+Julia~\cite{Julia14} have been popular choices for development
+of probabilistic programming languages and systems integrated
+with general-purpose programming
+languages~\cite{S16,MMW18,BCJ+19,P09,Rainier,GXG18,ISF+18}.
+Each of these languages has advantages for implementing a
+probabilistic programming facility. However, for a reference
+implementation of a facility best suited for probabilistic
+inference in a porduction software system, we were looking
+for a language that \begin{itemize}
+	\item compiles into fast and compact code;
+	\item does not incur dependency on a heavy runtime; and
+	\item is a popular choice for building server-side software.
+\end{itemize}
+In addition, since we were going to automatically differentiate
+the language's source code, we were looking for a relatively
+small language, preferably one for which parsing and program
+analysis tools are readily available. 
+
+We chose Go~\cite{Golang}. Go is a small but expressive
+programming language widely used for implementing
+computationally-intensive server-side software systems. 
+The standard libraries and development environment offer
+capabilities which made implementation of Infergo affordable
+and streamlined:
+
+\begin{itemize}
+	\item The Go parser and abstract syntax tree serializer are
+		a part of the standard library. Parsing, transforming,
+		and generating Go source code is straightforward and
+		effortless.
+	\item Type inference (or \textit{type checking} as it is
+		called in the Go ecosystem), also provided in the
+		standard library, augments parsing and allows to
+		selectively apply transformation-based automatic
+		differentiation  based on static expression types. 
+	\item Go provides reflection capabilities for almost any aspect
+		of the running program, without compromising efficiency.
+		Reflection gives the flexibility highly desirable to
+		implement features such as calling Go library
+		functions from the model code.
+	\item Go compiles and runs fast. Fast compilation and
+		execution speeds allow to use the same facility for both
+		exploratory design of probabilistic models and for
+		inference in production environment.
+	\item Go is available on many platforms and for a wide range
+		of operating systems and environments, from portable
+		devices to supercomputers. Go programs can be
+		cross-compiled, and go programs can be reliably
+		developed and deployed in heterogeneous environments.
+	\item Go offers efficient parallel execution as a
+		first-class feature, via so-called \textit{goroutines}.
+		Goroutines streamline implementation of sampling-based
+		inference algorithms. Sample generators and consumers
+		are run in parallel, communicating through channels. 
+		Inference is easy to parallelize in order to exploit
+		hardware multi-processing, and samples are retrieved
+		lazily for postprocessing. 
+\end{itemize}
+
+Considering and choosing Go for development of what later became
+Infergo also affected the shape of the software system in which
+Infergo was deployed first. Formerly implemented mostly in
+Python, and both enjoying a wide choice of libraries for machine
+learning and data processing and suffering from limitations of
+Python as a language for implementation of computation-intensive
+algorithms, the system has been gradually drifting towards
+adopting Go, with performance-critical parts re-implemented and
+running faster, with better hardware and network utilization,
+and simpler and more maintainable code for data processing,
+analysis, and decision making.
 
 \subsection{Automatic Differentiation}
 
@@ -1278,7 +1324,8 @@ func (m *Model) Observe(x []float64) float64 {
   for i := 0; i != len(m.Data); i++ {
     var l float64
     for j := 0; j != m.NComp; j++ {
-      lj := Normal.Logp(mu[j], sigma[j], m.Data[i])
+      lj := Normal.Logp(mu[j], sigma[j],
+	                    m.Data[i])
       if j == 0 {
         l = lj
       } else {
@@ -1295,8 +1342,7 @@ func (m *Model) Observe(x []float64) float64 {
 \label{fig:gaussian-mixture}
 \end{figure}
 
-
-\subsection{Performance}
+\section{Performance}
 
 Table~\ref{tab:memory-runtime} provides memory consumption and
 running time measurements on basic models to illustrate
@@ -1342,7 +1388,7 @@ added to most modern general-purpose programming languages, in
 particular, those used for implementation of large-scale software
 systems, making probabilistic programming inference more
 accessible in large scale server-side applications. We described
-Infergo design choices and implementation techniques in intent
+Infergo implementation choices and techniques in intent
 to encourage broader adoption of probabilistic programming in
 production software systems and ease implementation of similar
 facilities in other languages and software environments.
