@@ -1203,155 +1203,142 @@ analysis, and decision making.
 
 \subsection{Automatic Differentiation}
 
-Tape, overloading vs transformation, elementals. Differentiation
-of calls. Distributions. Composability. Nested inference.
+Infergo employs reverse-mode autodifferentiation via source code
+transformation~\cite{GW08}. The reverse mode is the default
+choice in machine learning applications, because it works best
+with differentiating a scalar return value with respect to
+multiple parameters. Automatic differentiation is usually
+implemented using either operator overloading or source code
+transformation. Operator overloading is often the method of
+choice~\cite{Stan17,GXG18,PGC+17} due to relative simplicity,
+but the differentiated code must use a special type (on which
+the operators are overloaded) for representing floating point
+numbers. Regardless of the issue of computational overhead, this
+restricts the language used to specify the model to operations on
+that special type and impairs interoperability: library
+functions cannot be directly called but have to use an adaptor,
+or a `lifted' version of the standard library must be supplied.
+Similarly, the data must be cast into the special type before it
+is passed to the model for inference.
+
+Source code transformation allows to automatically differentiate
+program code operating on the built-in floating point type. This
+method involves generation of new code, for the function
+gradient or for the function itself, ahead of time or on the
+fly. To achieve the best performance, some implementations
+generate static code for computing the function
+gradient~\cite{MMW18,I18}. This requires a rather elaborated
+source code analysis, and although a significant progress has
+been made in this direction, not all language constructs are
+supported. Alternatively, the code of the function itself can be
+transformed by augmenting arithmetics and function calls on the
+floating point type by function calls that record the
+computations on the \textit{tape}, just like in the case of
+operator overloading. Then, the backward pass is identical to
+that of operator overloading. This method allows the
+use of the built-in floating point type along with
+straightforward virtually unrestricted language for model
+specification, at the cost of slight performance loss.
+
+This last method is used in Infergo: the model is written in Go
+and is placed in a separate Go package. A command-line utility
+is run on the package to generate a sub-package containing a
+differentiated version of the model.  Both the original and the
+differentiated model are available simultaneously in the calling
+code, so that invocations of model methods which do not require
+computation of gradients can be performed without the overhead
+of automatic differentiation.  However, the performance loss is
+rarely a major issue --- differentiated versions of model
+methods are only 2--4 times slower on models from the case
+studies~\ref{sec:case-studies}, and the backward pass, which
+computes the gradient, is roughly as fast as the original,
+undifferentiated version. At least partially, fast backward pass
+is due to careful implementation and thorough profiling of
+the tape.
+
+
+% Elementals. Differentiation
+%of calls. Distributions. Composability. Nested inference.
 
 \subsection{Stochasticity and Streaming}
 
-\section{Case Studies}
-\label{sec:case-studies}
+\section{Case Studies} \label{sec:case-studies}
 
 \subsection{8 schools}
 
-\begin{figure*}
-	\begin{minipage}{0.45\textwidth}
+\begin{figure*} \begin{minipage}{0.45\textwidth}
 	\begin{lstlisting}[language=Stan,framexleftmargin=10pt,numbers=left]
-data {
-  int<lower=0> J;
-  vector[J] y;
-  vector<lower=0>[J] sigma;
-}
+	data { int<lower=0> J; vector[J] y; vector<lower=0>[J]
+	sigma; }
 
-parameters {
-  real mu;
-  real<lower=0> tau;
-  vector[J] eta;
-}
+parameters { real mu; real<lower=0> tau; vector[J] eta; }
 
-transformed parameters {
-  vector[J] theta;
-  theta = mu + tau * eta;
-}
+transformed parameters { vector[J] theta; theta = mu + tau *
+	eta; }
 
-model {
-  eta ~ normal(0, 1);
-  y ~ normal(theta, sigma);
-}
-\end{lstlisting}
+model { eta ~ normal(0, 1); y ~ normal(theta, sigma); }
+	\end{lstlisting}
 
-\centering
-a. Stan
-	\end{minipage}
-	\hfill
-	\begin{minipage}{0.45\textwidth}
-\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
-type Model struct {
-  J          int
-  Y          []float64
-  Sigma      []float64
-}
+\centering a. Stan \end{minipage} \hfill
+\begin{minipage}{0.45\textwidth}
+	\begin{lstlisting}[framexleftmargin=10pt,numbers=left] type
+	Model struct { J          int Y          []float64 Sigma
+	[]float64 }
 
 
-func (m *Model) Observe(x []float64) float64 {
-  mu := x[0]
-  tau := math.Exp(x[1])
-  eta := x[2:]
+func (m *Model) Observe(x []float64) float64 { mu := x[0] tau :=
+	math.Exp(x[1]) eta := x[2:]
 
   ll := Normal.Logp(0, 1, eta)
 
-  for i, y := range m.Y {
-    theta := mu + tau*eta[i]
-    ll += Normal.Logp(theta, m.Sigma[i], y)
-  }
+  for i, y := range m.Y { theta := mu + tau*eta[i] ll +=
+	Normal.Logp(theta, m.Sigma[i], y) }
 
-  return ll
-}
-\end{lstlisting}
-\centering
-b. Infergo
-	\end{minipage}
-	\caption{8 schools: Stan vs. Infergo. The Go implementation
-	has a similar length and structure to the Stan model.}
-	\label{fig:8-schools}
-\end{figure*}
+  return ll } \end{lstlisting} \centering b. Infergo
+\end{minipage} \caption{8 schools: Stan vs. Infergo. The Go
+implementation has a similar length and structure to the Stan
+model.} \label{fig:8-schools} \end{figure*}
 
 \subsection{Linear regression}
 
 \begin{figure}
-\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
-type Model struct {
-  Data  [][]float64
-}
+	\begin{lstlisting}[framexleftmargin=10pt,numbers=left] type
+	Model struct { Data  [][]float64 }
 
-func (m *Model) Observe(x []float64)
-    float64 {
-  ll := 0.
+func (m *Model) Observe(x []float64) float64 { ll := 0.
 
-  alpha, beta := x[0], x[1]
-  sigma := math.Exp(x[2])
+  alpha, beta := x[0], x[1] sigma := math.Exp(x[2])
 
-  for i := range m.Data {
-    ll += Normal.Logp(
-      m.Simulate(m.Data[i][0], alpha, beta),
-      sigma, m.Data[i][1])
-  }
-  return ll
+  for i := range m.Data { ll += Normal.Logp(
+	m.Simulate(m.Data[i][0], alpha, beta), sigma, m.Data[i][1])
+	} return ll
 
-// Simulate predicts y for x based
-// on inferred parameters.
-func (m *Model) Simulate(x, alpha, beta float64)
-    float64 {
-  y := alpha +beta*x
-  return y
-}
-\end{lstlisting}
-\caption{Linear regression: the simulator is re-used in both
-	inference and prediction.}
-\label{fig:linear-regression}
-\end{figure}
+// Simulate predicts y for x based // on inferred parameters.
+	func (m *Model) Simulate(x, alpha, beta float64) float64 { y
+	:= alpha +beta*x return y } \end{lstlisting} \caption{Linear
+	regression: the simulator is re-used in both inference and
+prediction.} \label{fig:linear-regression} \end{figure}
 
 \subsection{Gaussian mixture}
 
 \begin{figure}
-\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
-type Model struct {
-  Data  []float64 // samples
-  NComp int       // number of components
-}
+	\begin{lstlisting}[framexleftmargin=10pt,numbers=left] type
+	Model struct { Data  []float64 // samples NComp int       //
+	number of components }
 
-func (m *Model) Observe(x []float64) float64 {
-  ll := 0.0
-  mu := make([]float64, m.NComp)
-  sigma := make([]float64, m.NComp)
+func (m *Model) Observe(x []float64) float64 { ll := 0.0 mu :=
+	make([]float64, m.NComp) sigma := make([]float64, m.NComp)
 
-  // Fetch component parameters
-  for j := 0; j != m.NComp; j++ {
-    mu[j] = x[2*j]
-    sigma[j] = math.Exp(x[2*j+1])
-  }
+  // Fetch component parameters for j := 0; j != m.NComp; j++ {
+	  mu[j] = x[2*j] sigma[j] = math.Exp(x[2*j+1]) }
 
-  // Compute log likelihood of mixture
-  // given the data
-  for i := 0; i != len(m.Data); i++ {
-    var l float64
-    for j := 0; j != m.NComp; j++ {
-      lj := Normal.Logp(mu[j], sigma[j],
-	                    m.Data[i])
-      if j == 0 {
-        l = lj
-      } else {
-        l = mathx.LogSumExp(l, lj)
-      }
-    }
-    ll += l
-  }
-  return ll
-}
-\end{lstlisting}
-\caption{Gaussian mixture: Infergo can handle models with
-	dynamic control structure.}
-\label{fig:gaussian-mixture}
-\end{figure}
+  // Compute log likelihood of mixture // given the data for i
+	:= 0; i != len(m.Data); i++ { var l float64 for j := 0; j !=
+	m.NComp; j++ { lj := Normal.Logp(mu[j], sigma[j], m.Data[i])
+	if j == 0 { l = lj } else { l = mathx.LogSumExp(l, lj) } }
+	ll += l } return ll } \end{lstlisting} \caption{Gaussian
+	mixture: Infergo can handle models with dynamic control
+	structure.} \label{fig:gaussian-mixture} \end{figure}
 
 \section{Performance}
 
@@ -1365,18 +1352,14 @@ optimized yet. Quite the opposite: since models in Infergo are
 fully composable, primitive distributions are themselves
 implemented as Infergo models and automatically differentiated.
 
-{\smaller
-\begin{table}[H]
-\caption{Memory and running times for 1000 iterations
-of HMC with 10 leapfrog steps.}
-\label{tab:memory-runtime}
-\begin{tabular}{r | c |  c | c}
-	{\it model}  & \multicolumn{2}{c|}{\it time} & {\it memory} \\ 
-	 & {\it compilation} & {\it execution} & \\\hline
-	8 schools & 0.15s & 0.6s & 5.5MB \\
-	10D normal, 100 points & 0.15s & 3.0s & 5.7MB \\
-	50D normal, 100 points & 0.15s & 13.0s & 5.8MB 
-\end{tabular}
+{\smaller \begin{table}[H] \caption{Memory and running times for
+	1000 iterations of HMC with 10 leapfrog steps.}
+	\label{tab:memory-runtime} \begin{tabular}{r | c |  c | c}
+		{\it model}  & \multicolumn{2}{c|}{\it time} & {\it
+		memory} \\ & {\it compilation} & {\it execution} &
+		\\\hline 8 schools & 0.15s & 0.6s & 5.5MB \\ 10D normal,
+		100 points & 0.15s & 3.0s & 5.7MB \\ 50D normal, 100
+		points & 0.15s & 13.0s & 5.8MB \end{tabular}
 \end{table}}
 
 \section{Conclusion}
@@ -1396,13 +1379,14 @@ the guidelines.
 
 A probabilistic programming facility similar to Infergo can be
 added to most modern general-purpose programming languages, in
-particular, those used for implementation of large-scale software
-systems, making probabilistic programming inference more
-accessible in large scale server-side applications. We described
-Infergo implementation choices and techniques in intent
-to encourage broader adoption of probabilistic programming in
-production software systems and ease implementation of similar
-facilities in other languages and software environments.
+particular, those used for implementation of large-scale
+software systems, making probabilistic programming inference
+more accessible in large scale server-side applications. We
+described Infergo implementation choices and techniques in
+intent to encourage broader adoption of probabilistic
+programming in production software systems and ease
+implementation of similar facilities in other languages and
+software environments.
 
 Infergo is an ongoing project. Development of Infergo is
 influenced both by feedback from the open-source Go community
@@ -1418,8 +1402,7 @@ further advancing the field of probabilistic programming.
 \end{sloppypar}
 
 
-\clearpage
-\clearpage
+\clearpage \clearpage
 
 \bibliography{refs}
 
