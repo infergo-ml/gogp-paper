@@ -1203,40 +1203,40 @@ analysis, and decision making.
 
 \subsection{Automatic Differentiation}
 
-Infergo employs reverse-mode autodifferentiation via source code
-transformation~\cite{GW08}. The reverse mode is the default
-choice in machine learning applications, because it works best
-with differentiating a scalar return value with respect to
-multiple parameters. Automatic differentiation is usually
-implemented using either operator overloading or source code
-transformation. Operator overloading is often the method of
+Infergo employs reverse-mode automatic differentiation via
+source code transformation~\cite{GW08}. The reverse mode is the
+default choice in machine learning applications, because it
+works best with differentiating a scalar return value with
+respect to multiple parameters. Automatic differentiation is
+usually implemented using either operator overloading or source
+code transformation. Operator overloading is often the method of
 choice~\cite{Stan17,GXG18,PGC+17} due to relative simplicity,
 but the differentiated code must use a special type (on which
 the operators are overloaded) for representing floating point
 numbers. Regardless of the issue of computational overhead, this
-restricts the language used to specify the model to operations on
-that special type and impairs interoperability: library
+restricts the language used to specify the model to operations
+on that special type and impairs interoperability: library
 functions cannot be directly called but have to use an adaptor,
 or a `lifted' version of the standard library must be supplied.
 Similarly, the data must be cast into the special type before it
 is passed to the model for inference.
 
-Source code transformation allows to automatically differentiate
-program code operating on the built-in floating point type. This
-method involves generation of new code, for the function
-gradient or for the function itself, ahead of time or on the
-fly. To achieve the best performance, some implementations
-generate static code for computing the function
-gradient~\cite{MMW18,I18}. This requires a rather elaborated
-source code analysis, and although a significant progress has
-been made in this direction, not all language constructs are
-supported. Alternatively, the code of the function itself can be
-transformed by augmenting arithmetics and function calls on the
-floating point type by function calls that record the
-computations on the \textit{tape}, just like in the case of
-operator overloading. Then, the backward pass is identical to
-that of operator overloading. This method allows the
-use of the built-in floating point type along with
+\paragraph{Reverse mode source code transformation} Source code
+transformation allows to automatically differentiate program
+code operating on the built-in floating point type. This method
+involves generation of new code, for the function gradient or
+for the function itself, ahead of time or on the fly. To achieve
+the best performance, some implementations generate static code
+for computing the function gradient~\cite{MMW18,I18}. This
+requires a rather elaborated source code analysis, and although
+a significant progress has been made in this direction, not all
+language constructs are supported. Alternatively, the code of
+the function itself can be transformed by augmenting arithmetics
+and function calls on the floating point type by function calls
+that record the computations on the \textit{tape}, just like in
+the case of operator overloading. Then, the backward pass is
+identical to that of operator overloading. This method allows
+the use of the built-in floating point type along with
 straightforward virtually unrestricted language for model
 specification, at the cost of slight performance loss.
 
@@ -1245,17 +1245,58 @@ and is placed in a separate Go package. A command-line utility
 is run on the package to generate a sub-package containing a
 differentiated version of the model.  Both the original and the
 differentiated model are available simultaneously in the calling
-code, so that invocations of model methods which do not require
-computation of gradients can be performed without the overhead
-of automatic differentiation.  However, the performance loss is
-rarely a major issue --- differentiated versions of model
-methods are only 2--4 times slower on models from the case
-studies~\ref{sec:case-studies}, and the backward pass, which
+code, so that model methods which do not require computation of
+gradients can be invoked without the overhead of automatic
+differentiation.  However, the performance loss is rarely a
+major issue --- differentiated versions of model methods are
+only 2--4 times slower on models from the case studies
+(Section~\ref{sec:case-studies}), and the backward pass, which
 computes the gradient, is roughly as fast as the original,
 undifferentiated version. At least partially, fast backward pass
-is due to careful implementation and thorough profiling of
-the tape.
+is due to careful implementation and thorough profiling of the
+tape.
 
+\paragraph{Automatic differentiation of models}
+It may seem desirable to implement or use an automatic
+differentiation library that is more general than needed for
+probabilistic programming. However the use of such library, in
+particular, with source code transformation, may make
+implementation restricted and less efficient: first, if a model
+comprises several functions, all functions must have a signature
+suitable for differentiation (that is, accept and return
+floating point scalars or vectors); second, the gradient of
+every nested call must be fully computed first and then used to
+compute the gradient of the caller. In Infergo, only the
+gradient of \lstinline{Observe} is needed, and any other
+differentiated model method can only be called from
+\lstinline{Observe} or another differentiated method.
+Consequently, only the gradient of \lstinline{Observe} is
+computed explicitly, and other differentiated methods may have
+arbitrary arguments. In particular, derivatives may propagate
+through fields of the model object and structured arguments.
+
+\subsection{Model composition} 
+
+Just like it is possible to compose library and user-defined
+functions into more complex functions, it should be possible to
+compose models to build other models~\cite{THS+17,SSW+18}.
+Infergo supports model composition organically: a differentiated
+model method can be called from another differentiated method,
+not necessarily a method of the same model object or type.
+Derivatives can propagate through methods of different models
+without restriction. Each model is a building block for another
+model. For example, if there are two independent
+single-parameter models \lstinline{A} and \lstinline{B}
+describing the data, then the composite model \lstinline{AB} can
+be obtained by summation:
+\begin{lstlisting}
+func (model AB) Observe(x []float64) float64 {
+	return A{model.Data}.Observe(x[:1]) + 
+		B{model.Data}.Observe(x[1:])
+}
+\end{lstlisting}
+Combinators such as product, mixture, or hierarchy can be
+implemented as functions operating on Infergo models.
 
 % Elementals. Differentiation
 %of calls. Distributions. Composability. Nested inference.
