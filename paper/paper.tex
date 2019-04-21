@@ -5,7 +5,7 @@
 \usepackage{listings}[language=Golang]
 \usepackage{GoMono}
 
-%\linespread{1.0}
+\linespread{1.1}
 
 \lstdefinelanguage{Golang}%
   {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
@@ -1348,7 +1348,7 @@ type expon struct{}
 // Exponential distribution, singleton instance.
 var Expon expon
 
-// Observe implements the Model interface.The
+// Observe implements the Model interface. The
 // parameter vector is lambda, observations.
 func (dist expon) Observe(x []float64)
 	float64 {
@@ -1380,7 +1380,7 @@ func (_ expon) Logps(lambda float64, y ...float64)
 	return ll
 }
 	\end{lstlisting}
-	\caption{Exponential distribution in Infergo.}
+	\caption{The exponential distribution in Infergo.}
 	\label{fig:exponential-distribution}
 \end{figure}
 
@@ -1440,7 +1440,28 @@ data sources via channels are already used in practice.
 \section{Case Studies}
 \label{sec:case-studies}
 
-\subsection{8 schools}
+In this section, we present three case studies of probabilistic
+programs, each addressing a different aspect of Infergo. Eight
+schools (Section~\ref{sec:8-schools}) is a popular example  we
+use to compare model specification in Stan and Infergo. Linear
+regression (Session~\ref{sec:8-schools}) formulated as a
+probabilistic program lets us explore a model comprising
+multiple methods and illustrate the inference-simulation use
+case. Gaussian mixture (Section~\ref{sec:gaussian-mixture}) is
+the most complex model of the three, featuring nested loops and
+dynamic control structure.
+
+By no means the models presented in this section reflect 
+complexity or the size of real-world Infergo applications, the
+latter reaching hundreds of lines of code in length and
+performing inference on tens of thousands of data entries.
+Rather, their purpose is to provide a general picture of 
+probabilistic programming with Infergo.
+
+\subsection{Eight schools}
+\label{sec:8-schools}
+
+The eight schools problem~\cite{GCS+03} 
 
 \begin{figure*}
 	\begin{minipage}{0.45\textwidth}
@@ -1499,12 +1520,13 @@ func (m *Model) Observe(x []float64) float64 {
 \centering
 b. Infergo
 	\end{minipage}
-	\caption{8 schools: Stan vs. Infergo. The Go implementation
+	\caption{Eight schools: Stan vs. Infergo. The Go implementation
 	has a similar length and structure to the Stan model.}
 	\label{fig:8-schools}
 \end{figure*}
 
 \subsection{Linear regression}
+\label{sec:linear-regression}
 
 \begin{figure}
 \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
@@ -1540,6 +1562,7 @@ func (m *Model) Simulate(x, alpha, beta float64)
 \end{figure}
 
 \subsection{Gaussian mixture}
+\label{sec:gaussian-mixture}
 
 \begin{figure}
 \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
