@@ -525,7 +525,7 @@
 	applicability of Infergo to various use cases on case
 	studies, and evaluate Infergo's performance on several
 	benchmarks, comparing Infergo to dedicated inference-centric
-	probabilistic programming systems.
+	probabilistic programming frameworks.
 \end{abstract}
 
 \begin{document}
@@ -542,7 +542,7 @@
 	Inference can be performed on probabilistic programs to
 	obtain the posterior distribution or point estimates of the
 	variables. Inference algorithms are provided by the
-	probabilistic programming system, and each algorithm is
+	probabilistic programming framework, and each algorithm is
 	usually applicable to a wide class of probabilistic programs
 	in a black-box manner. The algorithms include
 	Metropolis-Hastings\cite{WSG11,MSP14,YHG14}, Hamiltonian
@@ -567,24 +567,25 @@
 
 	The other, emerging, view is that probabilistic programming
 	is an extension of a regular programming toolbox allowing
-	algorithms implemented in general-purpose programming languages to
-	have learnable parameters. In this view, statistical models
-	are integrated into the software system, and inference and
-	optimization take place during data processing, prediction,
-	and algorithmic decision making in production.
-	Probabilistic programming code runs unattended, and
-	inference results are an integral part of the algorithms.
+	algorithms implemented in general-purpose programming
+	languages to have learnable parameters. In this view,
+	statistical models are integrated into the software system,
+	and inference and optimization take place during data
+	processing, prediction, and algorithmic decision making in
+	production.  Probabilistic programming code runs unattended,
+	and inference results are an integral part of the
+	algorithms.
 
 	In this work we are concerned with the later view on
 	probabilistic programming. Our objective is to pave a path
 	to deployment of probabilistic programs in production
 	systems, promoting a wider adoption of probabilistic
 	programming as a flexible tool for ubiquitous statistical
-	inference. Most probabilistic programming systems are
+	inference. Most probabilistic programming frameworks are
 	suited, to a certain extent, to be used in either the
 	exploratory or the production scenario. However, the
 	proliferation of probabilistic programming languages and
-	systems\footnote{There are 45 probabilistic programming
+	frameworks \footnote{There are 45 probabilistic programming
 	languages listed on
 	Wikipedia~\cite{wiki:Probabilistic_programming_language}. 18
 	probabilistic programming languages were presented during
@@ -614,7 +615,7 @@
 	general-purpose purpose programming language, giving a
 	production system modeling and inference capabilities which
 	do not fall short from and sometimes exceed those of
-	probabilistic programming-centric systems with custom
+	probabilistic programming-centric frameworks with custom
 	languages and runtimes. Availability of such facilities
 	in major general-purpose programming languages would free
 	probabilistic programming researchers and practitioners
@@ -691,7 +692,7 @@ Automatic differentiation is widely employed in machine
 learning~\cite{BPR+17,MBB+18} where it is also known as
 `differentiable programming', and is responsible for enabling
 efficient inference in many probabilistic programming
-systems~\cite{Stan17,GXG18,ISF+18,BCJ+19,THS+17}. Different
+frameworks~\cite{Stan17,GXG18,ISF+18,BCJ+19,THS+17}. Different
 automatic differentiation techniques~\cite{GW08} allow 
 different compromises between flexibility, efficiency, and
 feature-richness~\cite{SDT14,PGC+17,ISF+18}.  Automatic
@@ -717,7 +718,7 @@ inference algorithm, and post-processes the results in the host
 programming language again to make algorithmic decisions based
 on inference outcomes. To choose the best option for each
 particular application, probabilistic programming languages and
-systems are customarily compared by the expressive power
+frameworks are customarily compared by the expressive power
 (classes of probabilistic models that can be represented),
 conciseness (e.g.  the number of lines of code to describe a
 particular model), and time and space efficiency of inference
@@ -741,7 +742,7 @@ purposes.  However to achieve this, the host language must
 coincide with the implementation language of the probabilistic
 model, on one hand, and allow a computationally efficient
 implementation of the simulation, on the other hand. Some
-probabilistic systems (Figaro~\cite{P09},
+probabilistic programming frameworks (Figaro~\cite{P09},
 Anglican~\cite{TMY+16}, Turing~\cite{GXG18}) are built with
 tight integration with the host environment in mind; more often
 than not though the probabilistic code is not trivial to re-use.
@@ -776,11 +777,11 @@ runtime, complicates deployment. Minimizing the burden of
 probabilistic programming on the integration and deployment
 process should be a major consideration in design or selection
 of probabilistic programming tools. Probabilistic programming
-systems that are implemented or provide an interface in a
+frameworks that are implemented or provide an interface in a
 popular programming language, e.g.  Python
 (Edward~\cite{THS+17}, Pyro~\cite{BCJ+19}) are easier to
 integrate and deploy, however the smaller the footprint of a
-probabilistic system, the easier is the adoption.
+probabilistic programming framework, the easier is the adoption.
 An obstacle in integration of probabilistic programming lies
 also in adoption of the probabilistic programming
 language~\cite{MR12}, if the latter differs from the
@@ -1131,7 +1132,7 @@ on streaming and stochastic observations.
 
 Python~\cite{Python95}, Scala~\cite{Scala06}, and
 Julia~\cite{Julia14} have been popular choices for development
-of probabilistic programming languages and systems integrated
+of probabilistic programming languages and frameworks integrated
 with general-purpose programming
 languages~\cite{S16,MMW18,BCJ+19,P09,Rainier,GXG18,ISF+18}.
 Each of these languages has advantages for implementing a
@@ -1287,19 +1288,100 @@ Derivatives can propagate through methods of different models
 without restriction. Each model is a building block for another
 model. For example, if there are two independent
 single-parameter models \lstinline{A} and \lstinline{B}
-describing the data, then the composite model \lstinline{AB} can
-be obtained by summation:
-\begin{lstlisting}
+describing the data, then the product model \lstinline{AB} can
+be obtained by composition of \lstinline{A} and \lstinline{B}
+(Figure~\ref{fig:composition}).
+\begin{figure}
+	\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+type A struct {Data []float64}
+func (model A) Observe(x []float64) {
+	...
+}
+
+type B struct {Data []float64}
+func (model B) Observe(x []float64) {
+	...
+}
+
+type AB struct {Data []float64}
 func (model AB) Observe(x []float64) float64 {
 	return A{model.Data}.Observe(x[:1]) + 
 		B{model.Data}.Observe(x[1:])
 }
-\end{lstlisting}
+	\end{lstlisting}
+	\caption{Model composition. Model \lstinline{AB} is the
+	product of \lstinline{A} and \lstinline{B}.}
+	\label{fig:composition}
+\end{figure}
 Combinators such as product, mixture, or hierarchy can be
 implemented as functions operating on Infergo models.
 
-% Elementals. Differentiation
-%of calls. Distributions. Composability. Nested inference.
+\paragraph{Distributions} A probabilistic programming facility
+should provide a library of distributions for defining and
+conditional random variables. To use a distribution in a
+differentiable model, the distribution's $\log$ probability
+density function must be differentiable by both the
+distribution's parameters and by the value of the random
+variable. Distributions are usually supplied as a part of the
+probabilistic programming framework~\cite{TMY+16,Stan17,GXG18},
+and, if at all possible, adding a user-defined distribution
+requires programming at a lower level of abstraction than while
+specifying a probabilistic model~\cite{S16,TMY+16,AMP17}.
+
+In Infergo, distributions are just models, and adding and using
+a custom distribution is indistinguishable from adding a model
+and calling the model's method from another model. By
+convention, library distributions also have methods
+\lstinline{Logp} and \lstinline{Logps} for the scalar and vector
+version of $\log$ probability density functions, for convenience
+of use in models. The distribution library in Infergo is just a
+model package which is automatically differentiated just like
+any other model. New distributions can be added in any package.
+Figure~\ref{fig:exponential-distribution} shows the definition of the
+exponential distribution.
+\begin{figure}
+	\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+// Exponential distribution.
+type expon struct{}
+
+// Exponential distribution, singleton instance.
+var Expon expon
+
+// Observe implements the Model interface.The
+// parameter vector is lambda, observations.
+func (dist expon) Observe(x []float64)
+	float64 {
+	lambda, y := x[0], x[1:]
+	if len(y) == 1 {
+		return dist.Logp(lambda, y[0])
+	} else {
+		return dist.Logps(lambda, y...)
+	}
+}
+
+// Logp computes the log pdf of a single
+// observation.
+func (_ expon) Logp(lambda float64, y float64)
+	float64 {
+	logl := math.Log(lambda)
+	return logl - lambda*y
+}
+
+// Logps computes the log pdf of a vector
+// of observations.
+func (_ expon) Logps(lambda float64, y ...float64)
+	float64 {
+	ll := 0.
+	logl := math.Log(lambda)
+	for i := range y {
+		ll += logl - lambda*y[i]
+	}
+	return ll
+}
+	\end{lstlisting}
+	\caption{Exponential distribution in Infergo.}
+	\label{fig:exponential-distribution}
+\end{figure}
 
 \subsection{Stochasticity and Streaming}
 
