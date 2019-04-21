@@ -5,7 +5,7 @@
 \usepackage{listings}[language=Golang]
 \usepackage{GoMono}
 
-\linespread{1.1}
+%\linespread{1.1}
 
 \lstdefinelanguage{Golang}%
   {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
@@ -1278,7 +1278,7 @@ computed explicitly, and other differentiated methods may have
 arbitrary arguments. In particular, derivatives may propagate
 through fields of the model object and structured arguments.
 
-\subsection{Model composition} 
+\subsection{Model Composition} 
 
 Just like it is possible to compose library and user-defined
 functions into more complex functions, it should be possible to
@@ -1459,7 +1459,7 @@ performing inference on tens of thousands of data entries.
 Rather, their purpose is to provide a general picture of
 probabilistic programming with Infergo.
 
-\subsection{Eight schools}
+\subsection{Eight Schools}
 \label{sec:eight-schools}
 
 The eight schools problem~\cite{GCS+03} is an application of
@@ -1552,7 +1552,7 @@ feeling is that the Go version is as readable as the Stan one.
 In addition, a Go programmer is less likely to resist adoption
 of statistical modeling if the models are implemented in Go.
 
-\subsection{Linear regression}
+\subsection{Linear Regression}
 \label{sec:linear-regression}
 
 The model in Figure~\ref{fig:linear-regression} specifies linear
@@ -1634,7 +1634,7 @@ executed repeatedly and under time pressure, saves the effort
 otherwise wasted on rewriting the simulator and removes the need
 to maintain consistency between different implementations.
 
-\subsection{Gaussian mixture}
+\subsection{Gaussian Mixture Model}
 \label{sec:gaussian-mixture}
 
 \begin{figure}
@@ -1646,16 +1646,19 @@ type Model struct {
 
 func (m *Model) Observe(x []float64) float64 {
   ll := 0.0
+
+  // Impose a prior on component parameters
+  ll += Normal.Logps(0, 1, x...)
+
+  // Fetch the parameters
   mu := make([]float64, m.NComp)
   sigma := make([]float64, m.NComp)
-
-  // Fetch component parameters
   for j := 0; j != m.NComp; j++ {
     mu[j] = x[2*j]
     sigma[j] = math.Exp(x[2*j+1])
   }
 
-  // Compute log likelihood of mixture
+  // Compute log likelihood of the mixture
   // given the data
   for i := 0; i != len(m.Data); i++ {
     var l float64
@@ -1665,16 +1668,37 @@ func (m *Model) Observe(x []float64) float64 {
       if j == 0 {
         l = lj
       } else {
-        l = mathx.LogSumExp(l, lj)
+        l = logSumExp(l, lj)
       }
     }
     ll += l
   }
   return ll
 }
+
+// logSumExp computes log(exp(x)+exp(y)) robustly.
+func LogSumExp(x, y float64) float64 {
+  z := x
+  if y > z {
+    z = y
+  }
+  return z + math.Log(math.Exp(x-z)+math.Exp(y-z))
+}
+
+// logSumExp is an elemental, we must register
+// the gradient.
+func init() {
+  ad.RegisterElemental(logSumExp,
+    func(_ float64, params ...float64)
+      []float64 {
+      z := math.Exp(params[1] - params[0])
+      t := 1 / (1 + z)
+      return []float64{t, t * z}
+    })
+}
 \end{lstlisting}
-\caption{Gaussian mixture: Infergo can handle models with
-  dynamic control structure.}
+\caption{Gaussian mixture model: an Infergo model with
+  dynamic control structure and a user-defined elemental.}
 \label{fig:gaussian-mixture}
 \end{figure}
 
