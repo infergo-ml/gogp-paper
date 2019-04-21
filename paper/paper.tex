@@ -507,25 +507,25 @@
 \email{david.tolpin@gmail.com}
 
 \begin{abstract}
-	We propose design guidelines for a probabilistic programming
-	facility suitable for deployment as a part of a production
-	software system. As a reference implementation, we introduce
-	Infergo, a probabilistic programming facility for Go, a modern
-	programming language of choice for server-side software
-	development. We argue that a similar probabilistic
-	programming facility can be added to most modern general-purpose
-	programming languages.
+  We propose design guidelines for a probabilistic programming
+  facility suitable for deployment as a part of a production
+  software system. As a reference implementation, we introduce
+  Infergo, a probabilistic programming facility for Go, a modern
+  programming language of choice for server-side software
+  development. We argue that a similar probabilistic
+  programming facility can be added to most modern general-purpose
+  programming languages.
 
-	Probabilistic programming enables automatic tuning of
-	program parameters and algorithmic decision making through
-	probabilistic inference based on the data. To facilitate
-	addition of probabilistic programming capabilities to other
-	programming languages, we share implementation choices and
-	techniques employed in development of Infergo. We illustrate
-	applicability of Infergo to various use cases on case
-	studies, and evaluate Infergo's performance on several
-	benchmarks, comparing Infergo to dedicated inference-centric
-	probabilistic programming frameworks.
+  Probabilistic programming enables automatic tuning of
+  program parameters and algorithmic decision making through
+  probabilistic inference based on the data. To facilitate
+  addition of probabilistic programming capabilities to other
+  programming languages, we share implementation choices and
+  techniques employed in development of Infergo. We illustrate
+  applicability of Infergo to various use cases on case
+  studies, and evaluate Infergo's performance on several
+  benchmarks, comparing Infergo to dedicated inference-centric
+  probabilistic programming frameworks.
 \end{abstract}
 
 \begin{document}
@@ -535,120 +535,120 @@
 
 \section{Introduction}
 
-	Probabilistic programming \cite{GMR+08,MSP14,WVM14,GS15}
-	represents statistical models as programs written in an
-	otherwise general programming language that provides syntax
-	for the definition and conditioning of random variables.
-	Inference can be performed on probabilistic programs to
-	obtain the posterior distribution or point estimates of the
-	variables. Inference algorithms are provided by the
-	probabilistic programming framework, and each algorithm is
-	usually applicable to a wide class of probabilistic programs
-	in a black-box manner. The algorithms include
-	Metropolis-Hastings\cite{WSG11,MSP14,YHG14}, Hamiltonian
-	Monte Carlo~\cite{Stan17}, expectation
-	propagation~\cite{MWG+10}, extensions of Sequential Monte
-	Carlo~\cite{WVM14,MYM+15,PWD+14,RNL+2016}, variational
-	inference~\cite{WW13,KTR+17}, gradient-based
-	optimization~\cite{Stan17,BCJ+19}, and others.
+  Probabilistic programming \cite{GMR+08,MSP14,WVM14,GS15}
+  represents statistical models as programs written in an
+  otherwise general programming language that provides syntax
+  for the definition and conditioning of random variables.
+  Inference can be performed on probabilistic programs to
+  obtain the posterior distribution or point estimates of the
+  variables. Inference algorithms are provided by the
+  probabilistic programming framework, and each algorithm is
+  usually applicable to a wide class of probabilistic programs
+  in a black-box manner. The algorithms include
+  Metropolis-Hastings\cite{WSG11,MSP14,YHG14}, Hamiltonian
+  Monte Carlo~\cite{Stan17}, expectation
+  propagation~\cite{MWG+10}, extensions of Sequential Monte
+  Carlo~\cite{WVM14,MYM+15,PWD+14,RNL+2016}, variational
+  inference~\cite{WW13,KTR+17}, gradient-based
+  optimization~\cite{Stan17,BCJ+19}, and others.
 
-	There are two polar views on the role of probabilistic
-	programming.  One view is that probabilistic programming is
-	a flexible framework for specification and analysis of
-	statistical models~\cite{WSG11,TMY+16,GXG18}. Proponents of
-	this view perceive probabilistic programming as a tool for
-	data science practitioners. A typical workflow consists of
-	data acquisition and pre-processing, followed by several
-	iterations of exploratory model design and testing of
-	inference algorithms. Once a sufficiently robust statistical
-	model is obtained, analysis results are post-processed,
-	visualized, and occasionally integrated into algorithms of a
-	production software system. 
+  There are two polar views on the role of probabilistic
+  programming.  One view is that probabilistic programming is
+  a flexible framework for specification and analysis of
+  statistical models~\cite{WSG11,TMY+16,GXG18}. Proponents of
+  this view perceive probabilistic programming as a tool for
+  data science practitioners. A typical workflow consists of
+  data acquisition and pre-processing, followed by several
+  iterations of exploratory model design and testing of
+  inference algorithms. Once a sufficiently robust statistical
+  model is obtained, analysis results are post-processed,
+  visualized, and occasionally integrated into algorithms of a
+  production software system. 
 
-	The other, emerging, view is that probabilistic programming
-	is an extension of a regular programming toolbox allowing
-	algorithms implemented in general-purpose programming
-	languages to have learnable parameters. In this view,
-	statistical models are integrated into the software system,
-	and inference and optimization take place during data
-	processing, prediction, and algorithmic decision making in
-	production.  Probabilistic programming code runs unattended,
-	and inference results are an integral part of the
-	algorithms.
+  The other, emerging, view is that probabilistic programming
+  is an extension of a regular programming toolbox allowing
+  algorithms implemented in general-purpose programming
+  languages to have learnable parameters. In this view,
+  statistical models are integrated into the software system,
+  and inference and optimization take place during data
+  processing, prediction, and algorithmic decision making in
+  production.  Probabilistic programming code runs unattended,
+  and inference results are an integral part of the
+  algorithms.
 
-	In this work we are concerned with the later view on
-	probabilistic programming. Our objective is to pave a path
-	to deployment of probabilistic programs in production
-	systems, promoting a wider adoption of probabilistic
-	programming as a flexible tool for ubiquitous statistical
-	inference. Most probabilistic programming frameworks are
-	suited, to a certain extent, to be used in either the
-	exploratory or the production scenario. However, the
-	proliferation of probabilistic programming languages and
-	frameworks \footnote{There are 45 probabilistic programming
-	languages listed on
-	Wikipedia~\cite{wiki:Probabilistic_programming_language}. 18
-	probabilistic programming languages were presented during
-	the developer meetup at PROBPROG'2018, the inaugural
-	conference on probabilistic
-	programming,~\url{http://probprog.cc/}, half of which are
-	not on the Wikipedia list.} on one hand, and scarcity of success
-	stories about production use of probabilistic programming on
-	the other hand, suggest that there is a need for new ideas
-	and approaches to make probabilistic programming models
-	available for production use.
+  In this work we are concerned with the later view on
+  probabilistic programming. Our objective is to pave a path
+  to deployment of probabilistic programs in production
+  systems, promoting a wider adoption of probabilistic
+  programming as a flexible tool for ubiquitous statistical
+  inference. Most probabilistic programming frameworks are
+  suited, to a certain extent, to be used in either the
+  exploratory or the production scenario. However, the
+  proliferation of probabilistic programming languages and
+  frameworks \footnote{There are 45 probabilistic programming
+  languages listed on
+  Wikipedia~\cite{wiki:Probabilistic_programming_language}. 18
+  probabilistic programming languages were presented during
+  the developer meetup at PROBPROG'2018, the inaugural
+  conference on probabilistic
+  programming,~\url{http://probprog.cc/}, half of which are
+  not on the Wikipedia list.} on one hand, and scarcity of success
+  stories about production use of probabilistic programming on
+  the other hand, suggest that there is a need for new ideas
+  and approaches to make probabilistic programming models
+  available for production use.
 
-	Our attitude differs from the established approach in that
-	instead of proposing yet another probabilistic programming
-	language, either genuinely different~\cite{MMR+07,Stan17} or
-	derived from an existing general-purpose programming
-	language by extending the syntax or changing the
-	semantics~\cite{GMR+08,TMY+16,GXG18}, we advocate enabling
-	probabilistic inference on models written in a
-	general-purpose probabilistic programming language, the same
-	one as the language used to program the bulk of the system. 
-	We formulate guidelines for such implementation, and based
-	on the guidelines, introduce a probabilistic programming
-	facility for the Go programming language~\cite{Golang}. By
-	explaining our implementation choices and techniques,
-	we argue that a similar facility can be added to any modern
-	general-purpose purpose programming language, giving a
-	production system modeling and inference capabilities which
-	do not fall short from and sometimes exceed those of
-	probabilistic programming-centric frameworks with custom
-	languages and runtimes. Availability of such facilities
-	in major general-purpose programming languages would free
-	probabilistic programming researchers and practitioners
-	alike from language wars~\cite{SH14} and foster practical
-	applications of probabilistic programming.
+  Our attitude differs from the established approach in that
+  instead of proposing yet another probabilistic programming
+  language, either genuinely different~\cite{MMR+07,Stan17} or
+  derived from an existing general-purpose programming
+  language by extending the syntax or changing the
+  semantics~\cite{GMR+08,TMY+16,GXG18}, we advocate enabling
+  probabilistic inference on models written in a
+  general-purpose probabilistic programming language, the same
+  one as the language used to program the bulk of the system. 
+  We formulate guidelines for such implementation, and based
+  on the guidelines, introduce a probabilistic programming
+  facility for the Go programming language~\cite{Golang}. By
+  explaining our implementation choices and techniques,
+  we argue that a similar facility can be added to any modern
+  general-purpose purpose programming language, giving a
+  production system modeling and inference capabilities which
+  do not fall short from and sometimes exceed those of
+  probabilistic programming-centric frameworks with custom
+  languages and runtimes. Availability of such facilities
+  in major general-purpose programming languages would free
+  probabilistic programming researchers and practitioners
+  alike from language wars~\cite{SH14} and foster practical
+  applications of probabilistic programming.
 
-	\subsection*{Contributions}
+  \subsection*{Contributions}
 
-	This work brings the following major contributions:
+  This work brings the following major contributions:
 
-	\begin{itemize}
-		\item Guidelines for design and implementation of a
-			probabilistic programming facility deployable as a part 
-			of a production software system.
-		\item A reference implementation of deployable probabilistic
-			programming facility for the Go programming language.
-		\item Implementation highlights outlining important
-			choices we made in implementation of the
-			probabilistic programming facility, and providing a
-			basis for implementation of a similar facility for
-			other general-purpose programming languages.
-	\end{itemize}
+  \begin{itemize}
+    \item Guidelines for design and implementation of a
+      probabilistic programming facility deployable as a part 
+      of a production software system.
+    \item A reference implementation of deployable probabilistic
+      programming facility for the Go programming language.
+    \item Implementation highlights outlining important
+      choices we made in implementation of the
+      probabilistic programming facility, and providing a
+      basis for implementation of a similar facility for
+      other general-purpose programming languages.
+  \end{itemize}
 
 \section{Related Work}
 
 Our work is related to three interconnected areas of research:
 \begin{enumerate}
-	\item Design and implementation of probabilistic programming
-		languages. 
-	\item Integration and interoperability between probabilistic
-		programming models and the surrounding software
-		systems.
-	\item Differentiable programming for machine learning.
+  \item Design and implementation of probabilistic programming
+    languages. 
+  \item Integration and interoperability between probabilistic
+    programming models and the surrounding software
+    systems.
+  \item Differentiable programming for machine learning.
 \end{enumerate}
 
 Probabilistic programming is traditionally associated with
@@ -865,7 +865,7 @@ observations from which the distribution parameters are to be
 inferred:
 \begin{lstlisting}
 type Model struct {
-    Data []float64
+  Data []float64
 }
 \end{lstlisting}
 
@@ -882,13 +882,13 @@ the observations:
 // x[0] is the mean,
 // x[1] is the log stddev of the distribution
 func (m *Model) Observe(x []float64) float64 {
-    // Our prior is a unit normal ...
-    ll := Normal.Logps(0, 1, x...)
-    // ... but the posterior is based 
-	// on data observations.
-	ll += Normal.Logps(x[0], math.Exp(x[1]),
-	                   m.Data...)
-    return ll
+  // Our prior is a unit normal ...
+  ll := Normal.Logps(0, 1, x...)
+  // ... but the posterior is based 
+  // on data observations.
+  ll += Normal.Logps(x[0], math.Exp(x[1]),
+                     m.Data...)
+  return ll
 }
 \end{lstlisting}
 
@@ -900,23 +900,23 @@ or dynamically generated by another part of the program:
 \begin{lstlisting}
 // Data
 m := &Model{[]float64{
-	-0.854, 1.067, -1.220, 0.818, -0.749,
-	0.805, 1.443, 1.069, 1.426, 0.308}}
+  -0.854, 1.067, -1.220, 0.818, -0.749,
+  0.805, 1.443, 1.069, 1.426, 0.308}}
 
 // Parameters
 x := []float64{}
 \end{lstlisting}
-	
+  
 The fastest and most straightforward inference is the maximum
 \textit{a posteriori} (MAP) estimation, which can be done using
 a gradient descent algorithm (Adam~\cite{KB15} in this case).
 
 \begin{lstlisting}
 opt := &infer.Adam{
-    Rate:  0.01,
+  Rate:  0.01,
 }
 for iter := 0; iter != 1000; iter++ {
-    opt.Step(m, x)
+  opt.Step(m, x)
 }
 \end{lstlisting}
 
@@ -925,12 +925,12 @@ the parameters we use Hamiltonian Monte Carlo~\cite{N12}:
 
 \begin{lstlisting}
 hmc := &infer.HMC{
-	Eps: 0.1,
+  Eps: 0.1,
 }
 samples := make(chan []float64)
 hmc.Sample(m, x, samples)
 for i := 0; i != 5000; i++ {
-	x = <-samples
+  x = <-samples
 }
 hmc.Stop()
 \end{lstlisting}
@@ -974,18 +974,18 @@ the returned value with respect to the model parameters through
 automatic differentiation. In the model's source code:
 
 \begin{enumerate}
-	\item Methods on the type implementing \lstinline{Model} returning a
-		single \lstinline{float64} or nothing are differentiated.
-	\item Within the methods, the following is differentiated:
-		\begin{itemize}
-			\item assignments to \lstinline{float64} (including parallel
-				assignments if all values are of type
-				\lstinline{float64});
-			\item returns of \lstinline{float64};
-			\item standalone calls to methods on the type implementing
-				\lstinline{Model} (apparently called for side  effects on
-				the model).
-		\end{itemize}
+  \item Methods on the type implementing \lstinline{Model} returning a
+    single \lstinline{float64} or nothing are differentiated.
+  \item Within the methods, the following is differentiated:
+    \begin{itemize}
+      \item assignments to \lstinline{float64} (including parallel
+        assignments if all values are of type
+        \lstinline{float64});
+      \item returns of \lstinline{float64};
+      \item standalone calls to methods on the type implementing
+        \lstinline{Model} (apparently called for side  effects on
+        the model).
+    \end{itemize}
 \end{enumerate}
 
 Functions for which the gradient is provided rather than derived
@@ -1004,9 +1004,9 @@ one or more non-variadic \lstinline{float64} arguments and
 \lstinline{func (float64, float64, float64) float64}
 is considered elemental, while functions
 \begin{itemize}
-	\item \lstinline{func (...float64) float64}
-	\item \lstinline{func ([]float64) float64}
-	\item \lstinline{func (int, float64) float64}
+  \item \lstinline{func (...float64) float64}
+  \item \lstinline{func ([]float64) float64}
+  \item \lstinline{func (int, float64) float64}
 \end{itemize}
 are not. Gradients for selected functions from the
 \lstinline{math} package are pre-defined (\lstinline{Sqrt},
@@ -1020,17 +1020,17 @@ elemental inside model methods. The gradient must be registered
 for the function using a call to
 \begin{lstlisting}
 func RegisterElemental(
-	f interface{}, 
-	g func(value float64,
-		   params ...float64) []float64)
+  f interface{}, 
+  g func(value float64,
+         params ...float64) []float64)
 \end{lstlisting} For
 example, the call
 \begin{lstlisting}
 RegisterElemental(Sigm,
-	func(value float64,
-	     _ ...float64) []float64 {
-		return []float64{value*(1-value)}
-	})
+  func(value float64,
+       _ ...float64) []float64 {
+    return []float64{value*(1-value)}
+  })
 \end{lstlisting}
 registers the gradient for function
 \lstinline{Sigm}$(x)\coloneq\left(1+e^{-x}\right)^{-1}$.
@@ -1039,10 +1039,10 @@ registers the gradient for function
 
 Out of the box, Infergo offers 
 \begin{itemize}
-	\item maximum \textit{a posteriori} (MAP) estimation by stochastic
-		gradient descent~\cite{R16}; 
-	\item full posterior inference by Hamiltonian Monte
-		Carlo~\cite{N12,HG11}.
+  \item maximum \textit{a posteriori} (MAP) estimation by stochastic
+    gradient descent~\cite{R16}; 
+  \item full posterior inference by Hamiltonian Monte
+    Carlo~\cite{N12,HG11}.
 \end{itemize}
 
 When only a point estimate of the model parameters is required,
@@ -1070,8 +1070,8 @@ further postprocesses them:
 samples := make(chan []float64)
 hmc.Sample(model, parameters, samples)
 for !<termination condition> {
-	sample = <-samples
-	// postprocess the sample
+  sample = <-samples
+  // postprocess the sample
 }
 hmc.Stop()
 \end{lstlisting}
@@ -1093,9 +1093,9 @@ trivially wrapped for use with Gonum, and Infergo provides a
 convenience function
 \begin{lstlisting}
 func FuncGrad(m Model) (
-	Func func(x []float64) float64,
-	Grad func(grad []float64, x []float64)
-		[]float64)
+  Func func(x []float64) float64,
+  Grad func(grad []float64, x []float64)
+    []float64)
 \end{lstlisting}
 which accepts a model and returns the model's
 \lstinline{Observe} method and its gradient suitable for passing
@@ -1141,9 +1141,9 @@ probabilistic programming facility. However, for a reference
 implementation of a facility best suited for probabilistic
 inference in a porduction software system, we were looking
 for a language that \begin{itemize}
-	\item compiles into fast and compact code;
-	\item does not incur dependency on a heavy runtime; and
-	\item is a popular choice for building server-side software.
+  \item compiles into fast and compact code;
+  \item does not incur dependency on a heavy runtime; and
+  \item is a popular choice for building server-side software.
 \end{itemize}
 In addition, since we were going to automatically differentiate
 the language's source code, we were looking for a relatively
@@ -1158,37 +1158,37 @@ capabilities which made implementation of Infergo affordable
 and streamlined:
 
 \begin{itemize}
-	\item The Go parser and abstract syntax tree serializer are
-		a part of the standard library. Parsing, transforming,
-		and generating Go source code is straightforward and
-		effortless.
-	\item Type inference (or \textit{type checking} as it is
-		called in the Go ecosystem), also provided in the
-		standard library, augments parsing and allows to
-		selectively apply transformation-based automatic
-		differentiation  based on static expression types. 
-	\item Go provides reflection capabilities for almost any aspect
-		of the running program, without compromising efficiency.
-		Reflection gives the flexibility highly desirable to
-		implement features such as calling Go library
-		functions from the model code.
-	\item Go compiles and runs fast. Fast compilation and
-		execution speeds allow to use the same facility for both
-		exploratory design of probabilistic models and for
-		inference in production environment.
-	\item Go is available on many platforms and for a wide range
-		of operating systems and environments, from portable
-		devices to supercomputers. Go programs can be
-		cross-compiled, and Go programs can be reliably
-		developed and deployed in heterogeneous environments.
-	\item Go offers efficient parallel execution as a
-		first-class feature, via so-called \textit{goroutines}.
-		Goroutines streamline implementation of sampling-based
-		inference algorithms. Sample generators and consumers
-		are run in parallel, communicating through channels. 
-		Inference is easy to parallelize in order to exploit
-		hardware multi-processing, and samples are retrieved
-		lazily for postprocessing. 
+  \item The Go parser and abstract syntax tree serializer are
+    a part of the standard library. Parsing, transforming,
+    and generating Go source code is straightforward and
+    effortless.
+  \item Type inference (or \textit{type checking} as it is
+    called in the Go ecosystem), also provided in the
+    standard library, augments parsing and allows to
+    selectively apply transformation-based automatic
+    differentiation  based on static expression types. 
+  \item Go provides reflection capabilities for almost any aspect
+    of the running program, without compromising efficiency.
+    Reflection gives the flexibility highly desirable to
+    implement features such as calling Go library
+    functions from the model code.
+  \item Go compiles and runs fast. Fast compilation and
+    execution speeds allow to use the same facility for both
+    exploratory design of probabilistic models and for
+    inference in production environment.
+  \item Go is available on many platforms and for a wide range
+    of operating systems and environments, from portable
+    devices to supercomputers. Go programs can be
+    cross-compiled, and Go programs can be reliably
+    developed and deployed in heterogeneous environments.
+  \item Go offers efficient parallel execution as a
+    first-class feature, via so-called \textit{goroutines}.
+    Goroutines streamline implementation of sampling-based
+    inference algorithms. Sample generators and consumers
+    are run in parallel, communicating through channels. 
+    Inference is easy to parallelize in order to exploit
+    hardware multi-processing, and samples are retrieved
+    lazily for postprocessing. 
 \end{itemize}
 
 Considering and choosing Go for development of what later became
@@ -1293,26 +1293,26 @@ describing the data, then the product model \lstinline{AB} can
 be obtained by composition of \lstinline{A} and \lstinline{B}
 (Figure~\ref{fig:composition}).
 \begin{figure}
-	\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+  \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 type A struct {Data []float64}
 func (model A) Observe(x []float64) {
-	...
+  ...
 }
 
 type B struct {Data []float64}
 func (model B) Observe(x []float64) {
-	...
+  ...
 }
 
 type AB struct {Data []float64}
 func (model AB) Observe(x []float64) float64 {
-	return A{model.Data}.Observe(x[:1]) + 
-		B{model.Data}.Observe(x[1:])
+  return A{model.Data}.Observe(x[:1]) + 
+    B{model.Data}.Observe(x[1:])
 }
-	\end{lstlisting}
-	\caption{Model composition. Model \lstinline{AB} is the
-	product of \lstinline{A} and \lstinline{B}.}
-	\label{fig:composition}
+  \end{lstlisting}
+  \caption{Model composition. Model \lstinline{AB} is the
+  product of \lstinline{A} and \lstinline{B}.}
+  \label{fig:composition}
 \end{figure}
 Combinators such as product, mixture, or hierarchy can be
 implemented as functions operating on Infergo models.
@@ -1341,7 +1341,7 @@ any other model. New distributions can be added in any package.
 Figure~\ref{fig:exponential-distribution} shows the definition of the
 exponential distribution.
 \begin{figure}
-	\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+  \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 // Exponential distribution.
 type expon struct{}
 
@@ -1351,37 +1351,37 @@ var Expon expon
 // Observe implements the Model interface. The
 // parameter vector is lambda, observations.
 func (dist expon) Observe(x []float64)
-	float64 {
-	lambda, y := x[0], x[1:]
-	if len(y) == 1 {
-		return dist.Logp(lambda, y[0])
-	} else {
-		return dist.Logps(lambda, y...)
-	}
+  float64 {
+  lambda, y := x[0], x[1:]
+  if len(y) == 1 {
+    return dist.Logp(lambda, y[0])
+  } else {
+    return dist.Logps(lambda, y...)
+  }
 }
 
 // Logp computes the log pdf of a single
 // observation.
 func (_ expon) Logp(lambda float64, y float64)
-	float64 {
-	logl := math.Log(lambda)
-	return logl - lambda*y
+  float64 {
+  logl := math.Log(lambda)
+  return logl - lambda*y
 }
 
 // Logps computes the log pdf of a vector
 // of observations.
 func (_ expon) Logps(lambda float64, y ...float64)
-	float64 {
-	ll := 0.
-	logl := math.Log(lambda)
-	for i := range y {
-		ll += logl - lambda*y[i]
-	}
-	return ll
+  float64 {
+  ll := 0.
+  logl := math.Log(lambda)
+  for i := range y {
+    ll += logl - lambda*y[i]
+  }
+  return ll
 }
-	\end{lstlisting}
-	\caption{The exponential distribution in Infergo.}
-	\label{fig:exponential-distribution}
+  \end{lstlisting}
+  \caption{The exponential distribution in Infergo.}
+  \label{fig:exponential-distribution}
 \end{figure}
 
 \subsection{Stochasticity and Streaming}
@@ -1410,7 +1410,7 @@ another goroutine or process.
 Figure~\ref{fig:basic-example-channel} shows a modified model
 from the basic example with the data read from a channel rather.
 \begin{figure}
-	\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+  \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 type Model struct {
   Data chan float64  // data is a channel
   N    int           // batch size
@@ -1421,13 +1421,13 @@ func (m *Model) Observe(x []float64) float64 {
   // observe a batch of data from the channel
   for i := 0; i != m.N; i++ {
     ll += Normal.Logp(x[0], math.Exp(x[1]),
-		<- m.Data)
+                      <- m.Data)
   }
   return ll
 }
-	\end{lstlisting}
-	\caption{The basic example with the data read from a channel.}
-	\label{fig:basic-example-channel}
+  \end{lstlisting}
+  \caption{The basic example with the data read from a channel.}
+  \label{fig:basic-example-channel}
 \end{figure}
 
 A similar approach can be applied to streaming data: the model
@@ -1464,8 +1464,8 @@ probabilistic programming with Infergo.
 The eight schools problem~\cite{GCS+03} 
 
 \begin{figure*}
-	\begin{minipage}{0.45\textwidth}
-	\begin{lstlisting}[language=Stan,framexleftmargin=10pt,numbers=left]
+  \begin{minipage}{0.45\textwidth}
+  \begin{lstlisting}[language=Stan,framexleftmargin=10pt,numbers=left]
 data {
   int<lower=0> J;
   vector[J] y;
@@ -1491,9 +1491,9 @@ model {
 
 \centering
 a. Stan
-	\end{minipage}
-	\hfill
-	\begin{minipage}{0.45\textwidth}
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.45\textwidth}
 \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 type Model struct {
   J          int
@@ -1519,10 +1519,10 @@ func (m *Model) Observe(x []float64) float64 {
 \end{lstlisting}
 \centering
 b. Infergo
-	\end{minipage}
-	\caption{Eight schools: Stan vs. Infergo. The Go implementation
-	has a similar length and structure to the Stan model.}
-	\label{fig:8-schools}
+  \end{minipage}
+  \caption{Eight schools: Stan vs. Infergo. The Go implementation
+  has a similar length and structure to the Stan model.}
+  \label{fig:8-schools}
 \end{figure*}
 
 \subsection{Linear regression}
@@ -1557,7 +1557,7 @@ func (m *Model) Simulate(x, alpha, beta float64)
 }
 \end{lstlisting}
 \caption{Linear regression: the simulator is re-used in both
-	inference and prediction.}
+  inference and prediction.}
 \label{fig:linear-regression}
 \end{figure}
 
@@ -1588,7 +1588,7 @@ func (m *Model) Observe(x []float64) float64 {
     var l float64
     for j := 0; j != m.NComp; j++ {
       lj := Normal.Logp(mu[j], sigma[j],
-	                    m.Data[i])
+                        m.Data[i])
       if j == 0 {
         l = lj
       } else {
@@ -1601,7 +1601,7 @@ func (m *Model) Observe(x []float64) float64 {
 }
 \end{lstlisting}
 \caption{Gaussian mixture: Infergo can handle models with
-	dynamic control structure.}
+  dynamic control structure.}
 \label{fig:gaussian-mixture}
 \end{figure}
 
@@ -1623,11 +1623,11 @@ implemented as Infergo models and automatically differentiated.
 of HMC with 10 leapfrog steps.}
 \label{tab:memory-runtime}
 \begin{tabular}{r | c |  c | c}
-	{\it model}  & \multicolumn{2}{c|}{\it time} & {\it memory} \\ 
-	 & {\it compilation} & {\it execution} & \\\hline
-	8 schools & 0.15s & 0.6s & 5.5MB \\
-	10D normal, 100 points & 0.15s & 3.0s & 5.7MB \\
-	50D normal, 100 points & 0.15s & 13.0s & 5.8MB 
+  {\it model}  & \multicolumn{2}{c|}{\it time} & {\it memory} \\ 
+   & {\it compilation} & {\it execution} & \\\hline
+  8 schools & 0.15s & 0.6s & 5.5MB \\
+  10D normal, 100 points & 0.15s & 3.0s & 5.7MB \\
+  50D normal, 100 points & 0.15s & 13.0s & 5.8MB 
 \end{tabular}
 \end{table}}
 
