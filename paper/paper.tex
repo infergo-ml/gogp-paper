@@ -1751,16 +1751,14 @@ model.
 \section{Performance}
 
 \begin{table*}
-\begin{tabular}{r | c |  c | c | c | c | c | }
-	{\it model}  & \multicolumn{6}{c|}{\it time} \\
-	& \multicolumn{3}{c|}{\it compilation} & \multicolumn{3}{c|}{\it execution} \\
-	& Infergo & Turing & Stan & Infergo & Turing & Stan \\\hline
-	8 schools              & 0.5s & & & 0.6s  & & \\
-	10D normal, 100 points & 0.5s & & & 3.0s  & & \\
-	50D normal, 100 points & 0.5s & & & 13.0s & & \\
-	LDA, 262 words, 25 docs
-	                       & 0.6s & & &       & & 
-\end{tabular}
+	\begin{tabular}{r | c |  c | c | c | c | c | }
+		{\it model}   & \multicolumn{6}{c|}{\it time, seconds} \\
+					  & \multicolumn{3}{c|}{\it compilation} & \multicolumn{3}{c|}{\it execution} \\
+					  & Infergo & Turing & Stan              & Infergo & Turing & Stan    \\\hline
+		Eight schools & 0.5     &        & 50                & 0.6     &        & 0.12    \\
+		GMM           & 0.5     &        & 55                & 3.0     &        & 4.9     \\
+		LDA           & 0.5     &        & 55                &         &        & 3.7     \\ 
+	\end{tabular}
 \caption{Compilation and execution times for 1000 iterations 
 	of HMC with 10 leapfrog steps.}
 \label{tab:memory-runtime}
