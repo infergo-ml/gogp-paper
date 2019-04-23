@@ -5,7 +5,7 @@
 \usepackage{listings}[language=Golang]
 \usepackage{GoMono}
 
-\linespread{1.1}
+\linespread{1.07}
 
 \lstdefinelanguage{Golang}%
   {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
@@ -1140,7 +1140,7 @@ languages~\cite{S16,MMW18,BCJ+19,P09,Rainier,GXG18,ISF+18}.
 Each of these languages has advantages for implementing a
 probabilistic programming facility. However, for a reference
 implementation of a facility best suited for probabilistic
-inference in a porduction software system, we were looking
+inference in a production software system, we were looking
 for a language that \begin{itemize}
   \item compiles into fast and compact code;
   \item does not incur dependency on a heavy runtime; and
@@ -1752,28 +1752,88 @@ model.
 
 \begin{table*}
 	\begin{tabular}{r | c |  c | c | c | c | c | }
-		{\it model}   & \multicolumn{6}{c|}{\it time, seconds} \\
-					  & \multicolumn{3}{c|}{\it compilation} & \multicolumn{3}{c|}{\it execution} \\
-					  & Infergo & Turing & Stan              & Infergo & Turing & Stan    \\\hline
-		Eight schools & 0.5     &        & 50                & 0.6     &        & 0.12    \\
-		GMM           & 0.5     &        & 55                & 3.0     &        & 4.9     \\
-		LDA           & 0.5     &        & 55                &         &        & 3.7     \\ 
+		{\it model}         & \multicolumn{6}{c|}{\it time, seconds} \\
+					        & \multicolumn{3}{c|}{\it compilation} & \multicolumn{3}{c|}{\it execution} \\
+					        & Infergo & Turing & Stan              & Infergo  & Turing & Stan    \\\hline
+              Eight schools & 0.50    & -      & 50                & 0.60     & 2.8    & 0.12    \\
+     Gaussian mixture model & 0.50    & -      & 54                & 32       & 14     & 4.9     \\
+Latent Dirichlet allocation & 0.50    & -      & 54                & 8.9      & 12     & 3.7     \\ 
 	\end{tabular}
 \caption{Compilation and execution times for 1000 iterations 
 	of HMC with 10 leapfrog steps.}
 \label{tab:memory-runtime}
 \end{table*}
+It is customary to include performance evaluation on benchmark
+problems in publications on new probabilistic programming
+frameworks~\cite{PW14,WVM14,TMY+16,GXG18}. We provide here a
+comparison of running times of Infergo and two other probabilistic
+programming frameworks: Turing~\cite{GXG18} and
+Stan~\cite{Stan17}. Turing is a Julia~\cite{Julia14} library
+and DSL offering exploratory statistical modeling  and
+inference composition. Stan is a compiled language and a library
+optimized for high performance.
 
-Table~\ref{tab:memory-runtime} provides memory consumption and
-running time measurements on basic models to illustrate
-Infergo's performance.  The measurements were obtained on a
-2.3GHz Intel Core 5 CPU with 8GB of memory for 1000 iterations
-of Hamiltonian Monte Carlo with 10 leapfrog steps. Note that
-log-likelihood computation for standard distributions is not
-optimized yet. Quite the opposite: since models in Infergo are
-fully composable, primitive distributions are themselves
-implemented as Infergo models and automatically differentiated.
+We use three models of different size and structure for the
+comparison: two of the models, Eight schools and Gaussian
+mixture model, were introduced as a part of the case
+studies~(Section~\ref{sec:case-studies}); the code for the third
+model, Latent Dirichlet allocation~\cite{BNG03}, is included in
+Appendix~\ref{app:lda}. The code and data for all models were
+originally included in Stan examples and translated for use
+with Turing and Infergo. \textit{Eight schools} is the smallest model.
+One may expect that most of the time execution time is spent in
+executing the boilerplate code rather than the model. \textit{Gaussian
+mixture model} is a more elaborated model which benefits greatly
+from vectorization. The greater the number of observations (1000
+data points were used in the evaluation), the more significant
+is the benefit of vectorized computations. \textit{Latent
+Dirichlet allocation} is, again, a relatively elaborated model,
+that is, however, not as easy to vectorize. 
 
+We report both compilation time (for Stan and Infergo) and
+execution time. Compilation time is an important characteristic
+of a probabilistic programming framework --- statistical
+modeling often involves many cycles of model modifications and
+numerical experiments on subsampled data. The ability to modify
+and instantly re-run a model is crucial for exploratory data
+analysis and model design. Turing is based on Julia, which is
+a dynamic language with JIT compiler, and there is no separate
+compilation time. For Stan, the compilation time includes
+compiling the Stan model to C++, and then compiling the C++
+source into executable code for inference. For Infergo, the
+compilation time consists of automatic differentiation of the
+model, and then building a command-line executable that calls
+an inference algorithm on the model.
+
+Table~\ref{tab:memory-runtime} shows running time measurements
+on the models.  The measurements were obtained on a 1.25GHz
+Intel(R) Core(TM) i5 CPU with 8GB of memory for 1000 iterations
+of Hamiltonian Monte Carlo with 10 leapfrog steps and averaged
+over 10 runs.  In execution, Infergo is slower than Stan, which
+comes as little surprise --- Stan is a mature highly optimized
+inference and optimization library. However, Infergo and Turing
+show similar execution times, despite Turing relying on Julia's
+numerical libraries. The slowest relative execution time is on
+the Gaussian mixture model, where Stan is 6--7 times faster,
+apparently because Infergo model is not vectorized; the model
+could be made more efficient at the cost of verbosity and poorer
+readability, but we opted to use idiomatic Infergo models for
+the comparison. On the Latent Dirichlet allocation model, run on
+Stan example data with 25 documents and 262 word instances,
+Infergo is only 2.5 times slower than Stan, and faster than
+Turing, an illustration of the benefits of transformation-based
+differentiation and efficiency of Go.
+
+Infergo programs compile very fast, in particular in comparison
+to Stan models. Both automatic differentiation and code
+generation combined take a fraction of a second. Compilation time
+of Stan models is dominated by compilation of the generated C++
+code which takes close to a minute on our hardware. The ability
+to modify a model and then re-run inference almost instantly,
+and with reasonable performance, helps in exploratory model
+development with Infergo, which was conceived with server-side,
+unattended execution in mind, but fits the exploration and
+development stage just as well.
 
 \section{Conclusion}
 
@@ -1781,14 +1841,14 @@ Building a production software system which employs
 probabilistic inference as an integral part of prediction and
 decision making algorithms is challenging. To address the
 challenges, we proposed guidelines for implementation of a
-deployable probabilistic programming facility. Further on, we
-introduced Infergo, a probabilistic programming facility in Go,
-as a reference implementation in accordance with the guidelines.
-Infergo allows to program inference models in virtually
-unrestricted Go, and to perform inference on the model using
-either supplied or third-party algorithms. We demonstrated on
-case studies how Infergo overcomes the challenges by following
-the guidelines.
+deployable probabilistic programming facility. Based on the
+guidelines, we introduced Infergo, a probabilistic programming
+facility in Go, as a reference implementation in accordance with
+the guidelines.  Infergo allows to program inference models in
+virtually unrestricted Go, and to perform inference on the model
+using either supplied or third-party algorithms. We demonstrated
+on case studies how Infergo overcomes the challenges by
+following the guidelines.
 
 A probabilistic programming facility similar to Infergo can be
 added to most modern general-purpose programming languages, in
@@ -1817,5 +1877,100 @@ further advancing the field of probabilistic programming.
 \clearpage
 
 \bibliography{refs}
+
+\clearpage
+
+\appendix
+
+\begin{figure*}
+\section{Latent Dirichlet Allocation Model}
+	\label{app:lda}
+\vspace{\baselineskip}
+
+\begin{minipage}{0.49\textwidth}
+\centering
+\textbf{Infergo}
+
+\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+type Model struct {
+  K     int       // num topics
+  V     int       // num words
+  M     int       // num docs
+  N     int       // total word instances
+  Word  []int     // word n
+  Doc   []int     // doc for word n
+  Alpha []float64 // topic prior
+  Beta  []float64 // word prior
+}
+
+func (m *Model) Observe(x []float64) float64 {
+  ll := 0.0
+
+  // Destructure parameters
+  theta := make([][]float64, m.M)
+  m.simplices(&x, m.K, theta)
+  phi := make([][]float64, m.K)
+  m.simplices(&x, m.V, phi)
+
+  // Impose priors
+  ll += Dirichlet{m.K}.Logps(m.Alpha, theta...)
+  ll += Dirichlet{m.V}.Logps(m.Beta, phi...)
+
+  // Conditioning on observations
+  gamma := make([]float64, m.K)
+  for in := 0; in != m.N; in++ {
+    for ik := 0; ik != m.K; ik++ {
+      gamma[ik] = math.Log(theta[m.Doc[in]-1][ik]) +
+        math.Log(phi[ik][m.Word[in]-1])
+    }
+    ll += D.LogSumExp(gamma)
+  }
+  return ll
+}
+\end{lstlisting}
+\end{minipage}
+\hfill
+\begin{minipage}{0.49\textwidth}
+	\centering
+	
+	\textbf{Stan}
+
+\begin{lstlisting}[language=Stan]
+data {
+  int<lower=2> K;               // num topics
+  int<lower=2> V;               // num words
+  int<lower=1> M;               // num docs
+  int<lower=1> N;           // total word instances
+  int<lower=1,upper=V> w[N];    // word n
+  int<lower=1,upper=M> doc[N];  // doc for word n
+  vector<lower=0>[K] alpha;     // topic prior
+  vector<lower=0>[V] beta;      // word prior
+}
+
+
+parameters {
+  simplex[K] theta[M]; // topic dist for doc m
+  simplex[V] phi[K];   // word dist for topic k
+}
+
+
+model {
+  for (m in 1:M)  
+    theta[m] ~ dirichlet(alpha);  // prior
+  for (k in 1:K)  
+    phi[k] ~ dirichlet(beta);     // prior
+
+  for (n in 1:N) {
+    real gamma[K];
+    for (k in 1:K) 
+      gamma[k] <- log(theta[doc[n],k]) 
+	  	+ log(phi[k,w[n]]);
+    increment_log_prob(log_sum_exp(gamma));
+  }
+}
+\end{lstlisting}
+	\vspace{2\baselineskip}
+\end{minipage}
+\end{figure*}
 
 \end{document}
