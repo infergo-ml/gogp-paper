@@ -1448,14 +1448,14 @@ In this section, we present three case studies of probabilistic
 programs, each addressing a different aspect of Infergo. Eight
 schools (Section~\ref{sec:eight-schools}) is a popular example  we
 use to compare model specification in Stan and Infergo. Linear
-regression (Session~\ref{sec:eight-schools}) formulated as a
+regression (Session~\ref{sec:linear-regression}) formulated as a
 probabilistic program lets us explore a model comprising
 multiple methods and illustrate the simulation-inference pattern.
 Gaussian mixture (Section~\ref{sec:gaussian-mixture}) is
 the most complex model of the three, featuring nested loops and
 dynamic control structure.
 
-By no means the models presented in this section reflect the
+By no means do the models presented in this section reflect the
 complexity or the size of real-world Infergo applications, the
 latter reaching hundreds of lines of code in length and
 performing inference on tens of thousands of data entries.
@@ -1916,7 +1916,7 @@ func (m *Model) Observe(x []float64) float64 {
   ll += Dirichlet{m.K}.Logps(m.Alpha, theta...)
   ll += Dirichlet{m.V}.Logps(m.Beta, phi...)
 
-  // Conditioning on observations
+  // Condition on observations
   gamma := make([]float64, m.K)
   for in := 0; in != m.N; in++ {
     for ik := 0; ik != m.K; ik++ {
