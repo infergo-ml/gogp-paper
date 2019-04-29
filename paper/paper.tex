@@ -5,7 +5,7 @@
 \usepackage{listings}[language=Golang]
 \usepackage{GoMono}
 
-\linespread{1.05}
+\linespread{1.06}
 
 \lstdefinelanguage{Golang}%
   {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
@@ -853,6 +853,8 @@ the language construct for conditioning of the model on
 observations.} accepts a vector (a Go \textit{slice}) of floats,
 the parameters to infer, and returns a single float, interpreted
 as unnormalized log-likelihood of the posterior distribution.
+The model object usually encapsulates the observations, either
+as a data field or as a reference to a data source.
 Implementation of model methods can be written in virtually
 unrestricted Go and use any Go libraries.
 
@@ -1490,7 +1492,7 @@ outcomes is compared among eight schools.
 Figure~\ref{fig:eight-schools} shows specifications of the same
 model in Stan and Infergo, side-by-side.
 \begin{figure*}
-  \begin{minipage}{0.45\textwidth}
+\begin{minipage}[t]{0.45\textwidth}
   \begin{lstlisting}[language=Stan,framexleftmargin=10pt,numbers=left]
 data {
   int<lower=0> J;
@@ -1519,7 +1521,7 @@ model {
 a. Stan
   \end{minipage}
   \hfill
-  \begin{minipage}{0.45\textwidth}
+\begin{minipage}[t]{0.5\textwidth}
 \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 type SchoolsModel struct {
   J          int
@@ -1528,8 +1530,7 @@ type SchoolsModel struct {
 }
 
 
-func (m *SchoolsModel)
-     Observe(x []float64) float64 {
+func (m *SchoolsModel) Observe(x []float64) float64 {
   mu := x[0]
   tau := math.Exp(x[1])
   eta := x[2:]
@@ -1905,7 +1906,7 @@ further advancing the field of probabilistic programming.
 	\label{app:lda}
 \vspace{\baselineskip}
 
-\begin{minipage}{0.49\textwidth}
+\begin{minipage}[t]{0.49\textwidth}
 \centering
 \textbf{Infergo}
 
@@ -1924,11 +1925,13 @@ type LDAModel struct {
 func (m *LDAModel) Observe(x []float64) float64 {
   ll := 0.0
 
+  // Regularize the parameter vector
+  ll += Normal.Logps(0, 1, x...)
   // Destructure parameters
   theta := make([][]float64, m.M)
-  m.simplices(&x, m.K, theta)
+  m.FetchSimplices(&x, m.K, theta)
   phi := make([][]float64, m.K)
-  m.simplices(&x, m.V, phi)
+  m.FetchSimplices(&x, m.V, phi)
 
   // Impose priors
   ll += Dirichlet{m.K}.Logps(m.Alpha, theta...)
@@ -1945,10 +1948,21 @@ func (m *LDAModel) Observe(x []float64) float64 {
   }
   return ll
 }
+
+func (m *Model) FetchSimplices(
+	px *[]float64,
+	k int,
+	simplices [][]float64,
+) {
+	for i := range simplices {
+		simplices[i] = make([]float64, k)
+		D.SoftMax(model.Shift(px, k), simplices[i])
+	}
+}
 \end{lstlisting}
 \end{minipage}
 \hfill
-\begin{minipage}{0.49\textwidth}
+\begin{minipage}[t]{0.49\textwidth}
 	\centering
 	
 	\textbf{Stan}
@@ -1987,7 +2001,6 @@ model {
   }
 }
 \end{lstlisting}
-	\vspace{2\baselineskip}
 \end{minipage}
 \end{figure*}
 
