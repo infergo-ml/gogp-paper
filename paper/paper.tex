@@ -613,7 +613,7 @@
   probabilistic inference on models written in a
   general-purpose probabilistic programming language, the same
   one as the language used to program the bulk of the system. 
-  We formulate guidelines for such implementation, and based
+  We formulate guidelines for such implementation, and, based
   on the guidelines, introduce a probabilistic programming
   facility for the Go programming language~\cite{Golang}. By
   explaining our implementation choices and techniques,
@@ -736,7 +736,7 @@ and performance come into play.
 
 \paragraph{Simulation vs. inference} Probabilistic models often
 follow the design pattern of simulation-inference: a significant
-part of the model is a simulator, running an algorithm with
+part of the model is a simulator running an algorithm with
 given parameters; the optimal parameters, or their distribution,
 are to be inferred. The inferred parameters are then used by the
 software system to execute the simulation independently of
@@ -832,7 +832,7 @@ programming facility for the Go programming language, Infergo.
 %(\url{http://infergo.ml/}). 
 We have chosen Go because Go is a
 small but expressive programming language with efficient
-implementation, which has recently become quite popular for
+implementation that has recently become quite popular for
 computation-intensive server-side programming. Infergo is used
 in production environment for inference of mission-critical
 algorithm parameters.
@@ -1113,14 +1113,13 @@ convenience function
 \begin{lstlisting}
 func FuncGrad(m Model) (
   Func func(x []float64) float64,
-  Grad func(grad []float64, x []float64)
-    []float64)
+  Grad func(grad []float64, x []float64))
 \end{lstlisting}
 which accepts a model and returns the model's
 \lstinline{Observe} method and its gradient suitable for passing
 to Gonum optimization algorithms. Among available algorithms are
 advanced versions of stochastic gradient descent, as well as
-algorithms of BFGS family, in particular LBFGS~\cite{LN89},
+algorithms of BFGS family, in particular L-BFGS~\cite{LN89},
 providing for a more efficient MAP estimation than stochastic
 gradient descent at the cost of higher memory consumption:
 \begin{lstlisting}
