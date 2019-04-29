@@ -1141,11 +1141,11 @@ believe to have been crucial for addressing the challenges and
 following the guidelines we formulated for implementation of a
 deployable probabilistic programming facility. While different
 choices may be as well suited for the purpose as the ones we
-made, we feel it important to share our contemplations and
-justify decisions, to which the rest of this section is
-dedicated, from choosing the implementation language, through
-details of automatic differentiation, to support for inference
-on streaming and stochastic observations.
+made, we feel important to share our contemplations and justify
+decisions, to which the rest of this section is dedicated, from
+choosing the implementation language, through details of
+automatic differentiation, to support for inference on streaming
+and stochastic observations.
 
 \subsection{Choice of Programming Language}
 
@@ -1182,7 +1182,7 @@ and streamlined:
     effortless.
   \item Type inference (or \textit{type checking} as it is
     called in the Go ecosystem), also provided in the
-    standard library, augments parsing and allows to
+	standard library, augments parsing, and allows to
     selectively apply transformation-based automatic
     differentiation  based on static expression types. 
   \item Go provides reflection capabilities for almost any aspect
@@ -1197,8 +1197,8 @@ and streamlined:
   \item Go is available on many platforms and for a wide range
     of operating systems and environments, from portable
     devices to supercomputers. Go programs can be
-    cross-compiled, and Go programs can be reliably
-    developed and deployed in heterogeneous environments.
+	cross-compiled and reliably developed and deployed in
+	heterogeneous environments.
   \item Go offers efficient parallel execution as a
     first-class feature, via so-called \textit{goroutines}.
     Goroutines streamline implementation of sampling-based
@@ -1217,7 +1217,7 @@ learning and data processing and suffering from limitations of
 Python as a language for implementation of computation-intensive
 algorithms, the system has been gradually drifting towards
 adopting Go, with performance-critical parts re-implemented and
-running faster, with better hardware and network utilization,
+running faster due to better hardware and network utilization,
 and simpler and more maintainable code for data processing,
 analysis, and decision making.
 
@@ -1260,12 +1260,12 @@ the use of the built-in floating point type along with
 virtually unrestricted language for model specification, at the
 cost of slight performance loss.
 
-This last method is used in Infergo: the model is written in Go
-and is placed in a separate Go package. A command-line utility
+This latter method is used in Infergo: the model is written in Go
+and is placed in a separate Go package. A command-line tool
 is run on the package to generate a sub-package containing a
 differentiated version of the model.  Both the original and the
 differentiated model are available simultaneously in the calling
-code, so that model methods which do not require computation of
+code, so that model methods that do not require computation of
 gradients can be invoked without the overhead of automatic
 differentiation.  However, the performance loss is rarely a
 major issue --- differentiated versions of model methods are
@@ -1280,7 +1280,7 @@ tape.
 It may seem desirable to implement or use an automatic
 differentiation library that is more general than needed for
 probabilistic programming. However the use of such library, in
-particular, with source code transformation, may make
+particular with source code transformation, may make
 implementation restricted and less efficient: first, if a model
 comprises several functions, all functions must have a signature
 suitable for differentiation (that is, accept and return
@@ -1471,7 +1471,7 @@ probabilistic program lets us explore a model comprising
 multiple methods and illustrate the simulation-inference pattern.
 Gaussian mixture (Section~\ref{sec:gaussian-mixture}) is
 the most complex model of the three, featuring nested loops and
-dynamic control structure.
+conditionals.
 
 By no means do the models presented in this section reflect the
 complexity or the size of real-world Infergo applications, the
@@ -1870,7 +1870,7 @@ following the guidelines.
 
 A probabilistic programming facility similar to Infergo can be
 added to most modern general-purpose programming languages, in
-particular, those used for implementation of large-scale software
+particular those used for implementation of large-scale software
 systems, making probabilistic programming inference more
 accessible in large scale server-side applications. We described
 Infergo implementation choices and techniques in intent
