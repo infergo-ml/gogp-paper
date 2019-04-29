@@ -1624,7 +1624,7 @@ If only the maximum \textit{a posteriori} is estimated, the
 parameter values will maximize their likelihood given the
 observations:
 \begin{equation}
-	(\alpha, \beta, \sigma)_{MAP} = \arg \max \prod\limits_i \mathrm{Normal}(\alpha + \beta x_i, \sigma)
+	(\alpha, \beta, \sigma)_{MAP} = \arg \max \prod\limits_i \mathrm{pdf}_\mathrm{Normal}(\alpha + \beta x_i, \sigma)
 	\label{eqn:linear-regression-2}
 \end{equation}
 
@@ -1806,7 +1806,7 @@ from vectorization. The greater the number of observations (1000
 data points were used in the evaluation), the more significant
 is the benefit of vectorized computations. \textit{Latent
 Dirichlet allocation} is, again, a relatively elaborated model,
-that is, however, not as easy to vectorize. 
+which is, however, not as easy to vectorize. 
 
 We report both compilation time (for Stan and Infergo) and
 execution time. Compilation time is an important characteristic
