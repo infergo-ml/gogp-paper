@@ -5,25 +5,28 @@ Abstract:
 	What properties a probabilistic programming facility should
 	possess to be deployed as a part of a production software
 	system? How well are available probabilistic programming
-	languages suited for this tasks? I will share my experiences
+	languages suited for these tasks? I will share my experiences
 	in introducing probabilistic programming inference into a
 	large-scale server-side software system, and describe
 	Infergo, a probabilistic programming facility which allows
-	to write probabilistic programs in virtuall unrestricted Go. 
+	to write probabilistic programs in virtually unrestricted Go. 
 	We use Infergo for forecasting and decision making, running in
 	hundreds containers in the cloud, intermixed with other
 	machine learning libraries and frameworks, both in Go and
 	other languages. I will show on examples how Infergo design
-	made Infergo particularly suited for our applications.
+	made Infergo particularly suited for our applications and
+	suggest guidelines for equipping other programming languages
+	and environments with a similar facility.
 
 Bio:
 
-	David Tolpin discovered probabilistic programming at Oxford,
-	where he co-authored Anglican, and then moved on to pursue
+	David Tolpin discovered probabilistic programming during
+	post-doctorate research at the University of Oxford, where
+	he co-authored Anglican, and then moved on to pursue
 	applications of probabilistic programming in the industry.
-	To address the need of deploying  probabilistic programs
-	as components of untattended server-side software systems,
-	David created Infergo, a probabilistic programming facility
-	in Go, which serves both as a platform for applied research
-	on probabilistic programming and as an inference engine 
+	To address the need of deploying  probabilistic programs as
+	components of unattended server-side software systems, David
+	created Infergo, a probabilistic programming facility in Go,
+	which serves both as a platform for applied research on
+	probabilistic programming and as an inference engine
 	supporting large-scale forecasting and decision making.
