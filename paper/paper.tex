@@ -797,12 +797,12 @@ implementation language of the rest of the system.
 \section{Guidelines}
 
 Based on the experience of developing and deploying solutions
-using different probabilistic environments, we came up with
-guidelines to implementation of a probabilistic programming
-facility for server-side applications. We believe that these
-guidelines, when followed, help easier integration of
-probabilistic programming inference into large-scale 
-software systems.
+using different probabilistic programming environments, we came
+up with guidelines to implementation of a probabilistic
+programming facility for server-side applications. We believe
+that these guidelines, when followed, help easier integration of
+probabilistic programming inference into large-scale software
+systems.
 
 \begin{enumerate}
 \item A probabilistic model should be programmed in the host
@@ -865,12 +865,11 @@ differentiation of the log-likelihood with respect to the
 parameters applied. The differentiation operates on the built-in
 floating-point type and incurs only a small computational
 overhead. However, even this overhead is avoided when the model
-code is executed outside of inference algorithms: both the
-original and the differentiated model are simultaneously
-available to the rest of the program code, so the methods can be
-called on the differentiated model for inference, and on the
-original model for the most efficient execution with the
-inferred parameters.
+code is executed outside inference algorithms: both the original
+and the differentiated model are simultaneously available to the
+rest of the program code, so the methods can be called on the
+differentiated model for inference, and on the original model
+for the most efficient execution with the inferred parameters.
 
 \subsection{A Basic Example}
 \label{sec:basic-example}
