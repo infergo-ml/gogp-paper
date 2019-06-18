@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Server-side probabistic programming</title>
+    <title>Deployable probabistic programming</title>
 
     <link rel="stylesheet" href="css/reveal.css">
     <link rel="stylesheet" href="css/theme/white.css">
@@ -60,12 +60,12 @@
       -->
       <div class="slides">
         <section>
-          <h1>Server-side probabilistic programming</h1>
+          <h1>Deployable probabilistic programming</h1>
           <p><emph>David Tolpin, <a href="http://publus.com/">PUB+</a></emph></p>
         </section>
 				<section>
 					<section>
-						<h2>Probabilistic Programming Languages</h2>
+						<h2>Probabilistic programming languages</h2>
 
 						<ul>
 							<li>45 PPLs listed on
@@ -79,23 +79,14 @@
 					</section>
 
 					<section>
-						<h2>What PPL is (not)?</h2>
-						<p style="font-size: 80%; border-left: thin solid #00c; text-align: left">
-	"PROBABILISTIC PROGRAMMING LANGUAGES aim to close this
-	representational gap, unifying general purpose programming with
-	probabilistic modeling..." (<a
-		href="http://probabilistic-programming.org/">probabilistic-programming.org</a>)
-						</p>
-
-						<p class="fragment" style="font-size: 80%; border-left: thin solid #00c; text-align: left">
-	"It's best not to think of “writing software” at all...
-	sure, it's (PPL) a programming language—but
-	it's not the right tool for writing full-fledged software."
-	(Online course notes)
-						</p>
+						<h2>Probabilistic programming</h2>
+						<p>Two polar views:</p>
+						<ol>
+							<li>Framework for statistical modelling</li>
+							<li>Inferentiable programming</li>
+						</ol>
 					</section>
 				</section>
-
         <section>
           <section>
             <h2>Challenges</h2>
@@ -175,7 +166,8 @@ def update_beliefs(beliefs, i, j, bandwidth):
               <tr>
                 <th>PyStan (70Mb)</th>
                 <td>
-                  Stan, C++ compiler, Cython
+                  Stan, C++ compiler, Cython, <span
+					  style="color: #c66">OCaml?</span>
                 </td>
               </tr>
               <tr>
@@ -339,9 +331,9 @@ Installed Juno ──────────── v0.5.3
             <div class="fragment">
             A model (exponential distribution):
             <pre><code class="go" data-trim data-noescape>
-1 type Model float64 
+1 type Expon float64 
 2 
-3 func (m Model) Observe(x []float64) float64 {
+3 func (m Expon) Observe(x []float64) float64 {
 4   return -x*m
 5 }
             </code></pre>
