@@ -63,30 +63,30 @@
           <h1>Deployable probabilistic programming</h1>
           <p><emph>David Tolpin, <a href="http://publus.com/">PUB+</a></emph></p>
         </section>
-				<section>
-					<section>
-						<h2>Probabilistic programming languages</h2>
+        <section>
+          <section>
+            <h2>Probabilistic programming languages</h2>
 
-						<ul>
-							<li>45 PPLs listed on
-								<a
-									href="http://en.m.wikipedia.org/wiki/Probabilistic_programming_language">Wikipedia</a>.</li>
-							<li>18 PPLs participated in developer meetup at <a
-									href="http://probprog.cc/">PROBPROG
-									2018</a>.</li>
-							<li>8 of the latter are not on Wikipedia (yet).</li>
-						</ul>
-					</section>
+            <ul>
+              <li>45 PPLs listed on
+                <a
+                  href="http://en.m.wikipedia.org/wiki/Probabilistic_programming_language">Wikipedia</a>.</li>
+              <li>18 PPLs participated in developer meetup at <a
+                  href="http://probprog.cc/">PROBPROG
+                  2018</a>.</li>
+              <li>8 of the latter are not on Wikipedia (yet).</li>
+            </ul>
+          </section>
 
-					<section>
-						<h2>Probabilistic programming</h2>
-						<p>Two polar views:</p>
-						<ol>
-							<li>Framework for statistical modelling</li>
-							<li>Inferentiable programming</li>
-						</ol>
-					</section>
-				</section>
+          <section>
+            <h2>Probabilistic programming</h2>
+            <p>Two polar views:</p>
+            <ol>
+              <li>Framework for statistical modelling</li>
+              <li>Inferentiable programming</li>
+            </ol>
+          </section>
+        </section>
         <section>
           <section>
             <h2>Challenges</h2>
@@ -167,7 +167,7 @@ def update_beliefs(beliefs, i, j, bandwidth):
                 <th>PyStan (70Mb)</th>
                 <td>
                   Stan, C++ compiler, Cython, <span
-					  style="color: #c66">OCaml?</span>
+            style="color: #c66">OCaml?</span>
                 </td>
               </tr>
               <tr>
@@ -371,13 +371,16 @@ Installed Juno ──────────── v0.5.3
           <section>
             <h3>Differentiation</h3>
             <ul>
-              <li>All methods on the type implementing <code>model.Model</code>
-                are differentiated.</li>
+        <li>Model methods returning <code>float64</code>
+          or nothing are differentiated.</li>
               <li>Within the methods, the following is differentiated:
                 <ul>
                   <li>assignments to <code>float64</code>;</li>
                   <li>returns of <code>float64</code>;</li>
-                  <li>standalone calls to methods on the type implementing model.Model.</li></ul></li>
+                  <li>standalone calls to differentiated model
+            methods.</li>
+        </ul>
+        </li>
             </ul>
           </section>
           <section>
@@ -399,7 +402,7 @@ Installed Juno ──────────── v0.5.3
             </code></pre>
           </section>
           <section>
-            <h3>Inference</h3>
+            <h2>Inference</h2>
             <ul>
               <li>Optimization via gradient ascent (Momentum,
                 Adam), works with streamed and stochastic
@@ -409,6 +412,21 @@ Installed Juno ──────────── v0.5.3
                 through a channel.</li>
             </ul>
           </section>
+		  <section>
+			<h3>Third-party inference</h3>
+			<ul>
+			  <li>Straightforward because Infergo uses built-in
+				Go <code>float64</code>.</li>
+			  <li>Gonum (<a href="http://gonum.org/">http://gonum.org/</a>) library for
+				numerical computation:
+                <pre><code class="go" data-trim data-noescape>
+func FuncGrad(m Model) (
+  Func func(x []float64) float64,
+  Grad func(grad []float64, x []float64))
+				</code></pre>
+			  </li>
+			</ul>
+		  </section>
         </section>
         <section>
           <section>
@@ -421,10 +439,10 @@ Installed Juno ──────────── v0.5.3
           <section>
             <h3>8 schools</h3>
             <table width="100%">
-              <tr><th width="40%">Stan</th><th width="60%"><code>infergo</code></th></tr>
+              <tr><th width="40%">Stan</th><th width="60%">Infergo</th></tr>
               <tr style="font-size: 70%">
                 <td>
-                <pre><code class="go" data-trim data-noescape>
+                <pre><code class="stan" data-trim data-noescape>
 data {
   int&lt;lower=0&gt; J;
   vector[J] y;
@@ -510,58 +528,216 @@ func (m *Model) <span class="fragment highlight-current-bg-yellow" data-fragment
             </code></pre>
                 </td></tr></table>
           </section>
-          <section>
-            <h3>Gaussian mixture</h3>
-            <table width="110%">
-              <tr style="font-size: 65%"><td width="50%">
-            <pre><code class="go" data-trim data-noescape>
-type Model struct {
-  Data  []float64 // samples
-  NComp int       // number of components
+		  <section>
+			<h3>Latent Dirichlet allocation</h3>
+            <table width="100%">
+              <tr><th width="50%">Infergo (0.5s|8.9s)</th><th width="50%">Stan (54s|3.7s)</th></tr>
+              <tr style="font-size: 45%">
+                <td>
+                <pre><code class="go" data-trim data-noescape>
+type LDAModel struct {
+  K     int       // num topics
+  V     int       // num words
+  M     int       // num docs
+  N     int       // total word instances
+  Word  []int     // word n
+  Doc   []int     // doc for word n
+  Alpha []float64 // topic prior
+  Beta  []float64 // word prior
 }
 
-func (m *Model) Observe(x []float64) float64 {
-  ll := 0.0
-  mu := make([]float64, m.NComp)
-  sigma := make([]float64, m.NComp)
-
-  // Fetch component parameters
-  for j := 0; j != m.NComp; j++ {
-    mu[j] = x[2*j]
-    sigma[j] = math.Exp(x[2*j+1])
-  }
-...
-
-            </code></pre>
-                </td><td width="50">
-            <pre><code class="go" data-trim data-noescape>
-...
-  // Compute log likelihood of mixture given the data
-  for i := 0; i != len(m.Data); i++ {
-    var l float64
-    for j := 0; j != m.NComp; j++ {
-      lj := Normal.Logp(mu[j], sigma[j], m.Data[i])
-      if j == 0 {
-        l = lj
-      } else {
-        l = mathx.LogSumExp(l, lj)
-      }
+func (m *LDAModel) Observe(x []float64) float64 {
+  ll := Normal.Logps(0, 1, x...)
+  theta := make([][]float64, m.M)
+  D.Simplices(&x, m.K, theta)
+  phi := make([][]float64, m.K)
+  D.Simplices(&x, m.V, phi)
+ 
+  // priors
+  ll += Dirichlet{m.K}.Logps(m.Alpha, theta...)
+  ll += Dirichlet{m.V}.Logps(m.Beta, phi...)
+  
+  gamma := make([]float64, m.K)
+  for in := 0; in != m.N; in++ {
+    for ik := 0; ik != m.K; ik++ {
+      gamma[ik] = math.Log(theta[m.Doc[in]-1][ik]) +
+        math.Log(phi[ik][m.Word[in]-1])
     }
-    ll += l
+    ll += D.LogSumExp(gamma)
   }
   return ll
 }
+
+            </code></pre>
+                </td><td>
+            <pre><code class="stan" data-trim data-noescape>
+data {
+  int<lower=2> K;               // num topics
+  int<lower=2> V;               // num words
+  int<lower=1> M;               // num docs
+  int<lower=1> N;           // total word instances
+  int<lower=1,upper=V> w[N];    // word n
+  int<lower=1,upper=M> doc[N];  // doc for word n
+  vector<lower=0>[K] alpha;     // topic prior
+  vector<lower=0>[V] beta;      // word prior
+}
+
+
+parameters {
+  simplex[K] theta[M]; // topic dist for doc m
+  simplex[V] phi[K];   // word dist for topic k
+}
+
+
+model {
+  for (m in 1:M)  
+    theta[m] ~ dirichlet(alpha);  // prior
+  for (k in 1:K)  
+    phi[k] ~ dirichlet(beta);     // prior
+
+  for (n in 1:N) {
+    real gamma[K];
+    for (k in 1:K) 
+      gamma[k] <- log(theta[doc[n],k]) 
+	  	+ log(phi[k,w[n]]);
+    increment_log_prob(log_sum_exp(gamma));
+  }
+}
             </code></pre>
                 </td></tr></table>
-          </section>
-          <section>
-            <p>
-            More <a
-              href="http://infergo.org/examples"><code>infergo</code>
-              examples:<br/>http://infergo.org/examples</a>
-            </p>
-          </section>
+		  </section>
         </section>
+		<section>
+			<section>
+			<h2>Real story: traffic acquisition</h2>
+			<ul>
+			  <li>Publisher (P) acquires traffic from a social
+				platform (F).</li>
+			  <li class="fragment">P pays F per conversion.</li>
+			  <li class="fragment">P shares with F conversion events.</li>
+			  <li class="fragment">F adjusts traffic based on conversion
+				events.</li>
+			  <li class="fragment">How does P choose the bid?</li>
+			</ul>
+			</section>
+			<section>
+			  <h3>Simulation</h3>
+            <table width="110%">
+              <tr style="font-size: 70%"><td width="40%">
+            <pre><code class="go" data-trim>
+ 1 func (m *Model) Visit5
+ 2     vins <-chan *VIn,  
+ 3     vouts chan<- *VOut,    
+ 4     conv, maxBid float64) {
+ 5   // Sample
+ 6   vin := <-vins
+ 7   // Bid
+ 8   minBid := m.MinBid(vin, conv)
+ 9   if maxBid >= minBid { // Won
+10     vout := new(VOut)
+11     vout.Value = vin.Mean +
+12       vin.Std*rand.NormFloat64()
+13     vout.Cost = minBid
+14     vouts <- vout
+15   }
+16 }
+            </code></pre>
+                </td><td width="60%">
+            <pre><code class="go" data-trim>
+17 func (m *Model) MinBid(vin *VIn, conv float64)
+18     float64 {
+19   p_conv := 0.5 * math.Erfc((conv-vin.Mean)/
+20                             (vin.Std*math.Sqrt2))
+21   return vin.Cost / p_conv
+22 }
+			</code></pre>
+				</td>
+			  </tr>
+			</table>
+		</section>
+		<section>
+		  <h3>Inference</h3>
+            <table width="100%" style="font-size: 60%; margin-left: -4em">
+              <tr><td width="50%">
+            <pre><code class="go" data-trim>
+ 1 func (m *Model) Observe(x []float64) (ll float64) {
+ 2   // Prior
+ 3   Normal.Logps(0, 10, x...)
+ 4 
+ 5   // Destructure
+ 6   lmu := x[0]
+ 7   lsigma := math.Exp(x[1])
+ 8   sigma := math.Exp(x[2])
+ 9   cost := math.Exp(x[3])
+10 
+11   vins := make(chan *VIn, 2)
+12   vouts := make(chan *VOut, 2)
+13 
+14   for _, obs := range m.Obs {
+15     visits, spent, revenue := 0.1, 0., 0.
+16     for i := 0; i != m.Samples; i++ {
+17       // Simulate a potential visitor
+18       vin := new(VIn)
+19       vin.Mean = math.Exp(lmu + lsigma*rand.NormFloat64())
+20       vin.Std = sigma
+21       vin.Cost = cost
+22       vins <- vin
+            </code></pre>
+                </td><td width="50%">
+            <pre><code class="go" data-trim data-noescape>
+24       // Filter
+25       <span class="fragment highlight-current-bg-yellow">m.Visit(vins, vouts, obs.Conv, obs.MaxBid)</span>
+26       select {
+27       case vout := <-vouts:
+28         // Won
+29         visits++
+30         spent += vout.Cost
+31         revenue += vout.Value
+32       default:
+33       }
+34     }
+35 
+36     // Condition on observations
+38     dcost := spent/visits - obs.Spent/obs.Visits
+39     weight := (visits * obs.Visits) / (visits + obs.Visits)
+40     <span class="fragment highlight-current-bg-yellow">ll -= weight * (dvalue*dvalue + dcost*dcost)</span>
+41   }
+42   return ll / float64(len(m.Obs)*m.Samples)
+43 }
+			</code></pre>
+				</td>
+			  </tr>
+			</table>
+			</section>
+			<section>
+			  <pre style="background-color: black; color:
+						  yellow">
+$ cat observations.csv
+conv,maxbid,visits,revenue,spent
+0.1,0.15,646,124.02458671767084,69.63295651680365
+0.1,0.2,709,128.51195385467045,81.93729551777183
+0.1,0.3,812,137.0039286933559,103.0231075396472
+...
+0.3,0.2,57,20.678366761557232,7.001662300558329
+0.3,0.3,48,17.49940875616726,6.255931525384408
+0.3,0.5,69,24.550730015710645,12.449035729856742
+$
+			  </pre>
+			  <pre class="fragment" style="background-color: black; color:
+						  yellow">
+
+$  ./infer -samples 100 -niter 100 -rate 0.1 \
+	 < observations.csv
+ MLE (after 100 iterations):
+ * Log-likelihood: -0.004917 => -0.002347
+ * lmean: -1.656
+ * lstd: 0.4278
+ * std: 0.2422
+ * cost: 0.07448
+$
+			  </pre>
+			</section>
+		</section>
         <section>
           <h2>Acknowledgements</h2>
           <ul>
@@ -569,9 +745,9 @@ func (m *Model) Observe(x []float64) float64 {
               probabilistic programming.</li>
             <li><a href="http://www.ccs.neu.edu/home/jwvdm/">Jan-Willem van de Meent</a>
 discussed with me motives, ideas, and implementation
-choices behind <code>infergo</code>.</li>
+choices behind Infergo.</li>
             <li><a href="http://pubplus.com/">PUB+</a> supported me in
-              development of <code>infergo</code>.</li>
+              development of Infergo.</li>
           </ul>
         </section>
         <section>
