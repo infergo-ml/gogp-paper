@@ -621,8 +621,19 @@ model {
             </ul>
             </section>
             <section>
+              <h3>Generative model</h3>
+              <p>
+              $$ \theta_{visitor} \sim Visitors$$
+              $$ cost \sim Cost(\theta_{visitor})$$
+              $$ \theta_{value} \sim Value(\theta_{visitor})$$
+              </p>
+              <p class="fragment" style="margin-left: -2em; border-top: medium solid black; padding-top: 0.5em">
+              $$ \frac {cost} {\Pr\left(v \ge threshold|v \sim Value(\theta_{value})\right)} < maxBid$$
+              </p>
+            </section>
+            <section>
               <h3>Simulation</h3>
-            <table width="120%" style="margin-left: -4em">
+            <table width="120%" style="margin-left: -3em">
               <tr style="font-size: 70%"><td width="50%">
             <pre><code class="go" data-trim data-noescape>
  1 func (m *Model) Visit(
@@ -657,7 +668,7 @@ model {
         </section>
         <section>
           <h3>Inference</h3>
-            <table width="120%" style="font-size: 60%; margin-left: -4em">
+            <table width="120%" style="font-size: 60%; margin-left: -3em">
               <tr><td width="50%">
             <pre><code class="go" data-trim data-noescape>
  1 func (m *Model) Observe(x []float64) (ll float64) {
