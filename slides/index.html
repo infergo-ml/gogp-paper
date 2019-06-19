@@ -83,7 +83,7 @@
             <p>Two polar views:</p>
             <ol>
               <li>Framework for statistical modelling</li>
-			  <li><i>Inferentiable</i> programming</li>
+              <li><i>Inferentiable</i> programming programs with inferrable parameters</li>
             </ol>
           </section>
         </section>
@@ -98,30 +98,30 @@
           </section>
           <section>
             <h3>Simulation vs. inference</h3>
-            <table width="100%">
+            <table width="110%">
               <tr>
                 <td width="50%">
             <pre><code class="stan" data-trim data-noescape>
 data {
-  int<lower=0> N;
-  vector[N] y;
-  vector[N] x;
+    int<lower=0> N;
+    vector[N] y;
+    vector[N] x;
 }
 
 parameters {
-  real alpha; real beta;
-  real<lower=0> sigma;
+    real alpha; real beta;
+    real<lower=0> sigma;
 }</code></pre>
                 </td><td width="50%">
             <pre><code class="stan" data-trim data-noescape>model {
-  alpha ~ normal(0,10);    
-  beta ~ normal(0,10);
-  sigma ~ cauchy(0,5);
+    alpha ~ normal(0,10);    
+    beta ~ normal(0,10);
+    sigma ~ cauchy(0,5);
 
-  for (n in 1:N)
-    y[n] ~ normal(
-      <mark>alpha + beta * x[n]</mark>,
-      sigma);
+    for (n in 1:N)
+        y[n] ~ normal(
+          <mark>alpha + beta * x[n]</mark>,
+          sigma);
 }</code></pre>
                 </td></tr>
             </table>
@@ -132,30 +132,30 @@ parameters {
               <tr>
                 <th width="30%">I mean:</th>
                 <td width="70%">
-            <pre><code class="python" data-trim style="font-size:70%">
+            <pre><code class="python" data-trim style="font-size:70%" data-noescape>
 def update_beliefs(beliefs, i, j, bandwidth):
-  beliefs[i][j] += 1
-  evidence = sum(beliefs[i])
-  if evidence > bandwidth:
-    for j in range(len(beliefs[i])):
-      beliefs[i][j] *= bandwidth / evidence
+    <span class="fragment highlight-current-bg-cyan" data-fragment-index="1">beliefs[i][j] += 1</span>
+    evidence = sum(beliefs[i])
+    if evidence > bandwidth:
+        <span class="fragment highlight-current-bg-cyan" data-fragment-index="2">for j in range(len(beliefs[i])):
+            beliefs[i][j] *= bandwidth / evidence</span>
       </code></pre>
       </td>
               </tr>
               <tr>
                 <th>I write:</th>
                 <td>
-      <pre><code class="python" data-trim style="font-size:70%">
+      <pre><code class="python" data-trim style="font-size:70%" data-noescape>
 def update_beliefs(beliefs, i, j, bandwidth):
-  update = torch.zeros(beliefs.shape)
-  update[i, j] = 1
-  beliefs = beliefs + update
-  evidence = beliefs[i, :].sum()
-  if evidence > bandwidth:
-    scale = torch.ones(beliefs.shape)
-    scale[i, :] = bandwidth / evidence
-    beliefs = beliefs * scale
-  return beliefs
+    <span class="fragment highlight-current-bg-yellow" data-fragment-index="1">update = torch.zeros(beliefs.shape)
+    update[i, j] = 1
+    beliefs = beliefs + update</span>
+    evidence = beliefs[i, :].sum()
+    if evidence > bandwidth:
+        <span class="fragment highlight-current-bg-yellow" data-fragment-index="2">scale = torch.ones(beliefs.shape)
+        scale[i, :] = bandwidth / evidence
+        beliefs = beliefs * scale</span>
+    return beliefs
             </code></pre>
             </td></tr>
             </table>
@@ -166,8 +166,7 @@ def update_beliefs(beliefs, i, j, bandwidth):
               <tr>
                 <th>PyStan (70Mb)</th>
                 <td>
-                  Stan, C++ compiler, Cython, <span
-            style="color: #c66">OCaml?</span>
+                  Stan, C++ compiler, Cython, <span style="color: #c66">OCaml?</span>
                 </td>
               </tr>
               <tr>
@@ -410,23 +409,24 @@ Installed Juno ──────────── v0.5.3
               <li>Full posterior inference via HMC variants.
                 Samples are produced concurrently and passed
                 through a channel.</li>
+              <li class="fragment">Third-party inference algorithms.</li>
             </ul>
           </section>
-		  <section>
-			<h3>Third-party inference</h3>
-			<ul>
-			  <li>Straightforward because Infergo uses built-in
-				Go <code>float64</code>.</li>
-			  <li>Gonum (<a href="http://gonum.org/">http://gonum.org/</a>) library for
-				numerical computation:
+          <section>
+            <h3>Third-party inference</h3>
+            <ul>
+              <li>Straightforward because Infergo uses built-in
+                Go <code>float64</code>.</li>
+              <li>Gonum (<a href="http://gonum.org/">http://gonum.org/</a>) library for
+                numerical computation:
                 <pre><code class="go" data-trim data-noescape>
 func FuncGrad(m Model) (
   Func func(x []float64) float64,
   Grad func(grad []float64, x []float64))
-				</code></pre>
-			  </li>
-			</ul>
-		  </section>
+                </code></pre>
+              </li>
+            </ul>
+          </section>
         </section>
         <section>
           <section>
@@ -438,31 +438,31 @@ func FuncGrad(m Model) (
           </section>
           <section>
             <h3>8 schools</h3>
-            <table width="100%">
-              <tr><th width="40%">Stan</th><th width="60%">Infergo</th></tr>
+            <table width="110%">
+              <tr><th width="45%">Stan</th><th width="55%">Infergo</th></tr>
               <tr style="font-size: 70%">
                 <td>
                 <pre><code class="stan" data-trim data-noescape>
 data {
-  int&lt;lower=0&gt; J;
-  vector[J] y;
-  vector&lt;lower=0&gt;[J] sigma;
+    int&lt;lower=0&gt; J;
+    vector[J] y;
+    vector&lt;lower=0&gt;[J] sigma;
 }
 
 parameters {
-  real mu;
-  real&lt;lower=0&gt; tau;
-  vector[J] eta;
+    real mu;
+    real&lt;lower=0&gt; tau;
+    vector[J] eta;
 }
 
 transformed parameters {
-  vector[J] theta;
-  theta = mu + tau * eta;
+    vector[J] theta;
+    theta = mu + tau * eta;
 }
 
 model {
-  eta ~ normal(0, 1);
-  y ~ normal(theta, sigma);
+    eta ~ normal(0, 1);
+    y ~ normal(theta, sigma);
 }
 
             </code></pre>
@@ -528,8 +528,8 @@ func (m *Model) <span class="fragment highlight-current-bg-yellow" data-fragment
             </code></pre>
                 </td></tr></table>
           </section>
-		  <section>
-			<h3>Latent Dirichlet allocation</h3>
+          <section>
+            <h3>Latent Dirichlet allocation</h3>
             <table width="100%">
               <tr><th width="50%">Infergo (0.5s|8.9s)</th><th width="50%">Stan (54s|3.7s)</th></tr>
               <tr style="font-size: 45%">
@@ -599,31 +599,31 @@ model {
     real gamma[K];
     for (k in 1:K) 
       gamma[k] <- log(theta[doc[n],k]) 
-	  	+ log(phi[k,w[n]]);
+        + log(phi[k,w[n]]);
     increment_log_prob(log_sum_exp(gamma));
   }
 }
             </code></pre>
                 </td></tr></table>
-		  </section>
+          </section>
         </section>
-		<section>
-			<section>
-			<h2>Real story: traffic acquisition</h2>
-			<ul>
-			  <li>Publisher (P) acquires traffic from a social
-				platform (F).</li>
-			  <li class="fragment">P pays F per conversion.</li>
-			  <li class="fragment">P shares with F conversion events.</li>
-			  <li class="fragment">F adjusts traffic based on conversion
-				events.</li>
-			  <li class="fragment">How does P choose the bid?</li>
-			</ul>
-			</section>
-			<section>
-			  <h3>Simulation</h3>
-            <table width="110%">
-              <tr style="font-size: 70%"><td width="40%">
+        <section>
+            <section>
+            <h2>Real story: traffic acquisition</h2>
+            <ul>
+              <li>Publisher (P) acquires traffic from a social
+                platform (F).</li>
+              <li class="fragment">P pays F per conversion.</li>
+              <li class="fragment">P shares with F conversion events.</li>
+              <li class="fragment">F adjusts traffic based on conversion
+                events.</li>
+              <li class="fragment">How does P choose the bid?</li>
+            </ul>
+            </section>
+            <section>
+              <h3>Simulation</h3>
+            <table width="120%" style="margin-left: -4em">
+              <tr style="font-size: 70%"><td width="50%">
             <pre><code class="go" data-trim data-noescape>
  1 func (m *Model) Visit(
  2     vins <-chan *VIn,  
@@ -642,21 +642,21 @@ model {
 15   }
 16 }
             </code></pre>
-                </td><td width="60%">
+                </td><td width="50%">
             <pre><code class="go" data-trim>
 17 func (m *Model) MinBid(vin *VIn, conv float64)
 18     float64 {
-19   p_conv := 0.5 * math.Erfc((conv-vin.Mean)/
-20                             (vin.Std*math.Sqrt2))
+19   p_conv := 0.5*math.Erfc((conv-vin.Mean)/
+20                           (vin.Std*math.Sqrt2))
 21   return vin.Cost / p_conv
 22 }
-			</code></pre>
-				</td>
-			  </tr>
-			</table>
-		</section>
-		<section>
-		  <h3>Inference</h3>
+            </code></pre>
+                </td>
+              </tr>
+            </table>
+        </section>
+        <section>
+          <h3>Inference</h3>
             <table width="120%" style="font-size: 60%; margin-left: -4em">
               <tr><td width="50%">
             <pre><code class="go" data-trim data-noescape>
@@ -679,7 +679,7 @@ model {
 17       // Simulate a potential visitor
 18       vin := new(VIn)
 <span class="fragment highlight-current-bg-yellow">19       vin.Mean = math.Exp(lmu +
-20         lsigma*rand.NormFloat64())</span>
+20                           lsigma*rand.NormFloat64())</span>
 21       vin.Std = sigma
 22       vin.Cost = cost
 23       vins <- vin
@@ -705,29 +705,29 @@ model {
 41   }
 42   return ll / float64(len(m.Obs)*m.Samples)
 43 }
-			</code></pre>
-				</td>
-			  </tr>
-			</table>
-			</section>
-			<section>
-			  <pre style="background-color: black; color:
-						  yellow">
+            </code></pre>
+                </td>
+              </tr>
+            </table>
+            </section>
+            <section>
+              <pre style="background-color: black; color:
+                          yellow">
 $ cat -n observations.csv
-     1	conv,maxbid,visits,revenue,spent
-     2	0.1,0.15,476,158.65724793466998,61.591053850255186
-     3	0.1,0.2,951,236.37374155139224,143.5770446642684
-     4	0.1,0.3,1000,251.3839582603887,152.93037377837516
+     1  conv,maxbid,visits,revenue,spent
+     2  0.1,0.15,476,158.65724793466998,61.591053850255186
+     3  0.1,0.2,951,236.37374155139224,143.5770446642684
+     4  0.1,0.3,1000,251.3839582603887,152.93037377837516
  ...
-    25	0.45,0.3,234,98.91680448845665,52.30043312819199
-    26	0.45,0.45,526,180.3501718415401,161.0863058071484
-    27	0.45,0.7,847,245.76371979183693,349.3654385850295
+    25  0.45,0.3,234,98.91680448845665,52.30043312819199
+    26  0.45,0.45,526,180.3501718415401,161.0863058071484
+    27  0.45,0.7,847,245.76371979183693,349.3654385850295
 $
-			  </pre>
-			  <pre class="fragment" style="background-color: black; color:
-						  yellow">
+              </pre>
+              <pre class="fragment" style="background-color: black; color:
+                          yellow" data-fragment-index="1">
 $  ./infer -samples 100 -niter 1000 -rate 0.1 \
-	 < observations.csv
+     < observations.csv
 MLE (after 10000 iterations):
   Log-likelihood: -0.001436 => -7.753e-05
   lmean: -1.459
@@ -735,12 +735,12 @@ MLE (after 10000 iterations):
   std: 0.09415
   cost: 0.1087
 $</pre>
-			  <p style="font-size: 70%">
-			  Truth: lmean=-1.5, lstd=0.3,
-				std=0.1, cost=0.1
-			  </p>
-			</section>
-		</section>
+              <p style="font-size: 70%" class="fragment" data-fragment-index="1">
+              Truth: lmean=-1.5, lstd=0.3,
+                std=0.1, cost=0.1
+              </p>
+            </section>
+        </section>
         <section>
           <h2>Acknowledgements</h2>
           <ul>
