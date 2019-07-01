@@ -1015,16 +1015,19 @@ calling the elemental in a differentiated context will cause a
 run-time error.
 
 Functions are considered elementals (and must have a
-registered derivative) if their signature is of kind
-\lstinline{func (float64, float64*) float64}; that is, 
+registered derivative) if their signature is either of kind
+\lstinline{func (float64, float64*) float64}, that is, 
 one or more non-variadic \lstinline{float64} arguments and
-\lstinline{float64} return value. For example, function
-\lstinline{func (float64, float64, float64) float64}
-is considered elemental, while functions
+\lstinline{float64} return value, or \lstinline{func([]float64) float64}.
+For example, functions
 \begin{itemize}
-  \item \lstinline{func (...float64) float64}
-  \item \lstinline{func ([]float64) float64}
-  \item \lstinline{func (int, float64) float64}
+	\item \lstinline{func foo(float64, float64, float64) float64}
+	\item \lstinline{func bar([]float64) float64}
+\end{itemize}
+are considered elemental, while functions
+\begin{itemize}
+  \item \lstinline{func fee(...float64) float64}
+  \item \lstinline{func buz(int, float64) float64}
 \end{itemize}
 are not. Gradients for selected functions from the
 \lstinline{math} package are pre-defined (\lstinline{Sqrt},
