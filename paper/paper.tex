@@ -24,7 +24,7 @@
    morestring=[b]',%
    morestring=[b]",%
    morestring=[s]{`}{`},%
-} 
+}
 
 \lstdefinelanguage{Stan}{
   morekeywords=[1]{functions,data,parameters,transformed,model,generated,quantities,%
@@ -563,7 +563,7 @@
   inference algorithms. Once a sufficiently robust statistical
   model is obtained, analysis results are post-processed,
   visualized, and occasionally integrated into algorithms of a
-  production software system. 
+  production software system.
 
   The other, emerging, view is that probabilistic programming
   is an extension of a regular programming toolbox allowing
@@ -612,7 +612,7 @@
   semantics~\cite{GMR+08,TMY+16,GXG18}, we advocate enabling
   probabilistic inference on models written in a
   general-purpose probabilistic programming language, the same
-  one as the language used to program the bulk of the system. 
+  one as the language used to program the bulk of the system.
   We formulate guidelines for such implementation, and, based
   on the guidelines, introduce a probabilistic programming
   facility for the Go programming language~\cite{Golang}. By
@@ -634,7 +634,7 @@
 
   \begin{itemize}
     \item Guidelines for design and implementation of a
-      probabilistic programming facility deployable as a part 
+      probabilistic programming facility deployable as a part
       of a production software system.
     \item A reference implementation of deployable probabilistic
       programming facility for the Go programming language.
@@ -650,7 +650,7 @@
 Our work is related to three interconnected areas of research:
 \begin{enumerate}
   \item Design and implementation of probabilistic programming
-    languages. 
+    languages.
   \item Integration and interoperability between probabilistic
     programming models and the surrounding software
     systems.
@@ -699,7 +699,7 @@ learning~\cite{BPR+17,MBB+18} where it is also known as
 `differentiable programming', and is responsible for enabling
 efficient inference in many probabilistic programming
 frameworks~\cite{Stan17,GXG18,ISF+18,BCJ+19,THS+17}. Different
-automatic differentiation techniques~\cite{GW08} allow 
+automatic differentiation techniques~\cite{GW08} allow
 different compromises between flexibility, efficiency, and
 feature-richness~\cite{SDT14,PGC+17,ISF+18}.  Automatic
 differentiation is usually implemented through either
@@ -829,7 +829,7 @@ runtime or memory overhead imposed by inference needs.
 
 In line with the guidelines, we have implemented a probabilistic
 programming facility for the Go programming language, Infergo.
-%(\url{http://infergo.ml/}). 
+%(\url{http://infergo.ml/}).
 We have chosen Go because Go is a
 small but expressive programming language with efficient
 implementation that has recently become quite popular for
@@ -902,7 +902,7 @@ func (m *ExampleModel)
      Observe(x []float64) float64 {
   // Our prior is a unit normal ...
   ll := Normal.Logps(0, 1, x...)
-  // ... but the posterior is based 
+  // ... but the posterior is based
   // on data observations.
   ll += Normal.Logps(x[0], math.Exp(x[1]),
                      m.Data...)
@@ -924,7 +924,7 @@ m := &ExampleModel{[]float64{
 // Parameters
 x := []float64{}
 \end{lstlisting}
-  
+
 The fastest and most straightforward inference is the maximum
 \textit{a posteriori} (MAP) estimation, which can be done using
 a gradient descent algorithm (Adam~\cite{KB15} in this case):
@@ -1008,15 +1008,16 @@ automatic differentiation. In the model's source code:
 
 Functions for which the gradient is provided rather than derived
 through automatic differentiation are called
-\textit{elementals}~\cite{GW08}.  Derivatives do not propagate
+\textit{elementals}~\cite{GW08}. Derivatives do not propagate
 through a function that is not an elemental or a call to a model
 method. If a derivative is not registered for an elemental,
 calling the elemental in a differentiated context will cause a
 run-time error.
 
+Commonly, elementals are library mathematical functions.
 Functions are considered elementals (and must have a
 registered derivative) if their signature is either of kind
-\lstinline{func (float64, float64*) float64}, that is, 
+\lstinline{func (float64, float64*) float64}, that is,
 one or more non-variadic \lstinline{float64} arguments and
 \lstinline{float64} return value, or \lstinline{func([]float64) float64}.
 For example, functions
@@ -1024,7 +1025,7 @@ For example, functions
 	\item \lstinline{func foo(float64, float64, float64) float64}
 	\item \lstinline{func bar([]float64) float64}
 \end{itemize}
-are considered elemental, while functions
+are considered elementals, while functions
 \begin{itemize}
   \item \lstinline{func fee(...float64) float64}
   \item \lstinline{func buz(int, float64) float64}
@@ -1041,7 +1042,7 @@ elemental inside model methods. The gradient must be registered
 for the function using a call to
 \begin{lstlisting}
 func RegisterElemental(
-  f interface{}, 
+  f interface{},
   g func(value float64,
          params ...float64) []float64)
 \end{lstlisting} For
@@ -1058,10 +1059,10 @@ registers the gradient for function
 
 \subsection{Inference}
 
-Out of the box, Infergo offers 
+Out of the box, Infergo offers
 \begin{itemize}
   \item maximum \textit{a posteriori} (MAP) estimation by stochastic
-    gradient descent~\cite{R16}; 
+    gradient descent~\cite{R16};
   \item full posterior inference by Hamiltonian Monte
     Carlo~\cite{N12,HG11}.
 \end{itemize}
@@ -1103,7 +1104,7 @@ in future versions of Infergo. However, an inference algorithm
 does not have to be a part of Infergo to work with Infergo
 models. Since Infergo models operate on a built-in Go floating
 point type, \lstinline{float64}, any third-party inference or
-optimization library can be used as well. 
+optimization library can be used as well.
 
 As an example, the Gonum~\cite{Gonum} library for numerical
 computations contains an optimization package offering several
@@ -1126,7 +1127,7 @@ providing for a more efficient MAP estimation than stochastic
 gradient descent at the cost of higher memory consumption:
 \begin{lstlisting}
 function, gradient := FuncGrad(model)
-problem := gonum.Problem{Func: function, 
+problem := gonum.Problem{Func: function,
                          Grad: gradient}
 result, err := gonum.Minimize(problem, parameters)
 \end{lstlisting}
@@ -1168,11 +1169,11 @@ for a language that \begin{itemize}
 In addition, since we were going to automatically differentiate
 the language's source code, we were looking for a relatively
 small language, preferably one for which parsing and program
-analysis tools are readily available. 
+analysis tools are readily available.
 
 We chose Go~\cite{Golang}. Go is a small but expressive
 programming language widely used for implementing
-computationally-intensive server-side software systems. 
+computationally-intensive server-side software systems.
 The standard libraries and development environment offer
 capabilities which made implementation of Infergo affordable
 and streamlined:
@@ -1186,7 +1187,7 @@ and streamlined:
     called in the Go ecosystem), also provided in the
 	standard library, augments parsing, and allows to
     selectively apply transformation-based automatic
-    differentiation  based on static expression types. 
+    differentiation  based on static expression types.
   \item Go provides reflection capabilities for almost any aspect
     of the running program, without compromising efficiency.
     Reflection gives the flexibility highly desirable to
@@ -1205,10 +1206,10 @@ and streamlined:
     first-class feature, via so-called \textit{goroutines}.
     Goroutines streamline implementation of sampling-based
     inference algorithms. Sample generators and consumers
-    are run in parallel, communicating through channels. 
+    are run in parallel, communicating through channels.
     Inference is easy to parallelize in order to exploit
     hardware multi-processing, and samples are retrieved
-    lazily for postprocessing. 
+    lazily for postprocessing.
 \end{itemize}
 
 Considering and choosing Go for development of what later became
@@ -1297,7 +1298,7 @@ computed explicitly, and other differentiated methods may have
 arbitrary arguments. In particular, derivatives may propagate
 through fields of the model object and structured arguments.
 
-\subsection{Model Composition} 
+\subsection{Model Composition}
 
 Just like it is possible to compose library and user-defined
 functions into more complex functions, it should be possible to
@@ -1326,7 +1327,7 @@ func (model B) Observe(x []float64) {
 
 type AB struct {Data []float64}
 func (model AB) Observe(x []float64) float64 {
-  return A{model.Data}.Observe(x[:1]) + 
+  return A{model.Data}.Observe(x[:1]) +
     B{model.Data}.Observe(x[1:])
 }
   \end{lstlisting}
@@ -1610,7 +1611,7 @@ func (m *LRModel) Observe(x []float64)
   return ll
 }
 
-// Simulate simulates y based on x and 
+// Simulate simulates y based on x and
 // regression parameters.
 func (m *LRModel) Simulate(x, alpha, beta float64)
     float64 {
@@ -1642,7 +1643,7 @@ simulates $y$ based on $x$ and is invoked both from
 both original and differentiated model are simultaneously
 available in the source code, $Simulate$ can be called
 for prediction on the original model, without any
-differentiation overhead. 
+differentiation overhead.
 
 In this greatly simplified case study, the simulator is a
 one-line function. In a real-world scenario though, the
@@ -1736,7 +1737,7 @@ models. First, a prior on the model parameters is imposed (lines
 8--9). Then, the parameter vector is destructured into a form
 convenient for formulation of conditioning (lines 11--17).
 Finally, the parameters are conditioned on the observations
-(lines 19--34). 
+(lines 19--34).
 
 The conditioning of parameters involves a nested loop over all
 observations and over all mixture components for each
@@ -1750,7 +1751,7 @@ observation and component (line 28).
 \lstinline{logSumExp} could have been implemented as a model
 method and differentiated automatically. However, this function
 is called on each iteration of the inner loop. Hence,
-efficiency of inference in general is affected by 
+efficiency of inference in general is affected by
 an efficient implementation of \lstinline{logSumExp} (this can
 also be confirmed by profiling). To save on the cost of a
 differentiated call and speed up gradient computation,
@@ -1777,9 +1778,9 @@ model.
 					        & Infergo & Turing & Stan              & Infergo  & Turing & Stan    \\\hline
               Eight schools & 0.50    & -      & 50                & 0.60     & 2.8    & 0.12    \\
      Gaussian mixture model & 0.50    & -      & 54                & 32       & 14     & 4.9     \\
-Latent Dirichlet allocation & 0.50    & -      & 54                & 8.9      & 12     & 3.7     \\ 
+Latent Dirichlet allocation & 0.50    & -      & 54                & 8.9      & 12     & 3.7     \\
 	\end{tabular}
-\caption{Compilation and execution times for 1000 iterations 
+\caption{Compilation and execution times for 1000 iterations
 	of HMC with 10 leapfrog steps.}
 \label{tab:memory-runtime}
 \end{table*}
@@ -1808,7 +1809,7 @@ from vectorization. The greater the number of observations (1000
 data points were used in the evaluation), the more significant
 is the benefit of vectorized computations. \textit{Latent
 Dirichlet allocation} is, again, a relatively elaborated model,
-which is, however, not as easy to vectorize. 
+which is, however, not as easy to vectorize.
 
 We report both compilation time (for Stan and Infergo) and
 execution time. Compilation time is an important characteristic
@@ -1988,15 +1989,15 @@ parameters {
 
 
 model {
-  for (m in 1:M)  
+  for (m in 1:M)
     theta[m] ~ dirichlet(alpha);  // prior
-  for (k in 1:K)  
+  for (k in 1:K)
     phi[k] ~ dirichlet(beta);     // prior
 
   for (n in 1:N) {
     real gamma[K];
-    for (k in 1:K) 
-      gamma[k] <- log(theta[doc[n],k]) 
+    for (k in 1:K)
+      gamma[k] <- log(theta[doc[n],k])
 	  	+ log(phi[k,w[n]]);
     increment_log_prob(log_sum_exp(gamma));
   }
