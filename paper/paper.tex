@@ -472,6 +472,18 @@
   literate={<-}{{$\leftarrow$}}1 {~}{{$\sim$}}1%
 }
 
+\lstdefinelanguage{WebPPL}{
+  keywords={typeof, new, true, false, catch, function, return,
+  null, catch, switch, var, if, in, while, do, else, case,
+  break, condition},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]"
+}
+
 \lstset{ % add your own preferences
     frame=single,
     basicstyle=\ttfamily\footnotesize,
@@ -552,10 +564,34 @@
   inference~\cite{WW13,KTR+17}, gradient-based
   optimization~\cite{Stan17,BCJ+19}, and others.
 
+\begin{figure}
+\begin{lstlisting}[language=WebPPL]
+var breastCancer = flip(0.01)
+var benignCyst = flip(0.2)
+var positiveMammogram = (breastCancer && flip(0.8))
+                      || (benignCyst && flip(0.5))
+condition(positiveMammogram)
+return breastCancer
+\end{lstlisting}
+	\caption{A probabilistic program in WebPPL~\cite{GS15}:
+	probability of breast cancer given a positive mammogram.}
+	\label{fig:mammo}
+\end{figure}
+  Consider, for example, the probabilistic program in
+  Figure~\ref{fig:mammo}. The program models dependency between
+  a positive mammogram and possible causes --- breast cancer
+  or a benign cyst.  The program defines three Bernoulli
+  random variables  --- \lstinline{breastCancer},
+  \lstinline{benignCyst}, \lstinline{positiveMammogram} ---
+  and conditions on one of the random variables,
+  \lstinline{positiveMammogram}, being true. Inference on the
+  program returns the probability of breast cancer given a
+  positive mammogram.
+
   There are two polar views on the role of probabilistic
   programming.  One view is that probabilistic programming is
   a flexible framework for specification and analysis of
-  statistical models~\cite{WSG11,TMY+16,GXG18}. Proponents of
+  statistical models~\cite{WSG11,TMY+16,GXG18}.  Proponents of
   this view perceive probabilistic programming as a tool for
   data science practitioners. A typical workflow consists of
   data acquisition and pre-processing, followed by several
@@ -1504,9 +1540,14 @@ probabilistic programming with Infergo.
 
 The eight schools problem~\cite{GCS+03} is an application of
 the hierarchical normal model that often serves as an introductory
-example of Bayesian statistical modeling. Without going into
-details, in this problem the effect of coaching programs on test
-outcomes is compared among eight schools.
+example of Bayesian statistical modeling.  In this problem,
+experiments were performed to estimate the effects of coaching
+programs in each of eight high schools. The outcome variable in
+each study was the increase in test score compared to the same
+test before the program. The average increase and the standard
+deviation of the increase were reported for each school. Based
+on that and on assumption of similarity between schools,
+expected effects are to be estimated.
 Figure~\ref{fig:eight-schools} shows specifications of the same
 model in Stan and Infergo, side-by-side.
 \begin{figure*}
@@ -1596,10 +1637,11 @@ of statistical modeling if the models are implemented in Go.
 \label{sec:linear-regression}
 
 The model in Figure~\ref{fig:linear-regression} specifies linear
-regression on unidimensional data: an improper uniform prior is
-placed on the parameters $\alpha$, $\beta$, and $\log \sigma$
-(lines 9--10), which are then conditioned on observations $x, y$
-such that
+regression (approximating linear dependency between input $x$
+and output $y$) on unidimensional data. An improper uniform
+prior is placed on the parameters $\alpha$,
+$\beta$, and $\log \sigma$ (lines 9--10), which are then
+conditioned on observations $x, y$ such that
 \begin{equation}
 y \sim \mathrm{Normal}(\alpha + \beta x, \sigma)
 	\label{eqn:linear-regression-1}
@@ -1680,13 +1722,15 @@ to maintain consistency between different implementations.
 
 The Gaussian mixture model is a probabilistic model of a mixture
 of components, where each component comes from a Gaussian
-distribution. The model variant in
-Figure~\ref{fig:gaussian-mixture} accepts a vector of
-single-dimensional observations and the number of components,
-and infers the distribution of parameters of each component
-in the mixture. Following Stan User's Guide~\cite{SDT18},
-component memberships are summed out to make the model
-differentiable.
+distribution. Mixture models are used to represent a population
+consisting of different sub-populations, without indication in
+the data to which sub-population each observation belongs. The
+model variant in Figure~\ref{fig:gaussian-mixture} accepts a
+vector of single-dimensional observations and the number of
+components, and infers the distribution of parameters of each
+component in the mixture. Following Stan User's
+Guide~\cite{SDT18}, component memberships are summed out to make
+the model differentiable.
 \begin{figure}
 \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
 type GMModel struct {
