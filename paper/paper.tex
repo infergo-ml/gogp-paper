@@ -1,9 +1,10 @@
-\documentclass[sigplan,10pt]{acmart}
+\documentclass[sigplan,10pt,screen]{acmart}
 \usepackage[utf8]{inputenc}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{listings}[language=Golang]
 \usepackage{GoMono}
+\usepackage{flushend}
 
 \linespread{1.05}
 
@@ -952,9 +953,8 @@ runtime or memory overhead imposed by inference needs.
 \section{Probabilistic Programming in Go}
 
 In line with the guidelines, we have implemented a probabilistic
-programming facility for the Go programming language, Infergo.
-%(\url{http://infergo.ml/}).
-We have chosen Go because Go is a
+programming facility for the Go programming language, Infergo
+(\url{http://infergo.org/}). We have chosen Go because Go is a
 small but expressive programming language with efficient
 implementation that has recently become quite popular for
 computation-intensive server-side programming. Infergo is used
