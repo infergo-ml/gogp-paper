@@ -1,9 +1,10 @@
-\documentclass[sigplan,10pt]{acmart}
+\documentclass[sigplan,10pt,screen]{acmart}
 \usepackage[utf8]{inputenc}
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage{listings}[language=Golang]
 \usepackage{GoMono}
+\usepackage{flushend}
 
 \linespread{1.05}
 
@@ -484,6 +485,64 @@
   morestring=[b]"
 }
 
+\lstdefinelanguage{Anglican}%
+{morekeywords={*,*1,*2,*3,*agent*,*allow-unresolved-vars*,*assert*,*clojure-version*,*command-line-args*,%
+		*compile-files*,*compile-path*,*e,*err*,*file*,*flush-on-newline*,*in*,*macro-meta*,%
+		*math-context*,*ns*,*out*,*print-dup*,*print-length*,*print-level*,*print-meta*,*print-readably*,%
+		*read-eval*,*source-path*,*use-context-classloader*,*warn-on-reflection*,+,-,->,->>,..,/,:else,%
+		<,<=,=,==,>,>=,@,accessor,aclone,add-classpath,add-watch,agent,agent-errors,aget,alength,alias,%
+		all-ns,alter,alter-meta!,alter-var-root,amap,ancestors,and,apply,areduce,array-map,aset,%
+		aset-boolean,aset-byte,aset-char,aset-double,aset-float,aset-int,aset-long,aset-short,assert,%
+		assoc,assoc!,assoc-in,associative?,atom,await,await-for,await1,bases,bean,bigdec,bigint,binding,%
+		bit-and,bit-and-not,bit-clear,bit-flip,bit-not,bit-or,bit-set,bit-shift-left,bit-shift-right,%
+		bit-test,bit-xor,boolean,boolean-array,booleans,bound-fn,bound-fn*,butlast,byte,byte-array,%
+		bytes,case,cast,char,char-array,char-escape-string,char-name-string,char?,chars,chunk,chunk-append,%
+		chunk-buffer,chunk-cons,chunk-first,chunk-next,chunk-rest,chunked-seq?,class,class?,%
+		clear-agent-errors,clojure-version,coll?,comment,commute,comp,comparator,compare,compare-and-set!,%
+		compile,complement,concat,cond,condp,conj,conj!,cons,constantly,construct-proxy,contains?,count,%
+		counted?,create-ns,create-struct,cycle,dec,decimal?,declare,def,defdist,definline,defm,defmacro,defmethod,%
+		defmulti,defn,defn-,defonce,defquery,defproc,defprotocol,defrecord,defstruct,deftype,delay,delay?,deliver,deref,derive,%
+		descendants,destructure,disj,disj!,dissoc,dissoc!,distinct,distinct?,do,do-template,doall,doc,%
+		dorun,doseq,dosync,dotimes,doto,double,double-array,doubles,drop,drop-last,drop-while,empty,empty?,%
+		ensure,enumeration-seq,eval,even?,every?,false,false?,ffirst,file-seq,filter,finally,find,find-doc,%
+		find-ns,find-var,first,float,float-array,float?,floats,flush,fm,fn,fn?,fnext,for,force,format,future,%
+		future-call,future-cancel,future-cancelled?,future-done?,future?,gen-class,gen-interface,gensym,%
+		get,get-in,get-method,get-proxy-class,get-thread-bindings,get-validator,hash,hash-map,hash-set,%
+		identical?,identity,if,if-let,if-not,ifn?,import,in-ns,inc,init-proxy,instance?,int,int-array,%
+		integer?,interleave,intern,interpose,into,into-array,ints,io!,isa?,iterate,iterator-seq,juxt,%
+		key,keys,keyword,keyword?,last,lazy-cat,lazy-seq,let,letfn,line-seq,list,list*,list?,load,load-file,%
+		load-reader,load-string,loaded-libs,locking,long,long-array,longs,loop,macroexpand,macroexpand-1,%
+		make-array,make-hierarchy,map,map?,mapcat,max,max-key,mem,memfn,memoize,merge,merge-with,meta,%
+		method-sig,methods,min,min-key,mod,monitor-enter,monitor-exit,name,namespace,neg?,new,newline,%
+		next,nfirst,nil,nil?,nnext,not,not-any?,not-empty,not-every?,not=,ns,ns-aliases,ns-imports,%
+		ns-interns,ns-map,ns-name,ns-publics,ns-refers,ns-resolve,ns-unalias,ns-unmap,nth,nthnext,num,%
+		number?,observe,odd?,or,parents,partial,partition,pcalls,peek,persistent!,pmap,pop,pop!,pop-thread-bindings,%
+		pos?,pr,pr-str,predict,prefer-method,prefers,primitives-classnames,print,print-ctor,print-doc,print-dup,%
+		print-method,print-namespace-doc,print-simple,print-special-doc,print-str,printf,println,println-str,%
+		prn,prn-str,promise,proxy,proxy-call-with-super,proxy-mappings,proxy-name,proxy-super,%
+		push-thread-bindings,pvalues,query,quot,rand,rand-int,range,ratio?,rational?,rationalize,re-find,%
+		re-groups,re-matcher,re-matches,re-pattern,re-seq,read,read-line,read-string,recur,reduce,ref,%
+		ref-history-count,ref-max-history,ref-min-history,ref-set,refer,refer-clojure,reify,%
+		release-pending-sends,rem,remove,remove-method,remove-ns,remove-watch,repeat,repeatedly,%
+		replace,replicate,require,reset!,reset-meta!,resolve,rest,resultset-seq,retrieve,reverse,reversible?,%
+		rseq,rsubseq,sample,second,select-keys,send,send-off,seq,seq?,seque,sequence,sequential?,set,set!,%
+		set-validator!,set?,short,short-array,shorts,shutdown-agents,slurp,some,sort,sort-by,sorted-map,%
+		sorted-map-by,sorted-set,sorted-set-by,sorted?,special-form-anchor,special-symbol?,split-at,%
+		split-with,store,str,stream?,string?,struct,struct-map,subs,subseq,subvec,supers,swap!,symbol,symbol?,%
+		sync,syntax-symbol-anchor,take,take-last,take-nth,take-while,test,the-ns,throw,time,to-array,%
+		to-array-2d,trampoline,transient,tree-seq,true,true?,try,type,unchecked-add,unchecked-dec,%
+		unchecked-divide,unchecked-inc,unchecked-multiply,unchecked-negate,unchecked-remainder,%
+		unchecked-subtract,underive,unquote,unquote-splicing,update-in,update-proxy,use,val,vals,%
+		var,var-get,var-set,var?,vary-meta,vec,vector,vector?,when,when-first,when-let,when-not,%
+		while,with-bindings,with-bindings*,with-in-str,with-loading-context,with-local-vars,%
+		with-meta,with-open,with-out-str,with-precision,xml-seq,zero?,zipmap
+	},%
+	   sensitive,% ???
+	      alsodigit=-,%
+		     morecomment=[l];,%
+			    morestring=[b]"%
+				  }[keywords,comments,strings]%
+
 \lstset{ % add your own preferences
     frame=single,
     basicstyle=\ttfamily\footnotesize,
@@ -560,7 +619,7 @@
   Metropolis-Hastings\cite{WSG11,MSP14,YHG14}, Hamiltonian
   Monte Carlo~\cite{Stan17}, expectation
   propagation~\cite{MWG+10}, extensions of Sequential Monte
-  Carlo~\cite{WVM14,MYM+15,PWD+14,RNL+2016}, variational
+  Carlo~\cite{WVM14,MYM+15,PWD+14,RNL+2016,MS18}, variational
   inference~\cite{WW13,KTR+17}, gradient-based
   optimization~\cite{Stan17,BCJ+19}, and others.
 
@@ -573,12 +632,12 @@ var positiveMammogram = (breastCancer && flip(0.8))
 condition(positiveMammogram)
 return breastCancer
 \end{lstlisting}
-	\caption{A probabilistic program in WebPPL~\cite{GS15}:
-	probability of breast cancer given a positive mammogram.}
-	\label{fig:mammo}
+  \caption{A probabilistic program in WebPPL~\cite{GS15}:
+  probability of breast cancer given a positive mammogram.}
+  \label{fig:mammo-webppl}
 \end{figure}
-  Consider, for example, the probabilistic program in
-  Figure~\ref{fig:mammo}. The program models dependency between
+  For example, the probabilistic program in
+  Figure~\ref{fig:mammo-webppl} models dependency between
   a positive mammogram and possible causes --- breast cancer
   or a benign cyst.  The program defines three Bernoulli
   random variables  --- \lstinline{breastCancer},
@@ -588,6 +647,36 @@ return breastCancer
   program returns the probability of breast cancer given a
   positive mammogram.
 
+  \begin{figure}
+    \begin{lstlisting}[language=Anglican]
+(defquery linearRegression [xs ys x*]
+  (let [m     (sample (normal 0 2))
+        b     (sample (normal 0 2))
+        sigma (sample (gamma 1 1))
+        f     (fn [x] (+ (* m x) b))]
+   (loop [data (map #(-> [%1 %2]) xs ys)]
+    (when (seq data)
+     (let [[[x y] & data] data] 
+       (observe (normal (f x) sigma) y)
+       (recur data))))
+   (predict (f x*))))
+    \end{lstlisting}
+    \caption{A probabilistic program in Anglican~\cite{TMY+16}:
+    linear regression.}
+    \label{fig:linreg-anglican}
+  \end{figure}
+  Probabilistic programs may contain loops, conditional
+  statements, recursion, and operate on built-in and user
+  defined data structures. The probabilistic program in
+  Figure~\ref{fig:linreg-anglican} implements linear regression
+  (approximating dependency between the input and the output by
+  a linear function) and contains loops
+  (\lstinline[language=Anglican]{loop/recur}), conditional
+  statements (\lstinline[language=Anglican]{when}), and
+  user-defined functions (\lstinline[language=Anglican]{fn});
+  the data is passed to the program as vectors of real numbers
+  (\lstinline[language=Anglican]{xs}, \lstinline[language=Anglican]{ys}).
+  
   There are two polar views on the role of probabilistic
   programming.  One view is that probabilistic programming is
   a flexible framework for specification and analysis of
@@ -864,9 +953,8 @@ runtime or memory overhead imposed by inference needs.
 \section{Probabilistic Programming in Go}
 
 In line with the guidelines, we have implemented a probabilistic
-programming facility for the Go programming language, Infergo.
-%(\url{http://infergo.ml/}).
-We have chosen Go because Go is a
+programming facility for the Go programming language, Infergo
+(\url{http://infergo.org/}). We have chosen Go because Go is a
 small but expressive programming language with efficient
 implementation that has recently become quite popular for
 computation-intensive server-side programming. Infergo is used
@@ -913,13 +1001,13 @@ for the most efficient execution with the inferred parameters.
 Let us illustrate the use of Infergo on a basic example serving
 as a probabilistic programming equivalent of the "Hello, World!"
 program --- inferring parameters of a unidimensional Normal
-distribution given a set of data samples. The two parameters of
-a Normal distribution are the mean $\mu$ and the standard
-deviation $\sigma$. The solution can of course be obtained
-analytically, but the organization of implementation and
-inference possesses all of the elements of probabilistic
-programming for larger, more complicated problems, for which a
-closed form solution does not exist or difficult to derive.
+distribution given a set of data samples, or observations. The
+two parameters of a Normal distribution are the mean $\mu$ and
+the standard deviation $\sigma$. The solution can of course be
+obtained analytically, but the organization of implementation
+and inference possesses all of the elements of probabilistic
+programming for larger, more complex problems, for which a
+closed form solution does not exist or is difficult to derive.
 
 In this example, the model object holds the set of observations
 from which the distribution parameters are to be inferred:
@@ -994,6 +1082,7 @@ samples := make(chan []float64)
 hmc.Sample(m, x, samples)
 for i := 0; i != 5000; i++ {
   sample = <-samples
+  // ...
 }
 hmc.Stop()
 \end{lstlisting}
@@ -1067,8 +1156,8 @@ one or more non-variadic \lstinline{float64} arguments and
 \lstinline{float64} return value, or \lstinline{func([]float64) float64}.
 For example, functions
 \begin{itemize}
-	\item \lstinline{func foo(float64, float64, float64) float64}
-	\item \lstinline{func bar([]float64) float64}
+  \item \lstinline{func foo(float64, float64, float64) float64}
+  \item \lstinline{func bar([]float64) float64}
 \end{itemize}
 are considered elementals, while functions
 \begin{itemize}
@@ -1091,8 +1180,12 @@ func RegisterElemental(
   f interface{},
   g func(value float64,
          params ...float64) []float64)
-\end{lstlisting} For
-example, the call
+\end{lstlisting}
+\lstinline{RegisterElemental} receives both the parameters and
+the value of the function for efficient computation re-use, and
+the gradient can be computed using either the parameters, the
+value, or a combination of both~\cite{GW08}. For example, the
+call
 \begin{lstlisting}
 RegisterElemental(Sigm,
   func(value float64,
@@ -1100,12 +1193,14 @@ RegisterElemental(Sigm,
     return []float64{value*(1-value)}
   })
 \end{lstlisting}
-registers the gradient for the \textit{sigmoid} function:
+registers the gradient for the \textit{sigmoid} function
 \begin{lstlisting}
 func Sigm(x float64) float64 {
-	return 1. / (1. + math.Exp(-x))
+  return 1. / (1. + math.Exp(-x))
 }
 \end{lstlisting}
+and re-uses the function value to compute the gradient
+efficiently, avoiding an expensive call to \lstinline{math.Exp}.
 
 \subsection{Inference}
 \label{sec:inference}
@@ -1236,7 +1331,7 @@ and streamlined:
     effortless.
   \item Type inference (or \textit{type checking} as it is
     called in the Go ecosystem), also provided in the
-	standard library, augments parsing, and allows to
+  standard library, augments parsing, and allows to
     selectively apply transformation-based automatic
     differentiation  based on static expression types.
   \item Go provides reflection capabilities for almost any aspect
@@ -1251,8 +1346,8 @@ and streamlined:
   \item Go is available on many platforms and for a wide range
     of operating systems and environments, from portable
     devices to supercomputers. Go programs can be
-	cross-compiled and reliably developed and deployed in
-	heterogeneous environments.
+  cross-compiled and reliably developed and deployed in
+  heterogeneous environments.
   \item Go offers efficient parallel execution as a
     first-class feature, via so-called \textit{goroutines}.
     Goroutines streamline implementation of sampling-based
@@ -1644,7 +1739,7 @@ $\beta$, and $\log \sigma$ (lines 9--10), which are then
 conditioned on observations $x, y$ such that
 \begin{equation}
 y \sim \mathrm{Normal}(\alpha + \beta x, \sigma)
-	\label{eqn:linear-regression-1}
+  \label{eqn:linear-regression-1}
 \end{equation}
 (lines 12--17).
 \begin{figure}
@@ -1663,8 +1758,8 @@ func (m *LRModel) Observe(x []float64)
   for i := range m.Data {
     ll += Normal.Logp(
       m.Simulate(m.Data[i][0], alpha, beta),
-	  sigma,
-	  m.Data[i][1])
+      sigma,
+      m.Data[i][1])
   }
   return ll
 }
@@ -1685,8 +1780,8 @@ If only the maximum \textit{a posteriori} is estimated, the
 parameter values will maximize their likelihood given the
 observations:
 \begin{equation}
-	(\alpha, \beta, \sigma)_{MAP} = \arg \max \prod\limits_i \mathrm{pdf}_\mathrm{Normal}(\alpha + \beta x_i, \sigma)
-	\label{eqn:linear-regression-2}
+  (\alpha, \beta, \sigma)_{MAP} = \arg \max \prod\limits_i \mathrm{pdf}_\mathrm{Normal}(\alpha + \beta x_i, \sigma)
+  \label{eqn:linear-regression-2}
 \end{equation}
 
 Once the values of $\alpha$ and $\beta$ are estimated, they are
@@ -1832,16 +1927,16 @@ model.
 \section{Performance}
 
 \begin{table*}
-	\begin{tabular}{r | c |  c | c | c | c | c | }
-		{\it model}         & \multicolumn{6}{c|}{\it time, seconds} \\
-					        & \multicolumn{3}{c|}{\it compilation} & \multicolumn{3}{c|}{\it execution} \\
-					        & Infergo & Turing & Stan              & Infergo  & Turing & Stan    \\\hline
+  \begin{tabular}{r | c |  c | c | c | c | c | }
+    {\it model}         & \multicolumn{6}{c|}{\it time, seconds} \\
+                  & \multicolumn{3}{c|}{\it compilation} & \multicolumn{3}{c|}{\it execution} \\
+                  & Infergo & Turing & Stan              & Infergo  & Turing & Stan    \\\hline
               Eight schools & 0.50    & -      & 50                & 0.60     & 2.8    & 0.12    \\
      Gaussian mixture model & 0.50    & -      & 54                & 32       & 14     & 4.9     \\
 Latent Dirichlet allocation & 0.50    & -      & 54                & 8.9      & 12     & 3.7     \\
-	\end{tabular}
+  \end{tabular}
 \caption{Compilation and execution times for 1000 iterations
-	of HMC with 10 leapfrog steps.}
+  of HMC with 10 leapfrog steps.}
 \label{tab:memory-runtime}
 \end{table*}
 It is customary to include performance evaluation on benchmark
@@ -1963,11 +2058,12 @@ production enviroment.
 
 \bibliography{refs}
 
+\clearpage
 \appendix
 
 \begin{figure*}
 \section{Latent Dirichlet Allocation Model}
-	\label{app:lda}
+  \label{app:lda}
 \vspace{\baselineskip}
 
 \begin{minipage}[t]{0.49\textwidth}
@@ -2014,22 +2110,22 @@ func (m *LDAModel) Observe(x []float64) float64 {
 }
 
 func (m *Model) FetchSimplices(
-	px *[]float64,
-	k int,
-	simplices [][]float64,
+  px *[]float64,
+  k int,
+  simplices [][]float64,
 ) {
-	for i := range simplices {
-		simplices[i] = make([]float64, k)
-		D.SoftMax(model.Shift(px, k), simplices[i])
-	}
+  for i := range simplices {
+    simplices[i] = make([]float64, k)
+    D.SoftMax(model.Shift(px, k), simplices[i])
+  }
 }
 \end{lstlisting}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.49\textwidth}
-	\centering
-	
-	\textbf{Stan}
+  \centering
+  
+  \textbf{Stan}
 
 \begin{lstlisting}[language=Stan]
 data {
@@ -2060,7 +2156,7 @@ model {
     real gamma[K];
     for (k in 1:K)
       gamma[k] <- log(theta[doc[n],k])
-	  	+ log(phi[k,w[n]]);
+                + log(phi[k,w[n]]);
     increment_log_prob(log_sum_exp(gamma));
   }
 }
