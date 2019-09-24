@@ -1927,6 +1927,8 @@ model.
 \section{Performance}
 
 \begin{table*}
+  \caption{Compilation and execution times for 1000 iterations
+  of HMC with 10 leapfrog steps.}
   \begin{tabular}{r | c |  c | c | c | c | c | }
     {\it model}         & \multicolumn{6}{c|}{\it time, seconds} \\
                   & \multicolumn{3}{c|}{\it compilation} & \multicolumn{3}{c|}{\it execution} \\
@@ -1935,8 +1937,6 @@ model.
      Gaussian mixture model & 0.50    & -      & 54                & 32       & 14     & 4.9     \\
 Latent Dirichlet allocation & 0.50    & -      & 54                & 8.9      & 12     & 3.7     \\
   \end{tabular}
-\caption{Compilation and execution times for 1000 iterations
-  of HMC with 10 leapfrog steps.}
 \label{tab:memory-runtime}
 \end{table*}
 It is customary to include performance evaluation on benchmark
