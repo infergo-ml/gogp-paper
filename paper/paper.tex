@@ -1,4 +1,4 @@
-\documentclass[sigplan,10pt,screen]{acmart}
+\documentclass[sigplan,screen]{acmart}
 \usepackage[utf8]{inputenc}
 \usepackage{url}
 \usepackage{hyperref}
@@ -544,6 +544,7 @@
 				  }[keywords,comments,strings]%
 
 \lstset{ % add your own preferences
+    xrightmargin=1pt,
     frame=single,
     basicstyle=\ttfamily\footnotesize,
     numbers=none,
@@ -553,19 +554,52 @@
     language=Golang % this is it !
 }
 
+\setcopyright{acmlicensed}
+\acmPrice{15.00}
+\acmDOI{10.1145/3359591.3359727}
+\acmYear{2019}
+\copyrightyear{2019}
+\acmISBN{978-1-4503-6995-4/19/10}
+\acmConference[Onward! '19]{Proceedings of the 2019 ACM SIGPLAN International Symposium on New Ideas, New Paradigms, and Reflections on Programming and Software}{October 23--24, 2019}{Athens, Greece}
+\acmBooktitle{Proceedings of the 2019 ACM SIGPLAN International Symposium on New Ideas, New Paradigms, and Reflections on Programming and Software (Onward! '19), October 23--24, 2019, Athens, Greece}
 
-\acmConference[Onward! 2019]{SPLASH Onward! 2019}{October 20-25, 2019}{Athens, Greece}
+ \begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10010147.10010257</concept_id>
+<concept_desc>Computing methodologies~Machine learning</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010341</concept_id>
+<concept_desc>Computing methodologies~Modeling and simulation</concept_desc>
+<concept_significance>100</concept_significance>
+</concept>
+<concept>
+<concept_id>10010147.10010257.10010293</concept_id>
+<concept_desc>Computing methodologies~Machine learning approaches</concept_desc>
+<concept_significance>100</concept_significance>
+</concept>
+<concept>
+<concept_id>10011007.10011006.10011050.10011017</concept_id>
+<concept_desc>Software and its engineering~Domain specific languages</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10011007.10011074.10011075</concept_id>
+<concept_desc>Software and its engineering~Designing software</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
 
-% Copyright
-\setcopyright{none}
-%\setcopyright{acmcopyright}
-%\setcopyright{acmlicensed}
-%\setcopyright{rightsretained}
-%\setcopyright{usgov}
-%\setcopyright{usgovmixed}
-%\setcopyright{cagov}
-%\setcopyright{cagovmixed}
+\ccsdesc[300]{Computing methodologies~Machine learning}
+\ccsdesc[100]{Computing methodologies~Modeling and simulation}
+\ccsdesc[100]{Computing methodologies~Machine learning approaches}
+\ccsdesc[300]{Software and its engineering~Domain specific languages}
+\ccsdesc[500]{Software and its engineering~Designing software}
 
+\keywords{probabilistic programming, algorithmic differentiation, bayesian modeling}
 
 \bibliographystyle{ACM-Reference-Format}
 
@@ -1461,7 +1495,7 @@ describing the data, then the product model \lstinline{AB} can
 be obtained by composition of \lstinline{A} and \lstinline{B}
 (Figure~\ref{fig:composition}).
 \begin{figure}
-  \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+  \begin{lstlisting}[xleftmargin=11pt,framexleftmargin=10pt,numbers=left]
 type A struct {Data []float64}
 func (model A) Observe(x []float64) {
   ...
@@ -1510,7 +1544,7 @@ distributions can be added in any package.
 Figure~\ref{fig:exponential-distribution} shows the Infergo
 definition of the exponential distribution.
 \begin{figure}
-  \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+  \begin{lstlisting}[xleftmargin=11pt,framexleftmargin=10pt,numbers=left]
 // Exponential distribution.
 type expon struct{}
 
@@ -1531,7 +1565,7 @@ func (dist expon) Observe(x []float64)
 
 // Logp computes the log pdf of a single
 // observation.
-func (_ expon) Logp(lambda float64, y float64)
+func (expon) Logp(lambda float64, y float64)
   float64 {
   logl := math.Log(lambda)
   return logl - lambda*y
@@ -1539,7 +1573,7 @@ func (_ expon) Logp(lambda float64, y float64)
 
 // Logps computes the log pdf of a vector
 // of observations.
-func (_ expon) Logps(lambda float64, y ...float64)
+func (expon) Logps(lambda float64, y ...float64)
   float64 {
   ll := 0.
   logl := math.Log(lambda)
@@ -1581,7 +1615,7 @@ from the basic example with the data gradually read from a
 channel rather than passed as a whole in a field of the model
 object.
 \begin{figure}
-  \begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+  \begin{lstlisting}[xleftmargin=11pt,framexleftmargin=10pt,numbers=left]
 type StreamingModel struct {
   Data chan float64  // data is a channel
   N    int           // batch size
@@ -1647,7 +1681,7 @@ Figure~\ref{fig:eight-schools} shows specifications of the same
 model in Stan and Infergo, side-by-side.
 \begin{figure*}
 \begin{minipage}[t]{0.45\textwidth}
-  \begin{lstlisting}[language=Stan,framexleftmargin=10pt,numbers=left]
+  \begin{lstlisting}[language=Stan,xleftmargin=11pt,framexleftmargin=10pt,numbers=left]
 data {
   int<lower=0> J;
   vector[J] y;
@@ -1676,15 +1710,15 @@ a. Stan
   \end{minipage}
   \hfill
 \begin{minipage}[t]{0.5\textwidth}
-\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+\begin{lstlisting}[xleftmargin=11pt,framexleftmargin=10pt,numbers=left]
 type SchoolsModel struct {
   J          int
   Y          []float64
   Sigma      []float64
 }
 
-
-func (m *SchoolsModel) Observe(x []float64) float64 {
+func (m *SchoolsModel) Observe(x []float64)
+    float64 {
   mu := x[0]
   tau := math.Exp(x[1])
   eta := x[2:]
@@ -1743,7 +1777,7 @@ y \sim \mathrm{Normal}(\alpha + \beta x, \sigma)
 \end{equation}
 (lines 12--17).
 \begin{figure}
-\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+\begin{lstlisting}[xleftmargin=11pt,framexleftmargin=10pt,numbers=left]
 type LRModel struct {
   Data  [][]float64
 }
@@ -1766,7 +1800,7 @@ func (m *LRModel) Observe(x []float64)
 
 // Simulate simulates y based on x and
 // regression parameters.
-func (m *LRModel) Simulate(x, alpha, beta float64)
+func (m *LRModel) Simulate(x,alpha,beta float64)
     float64 {
   y := alpha + beta*x
   return y
@@ -1827,7 +1861,7 @@ component in the mixture. Following Stan User's
 Guide~\cite{SDT18}, component memberships are summed out to make
 the model differentiable.
 \begin{figure}
-\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
+\begin{lstlisting}[xleftmargin=11pt,framexleftmargin=10pt,numbers=left]
 type GMModel struct {
   Data  []float64 // observations
   NComp int       // number of components
@@ -1863,13 +1897,14 @@ func (m *GMModel) Observe(x []float64) float64 {
   return ll
 }
 
-// logSumExp computes log(exp(x)+exp(y)) robustly.
+// logSumExp computes log(exp(x)+exp(y))
+// robustly.
 func LogSumExp(x, y float64) float64 {
   z := x
   if y > z {
     z = y
   }
-  return z + math.Log(math.Exp(x-z)+math.Exp(y-z))
+  return z+math.Log(math.Exp(x-z)+math.Exp(y-z))
 }
 
 // logSumExp gradient must be supplied.
@@ -1915,6 +1950,109 @@ differentiated call and speed up gradient computation,
 \lstinline{logSumExp} (lines 45--54) to make automatic
 differentiation work.
 
+\begin{figure*}
+\begin{minipage}[t]{0.49\textwidth}
+\centering
+\textbf{Infergo}
+
+\begin{lstlisting}[xleftmargin=11pt,framexleftmargin=10pt,numbers=left]
+type LDAModel struct {
+  K     int       // num topics
+  V     int       // num words
+  M     int       // num docs
+  N     int       // total word instances
+  Word  []int     // word n
+  Doc   []int     // doc for word n
+  Alpha []float64 // topic prior
+  Beta  []float64 // word prior
+}
+
+func (m *LDAModel) Observe(x []float64) float64 {
+  ll := 0.0
+
+  // Regularize the parameter vector
+  ll += Normal.Logps(0, 1, x...)
+  // Destructure parameters
+  theta := make([][]float64, m.M)
+  m.FetchSimplices(&x, m.K, theta)
+  phi := make([][]float64, m.K)
+  m.FetchSimplices(&x, m.V, phi)
+
+  // Impose priors
+  ll += Dirichlet{m.K}.Logps(m.Alpha, theta...)
+  ll += Dirichlet{m.V}.Logps(m.Beta, phi...)
+
+  // Condition on observations
+  gamma := make([]float64, m.K)
+  for in := 0; in != m.N; in++ {
+    for ik := 0; ik != m.K; ik++ {
+      gamma[ik] = 
+        math.Log(theta[m.Doc[in]-1][ik]) +
+          math.Log(phi[ik][m.Word[in]-1])
+    }
+    ll += D.LogSumExp(gamma)
+  }
+  return ll
+}
+
+func (m *Model) FetchSimplices(
+  px *[]float64,
+  k int,
+  simplices [][]float64,
+) {
+  for i := range simplices {
+    simplices[i] = make([]float64, k)
+    D.SoftMax(model.Shift(px, k), simplices[i])
+  }
+}
+\end{lstlisting}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.49\textwidth}
+  \centering
+  
+  \textbf{Stan}
+
+\begin{lstlisting}[language=Stan]
+data {
+  int<lower=2> K;               // num topics
+  int<lower=2> V;               // num words
+  int<lower=1> M;               // num docs
+  int<lower=1> N;           // total word instances
+  int<lower=1,upper=V> w[N];    // word n
+  int<lower=1,upper=M> doc[N];  // doc for word n
+  vector<lower=0>[K] alpha;     // topic prior
+  vector<lower=0>[V] beta;      // word prior
+}
+
+
+parameters {
+  simplex[K] theta[M]; // topic dist for doc m
+  simplex[V] phi[K];   // word dist for topic k
+}
+
+
+model {
+  for (m in 1:M)
+    theta[m] ~ dirichlet(alpha);  // prior
+  for (k in 1:K)
+    phi[k] ~ dirichlet(beta);     // prior
+
+  for (n in 1:N) {
+    real gamma[K];
+    for (k in 1:K)
+      gamma[k] <- log(theta[doc[n],k])
+                + log(phi[k,w[n]]);
+    increment_log_prob(log_sum_exp(gamma));
+  }
+}
+\end{lstlisting}
+\end{minipage}
+\caption{Implementation of the Latent Dirichlet allocation model in Infergo and Stan.}
+\label{fig:lda}
+\end{figure*}
+
+
 While still a very simple model compared to real-world Infergo
 models, this case study illustrates common parts and coding
 patterns of an elaborated model. The model code may be quite
@@ -1939,6 +2077,7 @@ Latent Dirichlet allocation & 0.50    & -      & 54                & 8.9      & 
   \end{tabular}
 \label{tab:memory-runtime}
 \end{table*}
+
 It is customary to include performance evaluation on benchmark
 problems in publications on new probabilistic programming
 frameworks~\cite{PW14,WVM14,TMY+16,GXG18}. We provide here a
@@ -1953,8 +2092,8 @@ We use three models of different size and structure for the
 comparison: two of the models, Eight schools and Gaussian
 mixture model, were introduced as a part of the case
 studies~(Section~\ref{sec:case-studies}); the code for the third
-model, Latent Dirichlet allocation~\cite{BNG03}, is included in
-Appendix~\ref{app:lda}. The code and data for all models were
+model, Latent Dirichlet allocation~\cite{BNG03}, is shown in
+Figure~\ref{fig:lda}. The code and data for all models were
 originally included in Stan examples and translated for use
 with Turing and Infergo. \textit{Eight schools} is the smallest model.
 One may expect that most of the time execution time is spent in
@@ -2057,111 +2196,4 @@ probabilistic programming to critical decision-making in
 production enviroment.
 
 \bibliography{refs}
-
-\clearpage
-\appendix
-
-\begin{figure*}
-\section{Latent Dirichlet Allocation Model}
-  \label{app:lda}
-\vspace{\baselineskip}
-
-\begin{minipage}[t]{0.49\textwidth}
-\centering
-\textbf{Infergo}
-
-\begin{lstlisting}[framexleftmargin=10pt,numbers=left]
-type LDAModel struct {
-  K     int       // num topics
-  V     int       // num words
-  M     int       // num docs
-  N     int       // total word instances
-  Word  []int     // word n
-  Doc   []int     // doc for word n
-  Alpha []float64 // topic prior
-  Beta  []float64 // word prior
-}
-
-func (m *LDAModel) Observe(x []float64) float64 {
-  ll := 0.0
-
-  // Regularize the parameter vector
-  ll += Normal.Logps(0, 1, x...)
-  // Destructure parameters
-  theta := make([][]float64, m.M)
-  m.FetchSimplices(&x, m.K, theta)
-  phi := make([][]float64, m.K)
-  m.FetchSimplices(&x, m.V, phi)
-
-  // Impose priors
-  ll += Dirichlet{m.K}.Logps(m.Alpha, theta...)
-  ll += Dirichlet{m.V}.Logps(m.Beta, phi...)
-
-  // Condition on observations
-  gamma := make([]float64, m.K)
-  for in := 0; in != m.N; in++ {
-    for ik := 0; ik != m.K; ik++ {
-      gamma[ik] = math.Log(theta[m.Doc[in]-1][ik]) +
-        math.Log(phi[ik][m.Word[in]-1])
-    }
-    ll += D.LogSumExp(gamma)
-  }
-  return ll
-}
-
-func (m *Model) FetchSimplices(
-  px *[]float64,
-  k int,
-  simplices [][]float64,
-) {
-  for i := range simplices {
-    simplices[i] = make([]float64, k)
-    D.SoftMax(model.Shift(px, k), simplices[i])
-  }
-}
-\end{lstlisting}
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.49\textwidth}
-  \centering
-  
-  \textbf{Stan}
-
-\begin{lstlisting}[language=Stan]
-data {
-  int<lower=2> K;               // num topics
-  int<lower=2> V;               // num words
-  int<lower=1> M;               // num docs
-  int<lower=1> N;           // total word instances
-  int<lower=1,upper=V> w[N];    // word n
-  int<lower=1,upper=M> doc[N];  // doc for word n
-  vector<lower=0>[K] alpha;     // topic prior
-  vector<lower=0>[V] beta;      // word prior
-}
-
-
-parameters {
-  simplex[K] theta[M]; // topic dist for doc m
-  simplex[V] phi[K];   // word dist for topic k
-}
-
-
-model {
-  for (m in 1:M)
-    theta[m] ~ dirichlet(alpha);  // prior
-  for (k in 1:K)
-    phi[k] ~ dirichlet(beta);     // prior
-
-  for (n in 1:N) {
-    real gamma[K];
-    for (k in 1:K)
-      gamma[k] <- log(theta[doc[n],k])
-                + log(phi[k,w[n]]);
-    increment_log_prob(log_sum_exp(gamma));
-  }
-}
-\end{lstlisting}
-\end{minipage}
-\end{figure*}
-
 \end{document}
