@@ -5,15 +5,15 @@
 \linespread{1.03}
 
 
-\acmConference[LAFI'2019]{Languages for Inference}{January 15,
-2019}{Lisbon, Portugal}
+\acmConference[LAFI'2020]{Languages for Inference}{January 21,
+2020}{New Orleans, LA, USA}
 
 \setcopyright{none}
 
 \bibliographystyle{ACM-Reference-Format}
 
 
-\title{Server-Side Probabilistic Programming}
+\title{Probabilistic Programming around Gaussian Processes}
 \author{David Tolpin}
 \affiliation{
     \institution{PUB+}
@@ -22,24 +22,54 @@
 \email{david.tolpin@gmail.com}
 
 \begin{abstract}
-	We share our experiences from integrating probabilistic
-	programming into a server-side software system and
-	present our ongoing work on probabilistic programming
-	facility for Go, a modern programming language of choice for
-	server-side software development. We demonstrate how a
-	lightweight efficient probabilistic programming facility can
-	be added to an existing programming language.  Server-side
-	application of probabilistic programming poses challenges
-	for a probabilistic programming system. We discuss the
-	challenges and our experience in overcoming them, and
-	suggest guidelines that can help in a wider adoption of
-	probabilistic programming in server-side software systems.
+	We present GoGP, a library for probabilistic programming around
+	Gaussian processes. Kernels, beliefs about hyperparameters
+	and about observation inputs and outputs are
+	programmatically expressed using the same differentiable
+	probabilistic programming framework. One one hand, a basic
+	usage with maximum-likelihood hyperparameter estimates and
+	homoscedastic Gaussian noise requires as little coding as
+	with any Gaussian process library. On the other hand,
+	imposing prior beliefs on hyperparameters, handling input
+	uncertainty, heteroscedastic and non-Gaussian noise, or
+	change point detection can be organically added on top of a
+	Gaussian process kernel. Just like distributions in
+	probabilistic programs, kernels can be flexibly combined
+	using general code flow rather than through predefined
+	combination operators (usually addition and multiplication).
+	Implemented in Go, a general-purpose programming language 
+	popular for server-side programming, our library is well
+	suited for integration into data processing/machine learning
+	pipelines.  We demonstrate different uses of the library on
+	a variety of case studies inspired by applications.
 \end{abstract}
 
 \begin{document}
 \maketitle
 
 \begin{sloppypar}
+	\section{Gaussian Processes in Applications}
+
+	Gaussian processes~\cite{} possess properties that make
+	them the approach of choice in many applications:
+	\begin{itemize}
+		\item A Gaussian process works with as little or as much
+			data as available.
+		\item Non-uniformly sampled observations, missing
+			observations, and observation noise are handled
+			organically.
+		\item Libraries for inference with Gaussian processes
+			are readily available, both standalone and within
+			ubiquitous machine learning libraries, such that
+			Gaussian processes can be included into data
+			processing pipelines and combined with other machine
+			learning algorithms.
+	\end{itemize}
+			
+
+	
+
+
 \section{Challenges of Server-Side Probabilistic Programming}
 
 Incorporating a probabilistic program, or rather a probabilistic
