@@ -23,6 +23,16 @@
    morestring=[s]{`}{`},%
 }
 
+\lstset{ % add your own preferences
+    xrightmargin=1pt,
+    frame=single,
+    basicstyle=\ttfamily\footnotesize,
+    numbers=none,
+    numbersep=4pt,
+    showstringspaces=false,
+    tabsize=4,
+    language=Golang % this is it !
+}
 
 \acmConference[LAFI'2020]{Languages for Inference}{January 21,
 2020}{New Orleans, LA, USA}
@@ -41,29 +51,29 @@
 \email{david.tolpin@gmail.com}
 
 \begin{abstract}
-	We present GoGP, a library for probabilistic programming
-	around Gaussian processes. Kernels, beliefs about
-	hyperparameters and about observation inputs and outputs are
-	programmatically expressed using the same differentiable
-	probabilistic programming framework. On one hand, a basic
-	usage with maximum-likelihood hyperparameter estimates and
-	homoscedastic Gaussian noise requires as little coding as
-	with any Gaussian process library. On the other hand,
-	imposing prior beliefs on hyperparameters, handling input
-	uncertainty, heteroscedastic and non-Gaussian noise, or
-	change point detection can be organically added on top of a
-	Gaussian process kernel. Just like distributions in
-	probabilistic programs, kernels can be flexibly combined
-	using general code flow rather than through predefined
-	combination operators (usually addition and multiplication).
-	Implemented in Go, a general-purpose programming language
-	popular for server-side programming, our library is both
-	well suited for integration into data processing/machine
-	learning pipelines and exploits language features such as
-	efficient light-weight computation parallelism for
-	computation efficiency.  We demonstrate different uses of
-	the library on a variety of case studies inspired by
-	applications. 
+    We present GoGP, a library for probabilistic programming
+    around Gaussian processes. Kernels, beliefs about
+    hyperparameters and about observation inputs and outputs are
+    programmatically expressed using the same differentiable
+    probabilistic programming framework. On one hand, a basic
+    usage with maximum-likelihood hyperparameter estimates and
+    homoscedastic Gaussian noise requires as little coding as
+    with any Gaussian process library. On the other hand,
+    imposing prior beliefs on hyperparameters, handling input
+    uncertainty, heteroscedastic and non-Gaussian noise, or
+    change point detection can be organically added on top of a
+    Gaussian process kernel. Just like distributions in
+    probabilistic programs, kernels can be flexibly combined
+    using general code flow rather than through predefined
+    combination operators (usually addition and multiplication).
+    Implemented in Go, a general-purpose programming language
+    popular for server-side programming, our library is both
+    well suited for integration into data processing/machine
+    learning pipelines and exploits language features such as
+    efficient light-weight computation parallelism for
+    computation efficiency.  We demonstrate different uses of
+    the library on a variety of case studies inspired by
+    applications. 
 \end{abstract}
 
 \begin{document}
@@ -74,26 +84,26 @@
 Gaussian processes~\cite{} possess properties that make
 them the approach of choice in many applications:
 \begin{itemize}
-	\item A Gaussian process works with as little or as much
-		data as available.
-	\item Non-uniformly sampled observations, missing
-		observations, and observation noise are handled
-		organically.
-	\item Libraries for inference with Gaussian processes
-		are readily available, both standalone and within
-		machine learning frameworks, such that Gaussian
-		processes can be included into data processing
-		pipelines and combined with other machine learning
-		algorithms.
+    \item A Gaussian process works with as little or as much
+    	data as available.
+    \item Non-uniformly sampled observations, missing
+    	observations, and observation noise are handled
+    	organically.
+    \item Libraries for inference with Gaussian processes
+    	are readily available, both standalone and within
+    	machine learning frameworks, such that Gaussian
+    	processes can be included into data processing
+    	pipelines and combined with other machine learning
+    	algorithms.
 \end{itemize}
 
 Gaussian processes are successfully deployed in many settings,
 in particular when 
 \begin{itemize}
     \item a stationary kernel is sufficient;
-	\item kernel hyperparameters can be fixed \textit{a priori} or
-		reliably estimated from observations;
-	\item observation noise is constant.
+    \item kernel hyperparameters can be fixed \textit{a priori} or
+    	reliably estimated from observations;
+    \item observation noise is constant.
 \end{itemize}
 Most basic cases are indeed covered by the above assumptions,
 and library implementations of Gaussian processes prioritize
@@ -131,103 +141,157 @@ restrictions, both Gaussian process kernels and probabilistic
 models of uncertainty, and combine Gaussian processes and
 probabilistic models for inference using algorithms supported by
 the framework. Our implementation of probabilistic
-programming-enabled Gaussian processes, GoGP, is written in Go
+programming-enabled Gaussian processes, GoGP
+(\url{http://bitbucket.org/dtolpin/gogp}), is written in Go
 and makes extensive use of modelling and inference capabilities
 provided by Infergo~\cite{}, a Go library for differentiable
 probabilistic programming. In what follows we first outline GoGP
 design  and then illustrate the use of GoGP on a number of case
 studies inspired by applications.
 
-\section{GoGP --- library for programmable GP inference}
+\section{GoGP --- Gaussian Process Library for Programmable Inference}
 
-GoGP exports a type, \lstinline{GP}, implementing computations
-involved in any use of a Gaussian process. The type has four
-methods:
+GoGP is built around a dual view on the Gaussian process: as a
+stochastic process and as a probabilistic model with respect
+to kernel hyperparameters and, optionally, observations.
+\lstinline{GP}, the type encapsulating a Gaussian process,
+provides methods \lstinline{Absorb} and \lstinline{Produce} to 
+add observations to the process and predicting the distribution
+of outputs at given locations. In addition, \lstinline{GP}
+provides methods \lstinline{Observe} and \lstinline{Gradient}
+that turn it into an Infergo model (with a custom gradient).
+Inference can be performed on a \lstinline{GP} instance alone
+or on a model that combines a \lstinline{GP} instance with
+beliefs about hyperparameters and observations.  The
+log-likelihood gradient is computed with respect to
+hyperparameters only or with respect to both hyperparameters and
+observations, supporting both basic and advanced usage.
 
-\begin{itemize}
-	\item \lstinline{Absorb} --- adds (absorbs) observations;
-	\item \lstinline{Produce} --- predicts out distributions;
-	\item \lstlinline{Observe} --- computes log-likelihood of
-		kernel hyperparameters given observations;
-	\item \lstinline{Gradient} --- returns the gradient of
-		log-likelihood by hyperparameters, and optionally
-		by observations.
-\end{itemize}
+Common computationally-intensive algorithms are implemented in 
+methods of \lstinline{GP} and rely on efficient parallelism of
+the Go language and a highly optimized library for mathematical 
+computations Gonum~\cite{}. Problem-specific code comprises two
+parts --- a kernel and optionally a probabilistic model --- that
+are both automatically differentiated by Infergo.  As a minimum,
+a \lstinline{GP} instance must be initialized with a kernel, an
+object of type implementing an Infergo model and computing the
+covariance between two locations. A few basic kernels are
+provided in GoGP as a convenience, and can be combined in derived
+kernels using virtually unrestricted Go code. 
 
-Methods \lstinline{Observe} and \lstinline{Gradient} also turn
-\lstinline{GP} into an Infergo model with a custom gradient,
-suitable for passing to Infergo inference algorithms.
-
-
-package gp // import "bitbucket.org/dtolpin/gogp/gp"
-
-
-TYPES
-
-type GP struct {
-	NDim                   int       // dimensions
-	Simil, Noise           Kernel    // kernel
-	ThetaSimil, ThetaNoise []float64 // kernel parameters
-
-	// inputs
-	X [][]float64 // inputs, for computing covariances
-	Y []float64   // outputs
-
-	// Has unexported fields.
-}
-    Type GP is the barebone implementation of GP.
-
-func (gp *GP) Absorb(x [][]float64, y []float64) (err error)
-    Absorb absorbs observations into the process.
-
-func (gp *GP) Gradient() []float64
-    Gradient computes the gradient of the log-likelihood with respect to the
-    parameters and the inputs (GPML:5.9):
-
-    ∇L = ½ tr((α α^⊤ - Σ^−1) ∂Σ/∂θ), where α = Σ^-1 y
-
-func (gp *GP) LML() float64
-    LML computes log marginal likelihood of the kernel given the absorbed
-    observations (GPML:5.8):
-
-    L = −½ log|Σ| − ½ y^⊤ α − n/2 log(2π), where α = Σ^-1 y
-
-func (gp *GP) Observe(x []float64) float64
-    Observe computes log marginal likelihood of the parameters given the
-    observations. The argument is contatenation of log-transformed
-    hyperparameters, inputs, and outputs.
-
-    Optionally, the input can be only log-transformed hyperparameters, and then
-    * only hyperparameters are inferred; * inputs must be assigned to fields X,
-    Y of gp.
-
-func (gp *GP) Produce(x [][]float64) (
-	mu, sigma []float64,
-	err error,
-)
-    Produce computes predictions.
-
-type Kernel interface {
-	model.Model
-	NTheta() int
-}
-    Type Kernel is the kernel interface, implemented by both covariance and
-    noise kernels.
-
-
-GoGP
+% For example, here is an RBF (Normal) kernel as implemented in
+% GoGP (but could also be supplied by the library user):
+% \begin{lstlisting}
+% type normal struct{}
+% 
+% func (k normal) Observe(x []float64) float64 {
+% 	return k.Cov(x[0], x[1], x[2])
+% }
+% func (normal) NTheta() int { return 1 }
+% func (normal) Cov(l, xa, xb float64) float64 {
+% 	d := (xa - xb) / l
+% 	return math.Exp(-d * d / 2)
+% }
+% \end{lstlisting}
 
 \section{Case studies}
 
-\paragraph{Barebones}
+GoGP includes case studies, illustrating, on simple examples,
+common patterns of GoGP use. We briefly summarize here some
+of the case studies.
+
+\paragraph{Basic usage}
+
+In the basic case, similar to that supported by many Gaussian
+process libraries, a GP directly serves as the model for
+inference on hyperparameters (or the hyperparameters can be just
+fixed).
+
+The library user specifies the kernel:
+\begin{lstlisting}
+type Basic struct{}
+func (Basic) Observe(x []float64) float64 {
+    return x[0] * kernel.Normal.Observe(x[1:])
+}
+func (Basic) NTheta() int { return 2 }
+\end{lstlisting}
+and initializes \lstinline{GP} with a kernel instance:
+\begin{lstlisting}
+gp := &gp.GP{
+    NDim:  1,
+    Simil: &Basic{},
+}
+\end{lstlisting}
+
+MLE inference on hyperparameters and prediction can then be performed
+through library functions.
 
 \paragraph{Priors on hyperparameters}
 
+If priors on hyperparameters are to be specified, the library
+user provides both the kernel and the model.  \lstinline{GP} is
+initialized with the kernel, and then \lstinline{GP} and the
+model are combined for inference in a derived model:
+\begin{lstlisting}
+type Model struct {
+    gp           *gp.GP
+    priors       *Priors
+    gGrad, pGrad []float64
+}
+func (m *Model) Observe(x []float64) float64 {
+    var gll, pll float64
+    gll, m.gGrad = \
+      m.gp.Observe(x), model.Gradient(m.gp)
+    pll, m.pGrad = \
+      m.priors.Observe(x),model.Gradient(m.priors)
+    return gll + pll
+}
+func (m *Model) Gradient() []float64 {
+	for i := range m.pGrad {
+		m.gGrad[i] += m.pGrad[i]
+	}
+	return m.gGrad
+}
+\end{lstlisting}
+In \lstinline{Model}, \lstinline{gp} holds a \lstinline{GP}
+instance and \lstinline{priors} holds an instance of the model
+expressing beliefs about hyperparameters. A \lstinline{Model}
+instance is used for inference on hyperparameters, a
+\lstinline{GP} instance --- for prediction.
+
 \paragraph{Uncertain observation inputs}
+
+When observation inputs are uncertain, beliefs about inputs can
+be specified, and the log-likelihood gradient can be computed
+with respect to both hyperparameters and observation inputs. For
+example, in a time series, one can assume that observation
+inputs come from a renewal process and let the inputs move 
+relative to each other. Then, forecasting can be performed 
+relative to posterior observation inputs.
 
 \paragraph{Non-Gaussian noise}
 
-\section{Discussion}
+In basic usage, the observation noise is assumed to be Gaussian.
+This usage is supported by initializing \lstinline{GP} with a noise
+kernel, along with a similarity kernel. When the noise is not
+Gaussian, an analytical solution for posterior Gaussian process
+inference does not always exist. However, non-Gaussian noise is
+straightforwardly supported by GoGP through supplying a
+model for beliefs on observation outputs:
+\begin{lstlisting}
+type Noise struct {
+	Y []float64 // noisy outputs
+}
+func (m *Noise) Observe(x []float64) float64 {
+	// Laplacian noise
+	for i := range m.Y {
+		ll += Expon.Logp(1/math.Exp(x[s]),
+			math.Abs(m.Y[i]-x[i0+n+i]))
+	}
+	return ll
+}
+\end{lstlisting}
+
 
 \bibliography{refs}
 
