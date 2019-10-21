@@ -1,8 +1,27 @@
 \documentclass[sigplan,review]{acmart}\settopmatter{printfolios=true,printccs=false,printacmref=false}
 \usepackage{url}
 \usepackage{hyperref}
+\usepackage{listings}[language=Golang]
+\usepackage{GoMono}
 
-\linespread{1.03}
+\lstdefinelanguage{Golang}%
+  {morekeywords=[1]{package,import,func,type,struct,return,defer,panic,%
+     recover,select,var,const,iota,},%
+   morekeywords=[2]{string,uint,uint8,uint16,uint32,uint64,int,int8,int16,%
+     int32,int64,bool,float32,float64,complex64,complex128,byte,rune,uintptr,%
+     error,interface},%
+   morekeywords=[3]{map,slice,make,new,nil,len,cap,copy,close,true,false,%
+     delete,append,real,imag,complex,chan,},%
+   morekeywords=[4]{for,break,continue,range,go,goto,switch,case,fallthrough,if,%
+     else,default,},%
+   morekeywords=[5]{Println,Printf,Error,Print,},%
+   sensitive=true,%
+   morecomment=[l]{//},%
+   morecomment=[s]{/*}{*/},%
+   morestring=[b]',%
+   morestring=[b]",%
+   morestring=[s]{`}{`},%
+}
 
 
 \acmConference[LAFI'2020]{Languages for Inference}{January 21,
@@ -116,10 +135,87 @@ programming-enabled Gaussian processes, GoGP, is written in Go
 and makes extensive use of modelling and inference capabilities
 provided by Infergo~\cite{}, a Go library for differentiable
 probabilistic programming. In what follows we first outline GoGP
-design  and then illustrate on case studies, the use of GoGP in
-a number of case studies inspired by applications.
+design  and then illustrate the use of GoGP on a number of case
+studies inspired by applications.
 
 \section{GoGP --- library for programmable GP inference}
+
+GoGP exports a type, \lstinline{GP}, implementing computations
+involved in any use of a Gaussian process. The type has four
+methods:
+
+\begin{itemize}
+	\item \lstinline{Absorb} --- adds (absorbs) observations;
+	\item \lstinline{Produce} --- predicts out distributions;
+	\item \lstlinline{Observe} --- computes log-likelihood of
+		kernel hyperparameters given observations;
+	\item \lstinline{Gradient} --- returns the gradient of
+		log-likelihood by hyperparameters, and optionally
+		by observations.
+\end{itemize}
+
+Methods \lstinline{Observe} and \lstinline{Gradient} also turn
+\lstinline{GP} into an Infergo model with a custom gradient,
+suitable for passing to Infergo inference algorithms.
+
+
+package gp // import "bitbucket.org/dtolpin/gogp/gp"
+
+
+TYPES
+
+type GP struct {
+	NDim                   int       // dimensions
+	Simil, Noise           Kernel    // kernel
+	ThetaSimil, ThetaNoise []float64 // kernel parameters
+
+	// inputs
+	X [][]float64 // inputs, for computing covariances
+	Y []float64   // outputs
+
+	// Has unexported fields.
+}
+    Type GP is the barebone implementation of GP.
+
+func (gp *GP) Absorb(x [][]float64, y []float64) (err error)
+    Absorb absorbs observations into the process.
+
+func (gp *GP) Gradient() []float64
+    Gradient computes the gradient of the log-likelihood with respect to the
+    parameters and the inputs (GPML:5.9):
+
+    ∇L = ½ tr((α α^⊤ - Σ^−1) ∂Σ/∂θ), where α = Σ^-1 y
+
+func (gp *GP) LML() float64
+    LML computes log marginal likelihood of the kernel given the absorbed
+    observations (GPML:5.8):
+
+    L = −½ log|Σ| − ½ y^⊤ α − n/2 log(2π), where α = Σ^-1 y
+
+func (gp *GP) Observe(x []float64) float64
+    Observe computes log marginal likelihood of the parameters given the
+    observations. The argument is contatenation of log-transformed
+    hyperparameters, inputs, and outputs.
+
+    Optionally, the input can be only log-transformed hyperparameters, and then
+    * only hyperparameters are inferred; * inputs must be assigned to fields X,
+    Y of gp.
+
+func (gp *GP) Produce(x [][]float64) (
+	mu, sigma []float64,
+	err error,
+)
+    Produce computes predictions.
+
+type Kernel interface {
+	model.Model
+	NTheta() int
+}
+    Type Kernel is the kernel interface, implemented by both covariance and
+    noise kernels.
+
+
+GoGP
 
 \section{Case studies}
 
