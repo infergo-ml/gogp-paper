@@ -70,10 +70,9 @@
     popular for server-side programming, our library is both
     well suited for integration into data processing/machine
     learning pipelines and exploits language features such as
-    efficient light-weight computation parallelism for
-    computation efficiency.  We demonstrate different uses of
-    the library on a variety of case studies inspired by
-    applications. 
+	efficient light-weight parallelism for computation
+	efficiency.  We demonstrate different uses of the library on
+	a variety of case studies inspired by applications. 
 \end{abstract}
 
 \begin{document}
@@ -108,10 +107,10 @@ in particular when
 Most basic cases are indeed covered by the above assumptions,
 and library implementations of Gaussian processes prioritize
 scalability with number of observations, rich libraries
-of kernel functions, and integration of Gaussian processes with
-machine learning pipelines.
+of combinable kernel functions, and integration of Gaussian
+processes with machine learning pipelines.
 
-There are cases though where the noise varies between
+There are cases though where noise varies between
 observations, structured informative priors must be imposed on
 kernel hyperparameters, observation inputs are uncertain, or
 observations are best explained by presence of change
@@ -156,7 +155,7 @@ stochastic process and as a probabilistic model with respect
 to kernel hyperparameters and, optionally, observations.
 \lstinline{GP}, the type encapsulating a Gaussian process,
 provides methods \lstinline{Absorb} and \lstinline{Produce} to 
-add observations to the process and predicting the distribution
+add observations to the process and to predict the distribution
 of outputs at given locations. In addition, \lstinline{GP}
 provides methods \lstinline{Observe} and \lstinline{Gradient}
 that turn it into an Infergo model (with a custom gradient).
@@ -219,7 +218,7 @@ and initializes \lstinline{GP} with a kernel instance:
 \begin{lstlisting}
 gp := &gp.GP{
     NDim:  1,
-    Simil: &Basic{},
+    Simil: Basic{},
 }
 \end{lstlisting}
 
@@ -285,8 +284,8 @@ type Noise struct {
 func (m *Noise) Observe(x []float64) float64 {
 	// Laplacian noise
 	for i := range m.Y {
-		ll += Expon.Logp(1/math.Exp(x[s]),
-			math.Abs(m.Y[i]-x[i0+n+i]))
+		ll += Expon.Logp(1/math.Exp(x[0]),
+			math.Abs(m.Y[i]-x[1+i]))
 	}
 	return ll
 }
