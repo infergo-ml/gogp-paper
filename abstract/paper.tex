@@ -283,7 +283,7 @@ model for beliefs on observation outputs:
 type Noise struct {
 	Y []float64 // noisy outputs
 }
-func (m *Noise) Observe(x []float64) float64 {
+func (m *Noise) Observe(x []float64) (ll float64){
 	// Laplacian noise
 	for i := range m.Y {
 		ll += Expon.Logp(1/math.Exp(x[0]),
