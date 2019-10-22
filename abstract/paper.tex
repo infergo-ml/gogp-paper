@@ -80,7 +80,7 @@
 
 \section{Gaussian Processes in Applications}
 
-Gaussian processes~\cite{} possess properties that make
+Gaussian processes~\cite{RW05} possess properties that make
 them the approach of choice in many applications:
 \begin{itemize}
     \item A Gaussian process works with as little or as much
@@ -105,16 +105,17 @@ in particular when
     \item observation noise is constant.
 \end{itemize}
 Most basic cases are indeed covered by the above assumptions,
-and library implementations of Gaussian processes prioritize
-scalability with number of observations, rich libraries
-of combinable kernel functions, and integration of Gaussian
-processes with machine learning pipelines.
+and library implementations~\cite{MWN+17,GPB+18,PVG+11} of
+Gaussian processes prioritize scalability with number of
+observations, rich libraries of combinable kernel functions, and
+integration of Gaussian processes with machine learning
+pipelines.
 
 There are cases though where noise varies between
 observations, structured informative priors must be imposed on
 kernel hyperparameters, observation inputs are uncertain, or
 observations are best explained by presence of change
-points~\cite{}.
+points~\cite{ROE+13,SGR04,GOR09,MR11,STR10}.
 
 While many of the above cases are addressed in research
 literature, their diversity is beyond feasible support by a
@@ -126,7 +127,8 @@ quantities --- hyperparameters, observation inputs, location and
 number of change points.  This option may, in principle, result
 in an efficient and robust implementation, albeit at a high
 implementation cost. Another option is to implement the
-algorithms in a probabilistic programming framework~\cite{},
+algorithms in a probabilistic programming
+framework~\cite{TMY+16,Stan17,GXG18},
 which gains support for probabilistic inference on uncertain
 parameters but apparently limits implementation efficiency of
 Gaussian process-specific computations.
@@ -143,7 +145,7 @@ the framework. Our implementation of probabilistic
 programming-enabled Gaussian processes, GoGP
 (\url{http://bitbucket.org/dtolpin/gogp}), is written in Go
 and makes extensive use of modelling and inference capabilities
-provided by Infergo~\cite{}, a Go library for differentiable
+provided by Infergo~\cite{T19}, a Go library for differentiable
 probabilistic programming. In what follows we first outline GoGP
 design  and then illustrate the use of GoGP on a number of case
 studies inspired by applications.
@@ -169,7 +171,7 @@ observations, supporting both basic and advanced usage.
 Common computationally-intensive algorithms are implemented in 
 methods of \lstinline{GP} and rely on efficient parallelism of
 the Go language and a highly optimized library for mathematical 
-computations Gonum~\cite{}. Problem-specific code comprises two
+computations Gonum~\cite{Gonum}. Problem-specific code comprises two
 parts --- a kernel and optionally a probabilistic model --- that
 are both automatically differentiated by Infergo.  As a minimum,
 a \lstinline{GP} instance must be initialized with a kernel, an
@@ -260,7 +262,7 @@ instance is used for inference on hyperparameters, a
 
 \paragraph{Uncertain observation inputs}
 
-When observation inputs are uncertain, beliefs about inputs can
+When observation inputs are uncertain~\cite{MR11}, beliefs about inputs can
 be specified, and the log-likelihood gradient can be computed
 with respect to both hyperparameters and observation inputs. For
 example, in a time series, one can assume that observation
@@ -273,7 +275,7 @@ relative to posterior observation inputs.
 In basic usage, the observation noise is assumed to be Gaussian.
 This usage is supported by initializing \lstinline{GP} with a noise
 kernel, along with a similarity kernel. When the noise is not
-Gaussian, an analytical solution for posterior Gaussian process
+Gaussian~\cite{MWN+17}, an analytical solution for posterior Gaussian process
 inference does not always exist. However, non-Gaussian noise is
 straightforwardly supported by GoGP through supplying a
 model for beliefs on observation outputs:
